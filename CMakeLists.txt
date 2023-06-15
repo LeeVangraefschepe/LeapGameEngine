@@ -14,6 +14,17 @@ set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
 set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/glfw3.lib")
 message("Include dir: ${GLFW_INCLUDE_DIR} with ${GLFW_LIBRARY_DIR}")
 
+# FMOD
+set(FMOD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/include")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/bin/debug/fmodL64.dll")
+	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/lib/debug/fmodL64_vc.lib")
+else()
+	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/bin/release/fmod64.dll")
+	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/lib/release/fmod64_vc.lib")
+endif()
+message("Include dir: ${FMOD_INCLUDE_DIR} with ${FMOD_LIBRARY_DIR} and ${FMOD_DLL_DIR}")
+
 # GLM
 add_subdirectory(3rdParty/GLM)
 message("Include dir: ${GLMIncludeDir}")
@@ -37,7 +48,8 @@ target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
 # Audio Engine
 add_subdirectory(Audio)
 message("Include dir: ${AudioEngineIncludeDir}")
-target_include_directories(GraphicsEngine PUBLIC ${GLMIncludeDir})
+target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${FMOD_INCLUDE_DIR})
+target_link_libraries(AudioEngine PUBLIC ${FMOD_LIBRARY_DIR})
 
 # Networking Engine
 add_subdirectory(Networking)
@@ -69,3 +81,13 @@ target_link_libraries(
 add_subdirectory(UnnamedAdventureGame)
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
 target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine)
+
+# DLL Copies
+# Define a custom target to copy the FMOD DLL
+add_custom_target(CopyFMODDll
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FMOD_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
+    COMMENT "Copying FMOD DLL..."
+)
+
+# Make sure the CopyFMODDll target is built before building your game target
+add_dependencies(UnnamedAdventureGame CopyFMODDll)
