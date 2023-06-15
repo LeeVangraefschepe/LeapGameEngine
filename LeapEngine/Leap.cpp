@@ -4,29 +4,37 @@
 
 #include "glfw3.h"
 
-void leap::LeapEngine::Run()
+leap::LeapEngine::LeapEngine()
 {
-	std::cout << "Engine startup\n";
-
-    GLFWwindow* window;
+    std::cout << "Engine created\n";
 
     /* Initialize the library */
     if (!glfwInit())
         return;
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
+    m_pWindow = glfwCreateWindow(640, 480, "Hello World", nullptr, nullptr);
+    if (!m_pWindow)
     {
         glfwTerminate();
-        return;
+        throw std::runtime_error("Failed to create window");
+    }
+
+    if (!glfwInit())
+    {
+        throw std::runtime_error("Failed to initialize glfw");
     }
 
     /* Make the window's context current */
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(m_pWindow);
+        
+}
 
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+void leap::LeapEngine::Run()
+{
+	std::cout << "Engine startup\n";
+
+    while (!glfwWindowShouldClose(m_pWindow))
     {
         /* Poll for and process events */
         glfwPollEvents();
@@ -37,7 +45,7 @@ void leap::LeapEngine::Run()
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(m_pWindow);
     }
 
     glfwTerminate();
