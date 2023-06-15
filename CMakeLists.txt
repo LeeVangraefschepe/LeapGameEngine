@@ -23,9 +23,13 @@ message("Include dir: ${PhysicsEngineIncludeDir}")
 
 add_subdirectory(Graphics)
 message("Include dir: ${GraphicsEngineIncludeDir}")
+target_include_directories(GraphicsEngine PUBLIC GLFW_INCLUDE_DIR)
+target_link_libraries(GraphicsEngine PUBLIC GLFW_LIBRARY_DIR)
 
 add_subdirectory(Inputs)
 message("Include dir: ${InputEngineIncludeDir}")
+target_include_directories(InputEngine PUBLIC GLFW_INCLUDE_DIR)
+target_link_libraries(InputEngine PUBLIC GLFW_LIBRARY_DIR)
 
 add_subdirectory(Audio)
 message("Include dir: ${AudioEngineIncludeDir}")
@@ -41,14 +45,16 @@ target_include_directories(
 	${GraphicsEngineIncludeDir}
 	${InputEngineIncludeDir}
 	${AudioEngineIncludeDir}
-	${NetworkingEngineIncludeDir})
+	${NetworkingEngineIncludeDir}
+	GLFW_INCLUDE_DIR)
 target_link_libraries(
 	LeapEngine PUBLIC 
 	PhysicsEngine
 	GraphicsEngine
 	InputEngine
 	AudioEngine
-	NetworkingEngine)
+	NetworkingEngine
+	GLFW_LIBRARY_DIR)
 
 add_subdirectory(UnnamedAdventureGame)
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
