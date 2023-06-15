@@ -1,4 +1,4 @@
-#Root cmake
+# Root cmake
 cmake_minimum_required(VERSION 3.22)
 
 Project(Leap VERSION 1.0.0)
@@ -6,30 +6,34 @@ Project(Leap VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# OpenGL
+find_package(OpenGL REQUIRED)
+
+# GLFW include paths
+set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     # 64-bit platform (x64)
 	message("Building for x64")
-	set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/x64/include")
-	set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/x64/lib/glfw3.lib")
+	set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/x64/glfw3.lib")
 else()
     # 32-bit platform (x86)
 	message("Building for x86")
-	set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/x86/include")
-	set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/x86/lib/glfw3.lib")
+	set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/x86/glfw3.lib")
 endif()
+message("Including GLFW : ${GLFW_INCLUDE_DIR} with ${GLFW_LIBRARY_DIR}")
 
 add_subdirectory(Physics)
 message("Include dir: ${PhysicsEngineIncludeDir}")
 
 add_subdirectory(Graphics)
 message("Include dir: ${GraphicsEngineIncludeDir}")
-target_include_directories(GraphicsEngine PUBLIC GLFW_INCLUDE_DIR)
-target_link_libraries(GraphicsEngine PUBLIC GLFW_LIBRARY_DIR)
+target_include_directories(GraphicsEngine PUBLIC ${GLFW_INCLUDE_DIR})
+target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
 
 add_subdirectory(Inputs)
 message("Include dir: ${InputEngineIncludeDir}")
-target_include_directories(InputEngine PUBLIC GLFW_INCLUDE_DIR)
-target_link_libraries(InputEngine PUBLIC GLFW_LIBRARY_DIR)
+target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR})
+target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
 
 add_subdirectory(Audio)
 message("Include dir: ${AudioEngineIncludeDir}")
@@ -46,7 +50,7 @@ target_include_directories(
 	${InputEngineIncludeDir}
 	${AudioEngineIncludeDir}
 	${NetworkingEngineIncludeDir}
-	GLFW_INCLUDE_DIR)
+	${GLFW_INCLUDE_DIR})
 target_link_libraries(
 	LeapEngine PUBLIC 
 	PhysicsEngine
@@ -54,7 +58,8 @@ target_link_libraries(
 	InputEngine
 	AudioEngine
 	NetworkingEngine
-	GLFW_LIBRARY_DIR)
+	${GLFW_LIBRARY_DIR}
+	OpenGL::GL)
 
 add_subdirectory(UnnamedAdventureGame)
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
