@@ -1,8 +1,10 @@
 #include "Leap.h"
 
-#include <iostream>
+#include "InputManagerGLFW3.h"
 
-#include "glfw3.h"
+#include <iostream>
+#include <glfw3.h>
+
 
 leap::LeapEngine::LeapEngine()
 {
@@ -33,11 +35,13 @@ leap::LeapEngine::LeapEngine()
 void leap::LeapEngine::Run()
 {
 	std::cout << "Engine startup\n";
+    InputManagerGLFW3 input{m_pWindow};
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
         /* Poll for and process events */
         glfwPollEvents();
+        input.ProcessInput();
 
         /* Render here */
         glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
