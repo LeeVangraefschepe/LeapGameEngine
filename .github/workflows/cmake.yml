@@ -19,7 +19,7 @@ jobs:
     strategy:
       matrix:
         BUILD_CONFIGURATION: [Release, Debug]
-        BUILD_PLATFORM: [x64, x86]
+        BUILD_PLATFORM: [x64]
 
     steps:
     - uses: actions/checkout@v3
