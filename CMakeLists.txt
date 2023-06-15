@@ -11,15 +11,7 @@ find_package(OpenGL REQUIRED)
 
 # GLFW include paths
 set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    # 64-bit platform (x64)
-	message("Building for x64")
-	set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/x64/glfw3.lib")
-else()
-    # 32-bit platform (x86)
-	message("Building for x86")
-	set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/x86/glfw3.lib")
-endif()
+set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/glfw3.lib")
 message("Include dir: ${GLFW_INCLUDE_DIR} with ${GLFW_LIBRARY_DIR}")
 
 # GLM
