@@ -1,13 +1,18 @@
 #pragma once
 #include <memory>
 
-class VulkanEngine;
 
 class Renderer final
 {
 public:
+	Renderer(class GLFWwindow* pWindow);
+	~Renderer();
+
 	void Initialize();
+	void Draw();
+	void Run();
+	void Cleanup();
 
 private:
-	std::unique_ptr<VulkanEngine> m_pVulkanEngine;
+	class VulkanEngine* m_pVulkanEngine;
 };

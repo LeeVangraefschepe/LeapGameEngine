@@ -1,6 +1,7 @@
 #pragma once
 
 class GLFWwindow;
+class Renderer;
 
 namespace leap
 {
@@ -8,10 +9,12 @@ namespace leap
 	{
 	public:
 		LeapEngine();
-		~LeapEngine() = default;
+		~LeapEngine();
 
 		void Run();
 	private:
+
 		GLFWwindow* m_pWindow;
+		Renderer* m_pRenderer;
 	};
 }
