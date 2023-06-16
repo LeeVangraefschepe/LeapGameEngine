@@ -26,6 +26,21 @@ void leap::InputManager::AddCommand(std::shared_ptr<Command> command, InputType 
 	m_keyboardCommands[type][key].emplace_back(command);
 }
 
+void leap::InputManager::AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key)
+{
+	if (!m_mouseCommands.contains(type))
+	{
+		m_mouseCommands.emplace(std::pair{type, MouseBinding{}});
+	}
+
+	m_mouseCommands[type][key].emplace_back(std::move(command));
+}
+
+void leap::InputManager::AddCommand(std::shared_ptr<Command> command, WheelInput key)
+{
+	m_wheelCommands[key].emplace_back(std::move(command));
+}
+
 glm::vec2 leap::InputManager::GetCursorPosition() const
 {
 	glm::dvec2 position{};
@@ -33,7 +48,7 @@ glm::vec2 leap::InputManager::GetCursorPosition() const
 	return position;
 }
 
-void leap::InputManager::ProcessKey(GLFWwindow*, int key, int scancode, int action, int mods)
+void leap::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)
 {
 	auto& input = GetInstance();
 	const auto& actionCommands = input.m_keyboardCommands[static_cast<InputType>(action)];
@@ -49,34 +64,48 @@ void leap::InputManager::ProcessKey(GLFWwindow*, int key, int scancode, int acti
 	}
 }
 
-void leap::InputManager::ProcessMouse(GLFWwindow*, int button, int action, int mods)
+void leap::InputManager::ProcessMouse(GLFWwindow*, int button, int action, int)
 {
-	switch (action)
+	auto& input = GetInstance();
+	const auto& actionCommands = input.m_mouseCommands[static_cast<InputType>(action)];
+	for (const auto& keyCommands : actionCommands)
 	{
-	case EventPress:
-		std::cout << "Press\n";
-		break;
-	case EventRelease:
-		std::cout << "Release\n";
-		break;
-	case EventRepeat:
-		std::cout << "Repeat\n";
-		break;
+		if (keyCommands.first == static_cast<MouseInput>(button))
+		{
+			for (const auto& command : keyCommands.second)
+			{
+				command->Execute();
+			}
+		}
 	}
-
-	if (button == static_cast<int>(MouseInput::LeftButton))
-	{
-		std::cout << "Left click\n";
-	}
-	else
-	{
-		std::cout << "Button: " << button << '\n';
-	}
-
-	std::cout << "Mods: " << mods << "\n";
 }
 
 void leap::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double yoffset)
 {
+	auto& input = GetInstance();
+	glm::ivec2 value{xoffset, yoffset};
+	std::vector<std::shared_ptr<Command>>* commands;
+
+	if (value.x < 0) { commands = &input.m_wheelCommands[WheelInput::LeftWheel]; }
+	else { commands = &input.m_wheelCommands[WheelInput::RightWheel]; }
+	value.x = abs(value.x);
+	for (int i{}; i < value.x; ++i)
+	{
+		for (const auto& command : *commands)
+		{
+			command->Execute();
+		}
+	}
+
+	if (value.y < 0) { commands = &input.m_wheelCommands[WheelInput::DownWheel]; }
+	else { commands = &input.m_wheelCommands[WheelInput::UpWheel]; }
+	value.y = abs(value.y);
+	for (int i{}; i < value.y; ++i)
+	{
+		for (const auto& command : *commands)
+		{
+			command->Execute();
+		}
+	}
 	std::cout << "(" << xoffset << ", " << yoffset << ")\n";
 }

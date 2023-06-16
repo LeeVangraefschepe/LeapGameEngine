@@ -34,6 +34,13 @@ namespace leap
             RightButton,
             MiddleButton,
         };
+        enum class WheelInput
+        {
+            UpWheel,
+            DownWheel,
+            LeftWheel,
+            RightWheel
+        };
         enum class KeyboardInput {
             KeySpace = 32,
             KeyApostrophe = 39,  // '
@@ -160,6 +167,8 @@ namespace leap
         void SetWindow(GLFWwindow* window);
         bool ProcessInput();
         void AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key);
+        void AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key);
+        void AddCommand(std::shared_ptr<Command> command, WheelInput key);
         glm::vec2 GetCursorPosition() const;
 	private:
         friend Singleton;
@@ -170,5 +179,11 @@ namespace leap
 
         using KeyBinding = std::map<KeyboardInput, std::vector<std::shared_ptr<Command>>>;
         std::map<InputType, KeyBinding> m_keyboardCommands{};
+
+        using MouseBinding = std::map<MouseInput, std::vector<std::shared_ptr<Command>>>;
+        std::map<InputType, MouseBinding> m_mouseCommands{};
+
+        using WheelBinding = std::map<WheelInput, std::vector<std::shared_ptr<Command>>>;
+        WheelBinding m_wheelCommands{};
 	};
 }
