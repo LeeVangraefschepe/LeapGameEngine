@@ -29,6 +29,33 @@ else()
 endif()
 message("Include dir: ${FMOD_INCLUDE_DIR} with ${FMOD_LIBRARY_DIR} and ${FMOD_DLL_DIR}")
 
+# PhysX
+set(PHYSX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/include")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	# DLLs
+	set(PHYSX_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysX_64.dll")
+	set(PHYSX_COMMON_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysXCommon_64.dll")
+	set(PHYSX_COOKING_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysXCooking_64.dll")
+	set(PHYSX_FOUNDATION_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysXFoundation_64.dll")
+	# LIBs
+	set(PHYSX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysX_64.lib")
+	set(PHYSX_COMMON_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysXCommon_64.lib")
+	set(PHYSX_COOKING_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysXCooking_64.lib")
+	set(PHYSX_FOUNDATION_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysXFoundation_64.lib")
+else()
+	# DLLs
+	set(PHYSX_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysX_64.dll")
+	set(PHYSX_COMMON_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysXCommon_64.dll")
+	set(PHYSX_COOKING_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysXCooking_64.dll")
+	set(PHYSX_FOUNDATION_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysXFoundation_64.dll")
+	# LIBs
+	set(PHYSX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysX_64.lib")
+	set(PHYSX_COMMON_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXCommon_64.lib")
+	set(PHYSX_COOKING_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXCooking_64.lib")
+	set(PHYSX_FOUNDATION_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXFoundation_64.lib")
+endif()
+message("Include dir: ${PHYSX_INCLUDE_DIR}")
+
 # GLM
 add_subdirectory(3rdParty/GLM)
 message("Include dir: ${GLMIncludeDir}")
@@ -36,6 +63,8 @@ message("Include dir: ${GLMIncludeDir}")
 # Physics Engine
 add_subdirectory(Physics)
 message("Include dir: ${PhysicsEngineIncludeDir}")
+target_include_directories(PhysicsEngine PUBLIC ${GLMIncludeDir} ${PHYSX_INCLUDE_DIR})
+target_link_libraries(PhysicsEngine PUBLIC ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR})
 
 # Graphics Engine
 add_subdirectory(Graphics)
