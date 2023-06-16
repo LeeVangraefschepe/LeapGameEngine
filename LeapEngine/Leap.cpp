@@ -6,7 +6,6 @@
 #include <iostream>
 #include <glfw3.h>
 
-
 leap::LeapEngine::LeapEngine()
 {
     std::cout << "Engine created\n";

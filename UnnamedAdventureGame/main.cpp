@@ -4,8 +4,6 @@
 
 int main()
 {
-	std::cout << "Hello World!\n";
-
 	leap::LeapEngine engine{};
 	engine.Run();
 

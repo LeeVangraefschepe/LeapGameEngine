@@ -17,7 +17,6 @@ message("Include dir: ${GLFW_INCLUDE_DIR} with ${GLFW_LIBRARY_DIR}")
 # Vulkan include paths
 set(VULKAN_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/3rdParty/Vulkan/Lib")
 set(VULKAN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdParty/Vulkan/Include")
-set(VKBOOTSTRAP_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdParty/Vulkan/vkbootstrap")
 
 # FMOD
 set(FMOD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/include")
@@ -79,9 +78,10 @@ target_include_directories(
 	${GLFW_INCLUDE_DIR}
 	${GLMIncludeDir}
 	${VULKAN_INCLUDE_DIR}
-	${VKBOOTSTRAP_INCLUDE_DIR}
-	${EngineUtilsIncludeDir})
-target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} ${VULKAN_LIBRARY_DIR} OpenGL::GL)
+	${EngineUtilsIncludeDir}
+	${VkBootstrapIncludeDir}
+)
+target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
 
 # Input Engine
 add_subdirectory(Inputs)
