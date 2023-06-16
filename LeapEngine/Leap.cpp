@@ -1,6 +1,6 @@
 #include "Leap.h"
 
-#include "InputManagerGLFW3.h"
+#include "InputManager.h"
 #include "Renderer.h"
 
 #include <iostream>
@@ -30,6 +30,8 @@ leap::LeapEngine::LeapEngine()
 
     /* Make the window's context current */
     glfwMakeContextCurrent(m_pWindow);
+
+    InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
 leap::LeapEngine::~LeapEngine()
@@ -40,16 +42,21 @@ leap::LeapEngine::~LeapEngine()
 void leap::LeapEngine::Run()
 {
 	std::cout << "Engine startup\n";
-    InputManagerGLFW3 input{m_pWindow};
 
     m_pRenderer = new Renderer(m_pWindow);
     m_pRenderer->Initialize();
+
+    auto& input = InputManager::GetInstance();
+    input.AddCommand(std::make_shared<DebugCommandInput>(), InputManager::EventRepeat, InputManager::KeyboardInput::KeyQ);
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
         /* Poll for and process events */
         glfwPollEvents();
         input.ProcessInput();
+
+        const auto pos = input.GetCursorPosition();
+        std::cout << pos.x << ", "<< pos.y << "\n";
 
         /* Render here */
         glClearColor(0.2f, 0.7f, 0.5f, 1.0f);

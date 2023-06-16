@@ -1,22 +1,39 @@
 #pragma once
+#include "Singleton.h"
+#include <vec2.hpp>
+#include <vector>
+#include <Command.h>
+#include <iostream>
+#include <map>
+#include <memory>
+class GLFWwindow;
 
 namespace leap
 {
-	class InputManager
+    class DebugCommandInput final: public Command
+    {
+        void Execute() override
+        {
+	        std::cout << "Fired command\n";
+        }
+    };
+
+	class InputManager final : public Singleton<InputManager>
 	{
 	public:
-		enum InputType
-		{
-			EventRelease,
-			EventPress,
-			EventRepeat
-		};
-		enum class MouseInput
-		{
-			LeftButton,
-			RightButton,
-			MiddleButton,
-		};
+#pragma region InputEnums
+        enum InputType
+        {
+            EventRelease,
+            EventPress,
+            EventRepeat
+        };
+        enum class MouseInput
+        {
+            LeftButton,
+            RightButton,
+            MiddleButton,
+        };
         enum class KeyboardInput {
             KeySpace = 32,
             KeyApostrophe = 39,  // '
@@ -63,7 +80,7 @@ namespace leap
             KeyY = 89,
             KeyZ = 90,
             KeyLeftBracket = 91,
-            KeyBackslash = 92,       
+            KeyBackslash = 92,
             KeyRightBracket = 93,
             KeyGraveAccent = 96,     //// `
             KeyWorld1 = 161,         //// non-US #1
@@ -139,15 +156,19 @@ namespace leap
             KeyRightSuper = 347,
             KeyMenu = 348,
         };
+#pragma endregion
+        void SetWindow(GLFWwindow* window);
+        bool ProcessInput();
+        void AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key);
+        glm::vec2 GetCursorPosition() const;
+	private:
+        friend Singleton;
+        static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
+        static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
+        GLFWwindow* m_pWindow;
 
-
-		virtual ~InputManager() = default;
-		virtual bool ProcessInput() = 0;
-	};
-
-	class DefaultInputManager final : InputManager
-	{
-	public:
-		bool ProcessInput() override { return false; }
+        using KeyBinding = std::map<KeyboardInput, std::vector<std::shared_ptr<Command>>>;
+        std::map<InputType, KeyBinding> m_keyboardCommands{};
 	};
 }
