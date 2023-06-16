@@ -7,9 +7,8 @@ public:
 	VulkanEngine(GLFWwindow* pWindow);
 
 	void Initialize();
-	void Cleanup();
 	void Draw();
-	void Run();
+	void Cleanup();
 
 private:
 	GLFWwindow* m_pWindow{ nullptr };

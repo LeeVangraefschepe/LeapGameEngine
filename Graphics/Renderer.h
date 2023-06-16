@@ -1,6 +1,4 @@
 #pragma once
-#include <memory>
-
 
 class Renderer final
 {
@@ -10,7 +8,6 @@ public:
 
 	void Initialize();
 	void Draw();
-	void Run();
 	void Cleanup();
 
 private:

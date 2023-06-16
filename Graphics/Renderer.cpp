@@ -20,11 +20,6 @@ void Renderer::Draw()
 	m_pVulkanEngine->Draw();
 }
 
-void Renderer::Run()
-{
-	m_pVulkanEngine->Run();
-}
-
 void Renderer::Cleanup()
 {
 	m_pVulkanEngine->Cleanup();

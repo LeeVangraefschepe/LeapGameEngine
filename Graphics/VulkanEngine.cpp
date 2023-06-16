@@ -11,12 +11,7 @@ VulkanEngine::VulkanEngine(GLFWwindow* pWindow)
 
 void VulkanEngine::Initialize()
 {
-	
-}
-
-void VulkanEngine::Cleanup()
-{
-	
+	m_IsInitialized = true;
 }
 
 void VulkanEngine::Draw()
@@ -24,7 +19,7 @@ void VulkanEngine::Draw()
 	
 }
 
-void VulkanEngine::Run()
+void VulkanEngine::Cleanup()
 {
-	
+
 }
