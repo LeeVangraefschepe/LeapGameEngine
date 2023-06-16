@@ -85,13 +85,3 @@ target_link_libraries(
 add_subdirectory(UnnamedAdventureGame)
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
 target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine)
-
-# DLL Copies
-# Define a custom target to copy the FMOD DLL
-add_custom_target(CopyFMODDll
-    COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
-    COMMENT "Copying FMOD DLL..."
-)
-
-# Make sure the CopyFMODDll target is built before building your game target
-add_dependencies(UnnamedAdventureGame CopyFMODDll)
