@@ -11,3 +11,5 @@ CTestTestfile.cmake
 _deps
 .vs/
 out/
+3rdParty/Vulkan/Lib/shaderc_combinedd.lib
+3rdParty/Vulkan/Lib/SPIRV-Tools-optd.lib
