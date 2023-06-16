@@ -89,7 +89,7 @@ target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine)
 # DLL Copies
 # Define a custom target to copy the FMOD DLL
 add_custom_target(CopyFMODDll
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FMOD_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
+    COMMAND ${CMAKE_COMMAND} -E copy ${FMOD_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
     COMMENT "Copying FMOD DLL..."
 )
 
