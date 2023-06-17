@@ -47,9 +47,6 @@ void leap::LeapEngine::Run()
     m_pRenderer->Initialize();
 
     auto& input = InputManager::GetInstance();
-    input.AddCommand(std::make_shared<DebugCommandInput>(), InputManager::EventPress, InputManager::KeyboardInput::KeyQ);
-    input.AddCommand(std::make_shared<DebugCommandInput>(), InputManager::EventPress, InputManager::MouseInput::LeftButton);
-    input.AddCommand(std::make_shared<DebugCommandInput>(), InputManager::WheelInput::DownWheel);
 
     while (!glfwWindowShouldClose(m_pWindow))
     {

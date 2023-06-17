@@ -1,22 +1,16 @@
 #pragma once
 #include "Singleton.h"
+
 #include <vec2.hpp>
 #include <vector>
-#include <Command.h>
-#include <iostream>
 #include <map>
 #include <memory>
+
 class GLFWwindow;
 
 namespace leap
 {
-    class DebugCommandInput final: public Command
-    {
-        void Execute() override
-        {
-	        std::cout << "Fired command\n";
-        }
-    };
+    class Command;
 
 	class InputManager final : public Singleton<InputManager>
 	{
@@ -170,12 +164,20 @@ namespace leap
         void AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key);
         void AddCommand(std::shared_ptr<Command> command, WheelInput key);
         glm::vec2 GetCursorPosition() const;
+
+        InputManager(const InputManager& other) = delete;
+        InputManager(InputManager&& other) = delete;
+        InputManager& operator=(const InputManager& other) = delete;
+        InputManager& operator=(InputManager&& other) = delete;
 	private:
+        InputManager() = default;
         friend Singleton;
+
         static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
         static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
-        GLFWwindow* m_pWindow;
+
+        GLFWwindow* m_pWindow {nullptr};
 
         using KeyBinding = std::map<KeyboardInput, std::vector<std::shared_ptr<Command>>>;
         std::map<InputType, KeyBinding> m_keyboardCommands{};

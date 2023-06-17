@@ -1,6 +1,5 @@
 #include "InputManager.h"
-
-#include <iostream>
+#include "Command.h"
 #include <glfw3.h>
 
 void leap::InputManager::SetWindow(GLFWwindow* window)
@@ -107,5 +106,4 @@ void leap::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double yoffse
 			command->Execute();
 		}
 	}
-	std::cout << "(" << xoffset << ", " << yoffset << ")\n";
 }
