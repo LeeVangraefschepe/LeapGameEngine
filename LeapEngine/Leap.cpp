@@ -4,6 +4,7 @@
 #include "Renderer.h"
 
 #include <iostream>
+
 #include <glfw3.h>
 
 leap::LeapEngine::LeapEngine()
@@ -15,7 +16,8 @@ leap::LeapEngine::LeapEngine()
         return;
 
     /* Create a windowed mode window and its OpenGL context */
-    m_pWindow = glfwCreateWindow(640, 480, "Hello World", nullptr, nullptr);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    m_pWindow = glfwCreateWindow(1280, 720, "Leap Engine", nullptr, nullptr);
     if (!m_pWindow)
     {
         glfwTerminate();
