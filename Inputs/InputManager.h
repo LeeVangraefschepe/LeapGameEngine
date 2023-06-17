@@ -1,22 +1,40 @@
 #pragma once
+#include "Singleton.h"
+
+#include <vec2.hpp>
+#include <vector>
+#include <map>
+#include <memory>
+
+class GLFWwindow;
 
 namespace leap
 {
-	class InputManager
+    class Command;
+
+	class InputManager final : public Singleton<InputManager>
 	{
 	public:
-		enum InputType
-		{
-			EventRelease,
-			EventPress,
-			EventRepeat
-		};
-		enum class MouseInput
-		{
-			LeftButton,
-			RightButton,
-			MiddleButton,
-		};
+#pragma region InputEnums
+        enum InputType
+        {
+            EventRelease,
+            EventPress,
+            EventRepeat
+        };
+        enum class MouseInput
+        {
+            LeftButton,
+            RightButton,
+            MiddleButton,
+        };
+        enum class WheelInput
+        {
+            UpWheel,
+            DownWheel,
+            LeftWheel,
+            RightWheel
+        };
         enum class KeyboardInput {
             KeySpace = 32,
             KeyApostrophe = 39,  // '
@@ -63,7 +81,7 @@ namespace leap
             KeyY = 89,
             KeyZ = 90,
             KeyLeftBracket = 91,
-            KeyBackslash = 92,       
+            KeyBackslash = 92,
             KeyRightBracket = 93,
             KeyGraveAccent = 96,     //// `
             KeyWorld1 = 161,         //// non-US #1
@@ -139,15 +157,35 @@ namespace leap
             KeyRightSuper = 347,
             KeyMenu = 348,
         };
+#pragma endregion
+        void SetWindow(GLFWwindow* window);
+        bool ProcessInput();
+        void AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key);
+        void AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key);
+        void AddCommand(std::shared_ptr<Command> command, WheelInput key);
+        glm::vec2 GetCursorPosition() const;
 
+        InputManager(const InputManager& other) = delete;
+        InputManager(InputManager&& other) = delete;
+        InputManager& operator=(const InputManager& other) = delete;
+        InputManager& operator=(InputManager&& other) = delete;
+	private:
+        InputManager() = default;
+        friend Singleton;
 
-		virtual ~InputManager() = default;
-		virtual bool ProcessInput() = 0;
-	};
+        static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
+        static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
+        static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
 
-	class DefaultInputManager final : InputManager
-	{
-	public:
-		bool ProcessInput() override { return false; }
+        GLFWwindow* m_pWindow {nullptr};
+
+        using KeyBinding = std::map<KeyboardInput, std::vector<std::shared_ptr<Command>>>;
+        std::map<InputType, KeyBinding> m_keyboardCommands{};
+
+        using MouseBinding = std::map<MouseInput, std::vector<std::shared_ptr<Command>>>;
+        std::map<InputType, MouseBinding> m_mouseCommands{};
+
+        using WheelBinding = std::map<WheelInput, std::vector<std::shared_ptr<Command>>>;
+        WheelBinding m_wheelCommands{};
 	};
 }
