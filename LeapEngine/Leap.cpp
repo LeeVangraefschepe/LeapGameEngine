@@ -35,16 +35,11 @@ leap::LeapEngine::LeapEngine()
     InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
-leap::LeapEngine::~LeapEngine()
-{
-    delete m_pRenderer;
-}
-
 void leap::LeapEngine::Run()
 {
 	std::cout << "Engine startup\n";
 
-    m_pRenderer = new Renderer(m_pWindow);
+    m_pRenderer = std::make_unique<Renderer>(m_pWindow);
     m_pRenderer->Initialize();
 
     auto& input = InputManager::GetInstance();
