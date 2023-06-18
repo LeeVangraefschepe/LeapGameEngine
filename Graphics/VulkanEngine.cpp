@@ -30,6 +30,8 @@ using namespace std;
 // Vulkan includes
 #include "VulkanInitializers.h"
 
+using namespace leap::graphics;
+
 VulkanEngine::VulkanEngine(GLFWwindow* pWindow)
 	: m_pWindow{ pWindow }
 {}

@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+using namespace leap::graphics;
+
 Renderer::Renderer(GLFWwindow* pWindow)
 	: m_pVulkanEngine{ std::make_unique<VulkanEngine>(pWindow) }
 {}

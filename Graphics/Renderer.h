@@ -2,14 +2,17 @@
 #include <memory>
 #include "VulkanEngine.h"
 
-class Renderer final
+namespace leap::graphics
 {
-public:
-	Renderer(class GLFWwindow* pWindow);
+	class Renderer final
+	{
+	public:
+		Renderer(class GLFWwindow* pWindow);
 
-	void Initialize();
-	void Draw();
+		void Initialize();
+		void Draw();
 
-private:
-	std::unique_ptr<VulkanEngine> m_pVulkanEngine;
-};
+	private:
+		std::unique_ptr<VulkanEngine> m_pVulkanEngine;
+	};
+}
