@@ -21,6 +21,6 @@ namespace leap
 
 	private:
 		GLFWwindow* m_pWindow;
-		std::unique_ptr<Renderer> m_pRenderer;
+		std::unique_ptr<leap::graphics::Renderer> m_pRenderer;
 	};
 }

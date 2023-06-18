@@ -39,7 +39,7 @@ void leap::LeapEngine::Run()
 {
 	std::cout << "Engine startup\n";
 
-    m_pRenderer = std::make_unique<Renderer>(m_pWindow);
+    m_pRenderer = std::make_unique<leap::graphics::Renderer>(m_pWindow);
     m_pRenderer->Initialize();
 
     auto& input = InputManager::GetInstance();
