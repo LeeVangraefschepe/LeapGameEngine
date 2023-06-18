@@ -7,6 +7,7 @@ class VulkanEngine final
 {
 public:
 	VulkanEngine(GLFWwindow* pWindow);
+	~VulkanEngine();
 
 	void Initialize();
 	void Draw();

@@ -34,6 +34,11 @@ VulkanEngine::VulkanEngine(GLFWwindow* pWindow)
 	: m_pWindow{ pWindow }
 {}
 
+VulkanEngine::~VulkanEngine()
+{
+	Cleanup();
+}
+
 void VulkanEngine::Initialize()
 {
 	// Load the core Vulkan structures
