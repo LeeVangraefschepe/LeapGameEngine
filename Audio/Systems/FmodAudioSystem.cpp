@@ -4,6 +4,7 @@
 #include <fmod_errors.h>
 
 #include <iostream>
+#include <unordered_map>
 
 namespace leap::audio
 {
@@ -41,6 +42,37 @@ namespace leap::audio
         {
             // Update the internal audio system
             m_pSystem->update();
+
+            // Remove all channels that are no longer playing
+            for (auto& sound : m_Sounds)
+            {
+                auto& channels{ sound.channels };
+                for (auto it{ begin(channels) }; it != end(channels);)
+                {
+                    // Retrieve the current channel
+                    FMOD::Channel* pChannel{};
+                    FMOD_RESULT result{ m_pSystem->getChannel(it->first, &pChannel) };
+
+                    // Throw an error if the channel was not found
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+                    // Retrieve the playing state of this channel
+                    bool isPlaying{};
+                    pChannel->isPlaying(&isPlaying);
+
+                    // If the channel is not playing anymore, erase this channel
+                    //  Else continue to the next channel
+                    if (!isPlaying)
+                    {
+                        it = channels.erase(it);
+                    }
+                    else
+                    {
+                        ++it;
+                    }
+                }
+            }
         }
 
         int LoadSound(const std::string& filePath)
@@ -106,9 +138,12 @@ namespace leap::audio
             if (m_Sounds.size() <= id)
                 throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
 
+            // Retrieve the sound with this id
+            FMODSound& sound{ m_Sounds[id] };
+
             // Play the sound
             FMOD::Channel* pChannel{};
-            const FMOD_RESULT result{ m_pSystem->playSound(m_Sounds[id].pSound, nullptr, false, &pChannel) };
+            const FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
 
             // Throw an error if the sound was not found
             if (result != FMOD_OK)
@@ -120,6 +155,9 @@ namespace leap::audio
             // Retrieve the channel id
             int channel{};
             pChannel->getIndex(&channel);
+
+            // Insert the new channel to the sound
+            sound.channels.insert(std::make_pair(channel, false));
 
             // Return the current playing channel
             return channel;
@@ -143,6 +181,124 @@ namespace leap::audio
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
         }
 
+        void Pause(int channel)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Pause this channel
+            result = pChannel->setPaused(true);
+
+            // Throw an error if changing the pause state failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return sound.channels.contains(channel);
+                }) };
+
+            // Update the pause state in the sound
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelPair)
+                {
+                    return channelPair.first == channel;
+                })->second = true;
+        }
+
+        void PauseAll()
+        {
+            // For each channel in each sound
+            for (auto& sound : m_Sounds)
+            {
+                for (const auto& channelPair : sound.channels)
+                {
+                    const int channel{ channelPair.first };
+
+                    // Retrieve the current channel
+                    FMOD::Channel* pChannel{};
+                    FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+                    // Throw an error if the channel was not found
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+                    // Pause this channel
+                    result = pChannel->setPaused(true);
+
+                    // Throw an error if changing the pause state failed
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                }
+            }
+        }
+
+        void Resume(int channel)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Pause this channel
+            result = pChannel->setPaused(false);
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return sound.channels.contains(channel);
+                }) };
+
+            // Update the pause state in the sound
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelPair)
+                {
+                    return channelPair.first == channel;
+                })->second = false;
+
+            // Throw an error if changing the pause state failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+        }
+
+        void ResumeAll()
+        {
+            // For each channel in each sound
+            for (auto& sound : m_Sounds)
+            {
+                for (const auto& channelPair : sound.channels)
+                {
+                    const bool isPaused{ channelPair.second };
+
+                    if (isPaused) continue;
+
+                    const int channel{ channelPair.first };
+
+                    // Retrieve the current channel
+                    FMOD::Channel* pChannel{};
+                    FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+                    // Throw an error if the channel was not found
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+                    // Pause this channel
+                    result = pChannel->setPaused(false);
+
+                    // Throw an error if changing the pause state failed
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                }
+            }
+        }
+
     private:
         struct FMODSound
         {
@@ -151,6 +307,7 @@ namespace leap::audio
             FMOD::Sound* pSound{};
             std::string name{};
             int id{};
+            std::unordered_multimap<int, bool> channels{};
         };
 
         FMOD::System* m_pSystem{};
@@ -197,6 +354,7 @@ int leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundDa
 
 void leap::audio::FmodAudioSystem::SetVolume2D(int channel, float volume)
 {
+    // Delegate the SetVolume to the pImpl
     m_pImpl->SetVolume2D(channel, volume);
 }
 
@@ -210,18 +368,22 @@ void leap::audio::FmodAudioSystem::UpdateListener3D(const glm::vec3& position)
 
 void leap::audio::FmodAudioSystem::Pause(int channel)
 {
+    m_pImpl->Pause(channel);
 }
 
 void leap::audio::FmodAudioSystem::Resume(int channel)
 {
+    m_pImpl->Resume(channel);
 }
 
 void leap::audio::FmodAudioSystem::PauseAll()
 {
+    m_pImpl->PauseAll();
 }
 
 void leap::audio::FmodAudioSystem::ResumeAll()
 {
+    m_pImpl->ResumeAll();
 }
 
 void leap::audio::FmodAudioSystem::Mute(int channel)
