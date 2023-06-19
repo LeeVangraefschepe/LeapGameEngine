@@ -1182,7 +1182,7 @@ typedef struct GLFWmonitor GLFWmonitor;
  *
  *  @ingroup window
  */
-typedef struct GLFWwindow GLFWwindow;
+typedef GLFWwindow GLFWwindow;
 
 /*! @brief Opaque cursor object.
  *
