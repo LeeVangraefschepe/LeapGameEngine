@@ -37,20 +37,20 @@ namespace leap::audio
 	public:
 		DefaultAudioSystem() = default;
 		virtual ~DefaultAudioSystem() = default;
-		virtual int LoadSound(const std::string& filePath) { return -1; };
-		virtual int LoadSoundAsync(const std::string& filePath) { return -1; };
-		virtual bool IsValidSound(int id) { return false; }
-		virtual int PlaySound2D(int id, float volume) { return -1; }
-		virtual int PlaySound3D(int id, const SoundData3D& soundData) { return -1; }
-		virtual void SetVolume2D(int channel, float volume){};
-		virtual void UpdateSound3D(int channel, const SoundData3D& soundData){};
-		virtual void UpdateListener3D(const glm::vec3& position){};
-		virtual void Pause(int channel){};
-		virtual void Resume(int channel){};
+		virtual int LoadSound(const std::string&) { return -1; };
+		virtual int LoadSoundAsync(const std::string&) { return -1; };
+		virtual bool IsValidSound(int) { return false; }
+		virtual int PlaySound2D(int, float) { return -1; }
+		virtual int PlaySound3D(int, const SoundData3D&) { return -1; }
+		virtual void SetVolume2D(int, float){};
+		virtual void UpdateSound3D(int, const SoundData3D&){};
+		virtual void UpdateListener3D(const glm::vec3&){};
+		virtual void Pause(int){};
+		virtual void Resume(int){};
 		virtual void PauseAll(){};
 		virtual void ResumeAll(){};
-		virtual void Mute(int channel){};
-		virtual void Unmute(int channel){};
+		virtual void Mute(int){};
+		virtual void Unmute(int){};
 		virtual void MuteAll(){};
 		virtual void UnmuteAll(){};
 		virtual void Update(){};
