@@ -108,7 +108,11 @@ namespace leap::audio
 
             // Play the sound
             FMOD::Channel* pChannel{};
-            m_pSystem->playSound(m_Sounds[id].pSound, nullptr, false, &pChannel);
+            const FMOD_RESULT result{ m_pSystem->playSound(m_Sounds[id].pSound, nullptr, false, &pChannel) };
+
+            // Throw an error if the sound was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
 
             // Apply the given volume
             pChannel->setVolume(volume);
