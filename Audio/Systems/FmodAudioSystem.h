@@ -5,6 +5,7 @@
 namespace FMOD
 {
 	class System;
+	class Sound;
 }
 
 namespace leap::audio
@@ -38,7 +39,17 @@ namespace leap::audio
 		virtual void Update() override;
 
 	private:
+		struct FMODSound
+		{
+			FMODSound(const std::string& _name, int _id) : name{ _name }, id{ _id } {}
+
+			FMOD::Sound* pSound{};
+			std::string name{};
+			int id{};
+		};
+
 		FMOD::System* m_pSystem{};
+		std::vector<FMODSound> m_Sounds{};
 
 		const int m_MaxChannels{ 512 };
 	};

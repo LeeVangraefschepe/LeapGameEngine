@@ -50,6 +50,9 @@ void leap::LeapEngine::Run()
     ServiceLocator::RegisterAudioSystem<leap::audio::FmodAudioSystem>();
     auto& audio{ ServiceLocator::GetAudio() };
 
+    const int soundId{ audio.LoadSound("Data/Sound.wav") };
+    audio.PlaySound2D(soundId, 1.0f, {});
+
     while (!glfwWindowShouldClose(m_pWindow))
     {
         /* Poll for and process events */
