@@ -2,14 +2,12 @@
 
 #include "../Interfaces/AudioSystem.h"
 
-namespace FMOD
-{
-	class System;
-	class Sound;
-}
+#include <memory>
 
 namespace leap::audio
 {
+	class FmodAudioSystemPimpl;
+
 	class FmodAudioSystem final : public AudioSystem
 	{
 	public:
@@ -39,17 +37,7 @@ namespace leap::audio
 		virtual void Update() override;
 
 	private:
-		struct FMODSound
-		{
-			FMODSound(const std::string& _name, int _id) : name{ _name }, id{ _id } {}
-
-			FMOD::Sound* pSound{};
-			std::string name{};
-			int id{};
-		};
-
-		FMOD::System* m_pSystem{};
-		std::vector<FMODSound> m_Sounds{};
+		std::unique_ptr<FmodAudioSystemPimpl> m_pImpl{};
 
 		const int m_MaxChannels{ 512 };
 	};
