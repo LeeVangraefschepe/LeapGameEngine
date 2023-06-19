@@ -1,10 +1,29 @@
 #include "VM.h"
 #include <iostream>
 
-leap::VM::VM()
+leap::VM::VM(bool initialiseDefault)
 	:m_ValueStack{}
 	, m_DebugLog{ false }
+	, m_InstructionDatabase{}
 {
+	if (!initialiseDefault) return;
+	m_InstructionDatabase[0x00] = [](VM& vm, size_t& idx, const std::vector<Value_t>& bytecode)
+	{
+		vm.Push(bytecode[++idx]);
+		if (vm.GetDebugLogging())
+		{
+			std::cout << "Pushed " << bytecode[idx] << " on valuestack\n";
+		}
+	};
+	m_InstructionDatabase[0x01] = [](VM& vm, size_t&, const std::vector<Value_t>&)
+	{
+		auto val = vm.Pop();
+		if (vm.GetDebugLogging())
+		{
+			std::cout << "Logging " << val << " on valuestack\n";
+		}
+		std::cout << "[LogInstr] " << val << '\n';
+	};
 }
 
 void leap::VM::SetDebugLogging(bool state)
@@ -12,33 +31,43 @@ void leap::VM::SetDebugLogging(bool state)
 	m_DebugLog = state;
 }
 
-void leap::VM::Interpret(const std::vector<ValueType>& bytecode)
+bool leap::VM::GetDebugLogging() const
+{
+	return m_DebugLog;
+}
+
+void leap::VM::Interpret(const std::vector<Value_t>& bytecode)
 {
 	for (size_t idx{ 0 }; idx < bytecode.size(); ++idx)
 	{
-		Instruction instr{ static_cast<Instruction>(bytecode[idx]) };
-		if (m_DebugLog) std::cout << "Instruction [" << bytecode[idx] << "] ";
-		switch (instr)
+		Value_t instr{ bytecode[idx] };
+		auto it = m_InstructionDatabase.find(instr);
+		if (it == m_InstructionDatabase.end())
 		{
-		case leap::VM::Instruction::INST_LITERAL:
+			std::cerr << "Instruction nr " << bytecode[idx] << " is not registered\n";
+			continue;
+		}
+		if (GetDebugLogging())
 		{
-			m_ValueStack.push(bytecode[++idx]);
-			if (m_DebugLog) std::cout << "Pushed nr " << idx << " (val: " << bytecode[idx] << ") on stack\n";
-			break;
+			std::cout << "[DEBUG LOG] ";
 		}
-		case leap::VM::Instruction::INST_LOG:
-		{
-			auto val = m_ValueStack.top();
-			m_ValueStack.pop();
-			if (m_DebugLog) std::cout << "Logging " << val << " to the console\n";
-			std::cout << val << '\n';
-			break;
-		}
-		default:
-		{
-			std::cerr << "This instruction is not implemented yet! Instruction value: " << bytecode[idx] << '\n';
-			break;
-		}
-		}
+		m_InstructionDatabase.at(instr)(*this, idx, bytecode);
 	}
+}
+
+void leap::VM::Push(Value_t val)
+{
+	m_ValueStack.push(val);
+}
+
+leap::VM::Value_t leap::VM::Pop()
+{
+	auto val = m_ValueStack.top();
+	m_ValueStack.pop();
+	return val;
+}
+
+void leap::VM::RegisterInstruction(Value_t instructionId, const Instruction& instruction)
+{
+	m_InstructionDatabase.at(instructionId) = instruction;
 }
