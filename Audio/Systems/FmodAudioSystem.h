@@ -2,13 +2,18 @@
 
 #include "../Interfaces/AudioSystem.h"
 
+namespace FMOD
+{
+	class System;
+}
+
 namespace leap::audio
 {
 	class FmodAudioSystem final : public AudioSystem
 	{
 	public:
 		FmodAudioSystem();
-		virtual ~FmodAudioSystem() = default;
+		virtual ~FmodAudioSystem();
 
 		FmodAudioSystem(const FmodAudioSystem& other) = delete;
 		FmodAudioSystem(FmodAudioSystem&& other) = delete;
@@ -30,5 +35,11 @@ namespace leap::audio
 		virtual void Unmute(int id) override;
 		virtual void MuteAll() override;
 		virtual void UnmuteAll() override;
+		virtual void Update() override;
+
+	private:
+		FMOD::System* m_pSystem{};
+
+		const int m_MaxChannels{ 512 };
 	};
 }

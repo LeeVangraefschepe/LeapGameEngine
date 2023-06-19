@@ -48,6 +48,7 @@ void leap::LeapEngine::Run()
     m_pRenderer->Initialize();
 
     ServiceLocator::RegisterAudioSystem<leap::audio::FmodAudioSystem>();
+    auto& audio{ ServiceLocator::GetAudio() };
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
@@ -62,6 +63,9 @@ void leap::LeapEngine::Run()
 
         /* Swap front and back buffers */
         glfwSwapBuffers(m_pWindow);
+
+        /* Update audio system */
+        audio.Update();
     }
 
     glfwTerminate();

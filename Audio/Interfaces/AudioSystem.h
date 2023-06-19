@@ -28,6 +28,7 @@ namespace leap::audio
 		virtual void Unmute(int id) = 0;
 		virtual void MuteAll() = 0;
 		virtual void UnmuteAll() = 0;
+		virtual void Update() = 0;
 	};
 
 	class DefaultAudioSystem final : public AudioSystem
@@ -50,5 +51,6 @@ namespace leap::audio
 		virtual void Unmute(int id){};
 		virtual void MuteAll(){};
 		virtual void UnmuteAll(){};
+		virtual void Update(){};
 	};
 }
