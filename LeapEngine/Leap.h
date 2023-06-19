@@ -20,7 +20,7 @@ namespace leap
 		void Run();
 
 	private:
-		GLFWwindow* m_pWindow;
+		GLFWwindow* m_pWindow{};
 		std::unique_ptr<leap::graphics::Renderer> m_pRenderer;
 	};
 }

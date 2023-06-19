@@ -11,7 +11,10 @@ class GLFWwindow;
 namespace leap
 {
     class Command;
+}
 
+namespace leap::input
+{
 	class InputManager final : public Singleton<InputManager>
 	{
 	public:

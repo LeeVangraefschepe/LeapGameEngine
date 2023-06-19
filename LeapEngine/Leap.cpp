@@ -4,7 +4,6 @@
 #include "Renderer.h"
 
 #include <iostream>
-
 #include <glfw3.h>
 
 leap::LeapEngine::LeapEngine()
@@ -32,7 +31,7 @@ leap::LeapEngine::LeapEngine()
     /* Make the window's context current */
     glfwMakeContextCurrent(m_pWindow);
 
-    InputManager::GetInstance().SetWindow(m_pWindow);
+    input::InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
 void leap::LeapEngine::Run()
@@ -42,7 +41,7 @@ void leap::LeapEngine::Run()
     m_pRenderer = std::make_unique<leap::graphics::Renderer>(m_pWindow);
     m_pRenderer->Initialize();
 
-    auto& input = InputManager::GetInstance();
+    auto& input = input::InputManager::GetInstance();
 
     while (!glfwWindowShouldClose(m_pWindow))
     {

@@ -2,12 +2,12 @@
 #include "Command.h"
 #include <glfw3.h>
 
-void leap::InputManager::SetWindow(GLFWwindow* window)
+void leap::input::InputManager::SetWindow(GLFWwindow* window)
 {
 	m_pWindow = window;
 }
 
-bool leap::InputManager::ProcessInput()
+bool leap::input::InputManager::ProcessInput()
 {
 	glfwSetKeyCallback(m_pWindow, &ProcessKey);
 	glfwSetMouseButtonCallback(m_pWindow, &ProcessMouse);
@@ -15,7 +15,7 @@ bool leap::InputManager::ProcessInput()
 	return true;
 }
 
-void leap::InputManager::AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key)
+void leap::input::InputManager::AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key)
 {
 	if (!m_keyboardCommands.contains(type))
 	{
@@ -25,7 +25,7 @@ void leap::InputManager::AddCommand(std::shared_ptr<Command> command, InputType 
 	m_keyboardCommands[type][key].emplace_back(command);
 }
 
-void leap::InputManager::AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key)
+void leap::input::InputManager::AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key)
 {
 	if (!m_mouseCommands.contains(type))
 	{
@@ -35,19 +35,19 @@ void leap::InputManager::AddCommand(std::shared_ptr<Command> command, InputType 
 	m_mouseCommands[type][key].emplace_back(std::move(command));
 }
 
-void leap::InputManager::AddCommand(std::shared_ptr<Command> command, WheelInput key)
+void leap::input::InputManager::AddCommand(std::shared_ptr<Command> command, WheelInput key)
 {
 	m_wheelCommands[key].emplace_back(std::move(command));
 }
 
-glm::vec2 leap::InputManager::GetCursorPosition() const
+glm::vec2 leap::input::InputManager::GetCursorPosition() const
 {
 	glm::dvec2 position{};
 	glfwGetCursorPos(m_pWindow, &position.x, &position.y);
 	return position;
 }
 
-void leap::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)
+void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)
 {
 	auto& input = GetInstance();
 	const auto& actionCommands = input.m_keyboardCommands[static_cast<InputType>(action)];
@@ -63,7 +63,7 @@ void leap::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)
 	}
 }
 
-void leap::InputManager::ProcessMouse(GLFWwindow*, int button, int action, int)
+void leap::input::InputManager::ProcessMouse(GLFWwindow*, int button, int action, int)
 {
 	auto& input = GetInstance();
 	const auto& actionCommands = input.m_mouseCommands[static_cast<InputType>(action)];
@@ -79,7 +79,7 @@ void leap::InputManager::ProcessMouse(GLFWwindow*, int button, int action, int)
 	}
 }
 
-void leap::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double yoffset)
+void leap::input::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double yoffset)
 {
 	auto& input = GetInstance();
 	glm::ivec2 value{xoffset, yoffset};
