@@ -162,16 +162,13 @@ bool leap::audio::FmodAudioSystem::IsValidSound(int id)
     return m_pImpl->IsValidSound(id);
 }
 
-void leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume, const std::function<void(int)>& callback)
+void leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume)
 {
     // Delegate the play sound to the pImpl
     const int channel{ m_pImpl->PlaySound2D(id, volume) };
-
-    // Invoke the callback
-    if(callback) callback(channel);
 }
 
-void leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData, const std::function<void(int)>& callback)
+void leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData)
 {
 }
 
