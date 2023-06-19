@@ -30,6 +30,7 @@ namespace leap::audio
 
             std::cout << "FMOD is initialized\n";
         }
+
         ~FmodAudioSystemPimpl()
         {
             // Release FMOD
@@ -48,10 +49,10 @@ namespace leap::audio
             FMODSound sound{ filePath, static_cast<int>(m_Sounds.size()) };
 
             // Create the FMOD sound in sync
-            m_pSystem->createSound(filePath.c_str(), FMOD_DEFAULT, nullptr, &sound.pSound);
+            const FMOD_RESULT result{ m_pSystem->createSound(filePath.c_str(), FMOD_DEFAULT, nullptr, &sound.pSound) };
 
             // Throw an error if the sound was not loaded correctly
-            if (!sound.pSound)
+            if (result != FMOD_OK || !sound.pSound)
                 throw std::runtime_error("FMODAudioSystem Error: No sound could be loaded with this filepath");
 
             // Store the sound object
@@ -62,6 +63,41 @@ namespace leap::audio
 
             // Return the sound id
             return sound.id;
+        }
+
+        int LoadSoundAsync(const std::string& filePath)
+        {
+            // Create a new sound object and initialize its name and id
+            FMODSound sound{ filePath, static_cast<int>(m_Sounds.size()) };
+
+            // Create the FMOD sound in sync
+            m_pSystem->createSound(filePath.c_str(), FMOD_NONBLOCKING, nullptr, &sound.pSound);
+
+            // Store the sound object
+            m_Sounds.emplace_back(sound);
+
+            // Make sure the FMOD sound is not destroyed by the destructor
+            sound.pSound = nullptr;
+
+            // Return the sound id
+            return sound.id;
+        }
+
+        bool IsValidSound(int id)
+        {
+            // Throw an error if no sound exists for this id
+            if (m_Sounds.size() <= id)
+                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
+
+            // Retrieve the sound state for this id
+            FMOD_OPENSTATE soundState{};
+            const FMOD_RESULT result{ m_Sounds[id].pSound->getOpenState(&soundState, nullptr, nullptr, nullptr) };
+
+            // Throw an error if the sound was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: No sound could be found with this id");
+
+            return soundState == FMOD_OPENSTATE_READY;
         }
 
         int PlaySound2D(int id, float volume)
@@ -81,6 +117,7 @@ namespace leap::audio
             int channel{};
             pChannel->getIndex(&channel);
 
+            // Return the current playing channel
             return channel;
         }
 
@@ -114,8 +151,15 @@ int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath)
     return m_pImpl->LoadSound(filePath);
 }
 
-void leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath, const std::function<void(int)>& callback)
+int leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath)
 {
+    // Delegate the load sound to the pImpl
+    return m_pImpl->LoadSoundAsync(filePath);
+}
+
+bool leap::audio::FmodAudioSystem::IsValidSound(int id)
+{
+    return m_pImpl->IsValidSound(id);
 }
 
 void leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume, const std::function<void(int)>& callback)

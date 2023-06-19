@@ -14,7 +14,8 @@ namespace leap::audio
 	public:
 		virtual ~AudioSystem() = default;
 		virtual int LoadSound(const std::string& filePath) = 0;
-		virtual void LoadSoundAsync(const std::string& filePath, const std::function<void(int)>& callback) = 0;
+		virtual int LoadSoundAsync(const std::string& filePath) = 0;
+		virtual bool IsValidSound(int id) = 0;
 		virtual void PlaySound2D(int id, float volume, const std::function<void(int)>& callback) = 0;
 		virtual void PlaySound3D(int id, const SoundData3D& soundData, const std::function<void(int)>& callback) = 0;
 		virtual void SetVolume2D(int id, float volume) = 0;
@@ -37,7 +38,8 @@ namespace leap::audio
 		DefaultAudioSystem() = default;
 		virtual ~DefaultAudioSystem() = default;
 		virtual int LoadSound(const std::string& filePath) { return -1; };
-		virtual void LoadSoundAsync(const std::string& filePath, const std::function<void(int)>& callback){};
+		virtual int LoadSoundAsync(const std::string& filePath) { return -1; };
+		virtual bool IsValidSound(int id) { return false; }
 		virtual void PlaySound2D(int id, float volume, const std::function<void(int)>& callback){};
 		virtual void PlaySound3D(int id, const SoundData3D& soundData, const std::function<void(int)>& callback){};
 		virtual void SetVolume2D(int id, float volume){};
