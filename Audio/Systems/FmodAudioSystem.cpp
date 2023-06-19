@@ -125,6 +125,24 @@ namespace leap::audio
             return channel;
         }
 
+        void SetVolume2D(int channel, float volume)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Apply the given volume
+            result = pChannel->setVolume(volume);
+
+            // Throw an error if setting the volume failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+        }
+
     private:
         struct FMODSound
         {
@@ -166,21 +184,23 @@ bool leap::audio::FmodAudioSystem::IsValidSound(int id)
     return m_pImpl->IsValidSound(id);
 }
 
-void leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume)
+int leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume)
 {
     // Delegate the play sound to the pImpl
-    const int channel{ m_pImpl->PlaySound2D(id, volume) };
+    return m_pImpl->PlaySound2D(id, volume);
 }
 
-void leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData)
+int leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData)
 {
+    return -1;
 }
 
-void leap::audio::FmodAudioSystem::SetVolume2D(int id, float volume)
+void leap::audio::FmodAudioSystem::SetVolume2D(int channel, float volume)
 {
+    m_pImpl->SetVolume2D(channel, volume);
 }
 
-void leap::audio::FmodAudioSystem::UpdateSound3D(int id, const SoundData3D& soundData)
+void leap::audio::FmodAudioSystem::UpdateSound3D(int channel, const SoundData3D& soundData)
 {
 }
 
@@ -188,11 +208,11 @@ void leap::audio::FmodAudioSystem::UpdateListener3D(const glm::vec3& position)
 {
 }
 
-void leap::audio::FmodAudioSystem::Pause(int id)
+void leap::audio::FmodAudioSystem::Pause(int channel)
 {
 }
 
-void leap::audio::FmodAudioSystem::Resume(int id)
+void leap::audio::FmodAudioSystem::Resume(int channel)
 {
 }
 
@@ -204,11 +224,11 @@ void leap::audio::FmodAudioSystem::ResumeAll()
 {
 }
 
-void leap::audio::FmodAudioSystem::Mute(int id)
+void leap::audio::FmodAudioSystem::Mute(int channel)
 {
 }
 
-void leap::audio::FmodAudioSystem::Unmute(int id)
+void leap::audio::FmodAudioSystem::Unmute(int channel)
 {
 }
 
