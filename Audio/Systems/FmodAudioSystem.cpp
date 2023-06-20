@@ -1,10 +1,12 @@
 #include "FmodAudioSystem.h"
 
+#include "../HelperObjects/ChannelData.h"
+
 #include <fmod.hpp>
 #include <fmod_errors.h>
 
 #include <iostream>
-#include <unordered_map>
+#include <vector>
 
 namespace leap::audio
 {
@@ -51,7 +53,7 @@ namespace leap::audio
                 {
                     // Retrieve the current channel
                     FMOD::Channel* pChannel{};
-                    FMOD_RESULT result{ m_pSystem->getChannel(it->first, &pChannel) };
+                    FMOD_RESULT result{ m_pSystem->getChannel(it->channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
@@ -157,7 +159,7 @@ namespace leap::audio
             pChannel->getIndex(&channel);
 
             // Insert the new channel to the sound
-            sound.channels.insert(std::make_pair(channel, false));
+            sound.channels.emplace_back(ChannelData{ channel, false, volume });
 
             // Return the current playing channel
             return channel;
@@ -179,6 +181,21 @@ namespace leap::audio
             // Throw an error if setting the volume failed
             if (result != FMOD_OK)
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        {
+                            return channelData.channelId == channel;
+                        }) != end(sound.channels);
+                }) };
+
+            // Update the volume in the sound
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
+                {
+                    return channelData.channelId == channel;
+                })->volume = volume;
         }
 
         void Pause(int channel)
@@ -201,14 +218,17 @@ namespace leap::audio
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
                 {
-                    return sound.channels.contains(channel);
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        { 
+                            return channelData.channelId == channel; 
+                        }) != end(sound.channels);
                 }) };
 
             // Update the pause state in the sound
-            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelPair)
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
                 {
-                    return channelPair.first == channel;
-                })->second = true;
+                    return channelData.channelId == channel;
+                })->paused = true;
         }
 
         void PauseAll()
@@ -216,13 +236,11 @@ namespace leap::audio
             // For each channel in each sound
             for (auto& sound : m_Sounds)
             {
-                for (const auto& channelPair : sound.channels)
+                for (const auto& channelData : sound.channels)
                 {
-                    const int channel{ channelPair.first };
-
                     // Retrieve the current channel
                     FMOD::Channel* pChannel{};
-                    FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+                    FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
@@ -251,21 +269,24 @@ namespace leap::audio
             // Pause this channel
             result = pChannel->setPaused(false);
 
-            // Find the sound that is using this channel
-            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
-                {
-                    return sound.channels.contains(channel);
-                }) };
-
-            // Update the pause state in the sound
-            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelPair)
-                {
-                    return channelPair.first == channel;
-                })->second = false;
-
             // Throw an error if changing the pause state failed
             if (result != FMOD_OK)
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        {
+                            return channelData.channelId == channel;
+                        }) != end(sound.channels);
+                }) };
+
+            // Update the pause state in the sound
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
+                {
+                    return channelData.channelId == channel;
+                })->paused = false;
         }
 
         void ResumeAll()
@@ -273,17 +294,13 @@ namespace leap::audio
             // For each channel in each sound
             for (auto& sound : m_Sounds)
             {
-                for (const auto& channelPair : sound.channels)
+                for (const auto& channelData : sound.channels)
                 {
-                    const bool isPaused{ channelPair.second };
-
-                    if (isPaused) continue;
-
-                    const int channel{ channelPair.first };
+                    if (channelData.paused) continue;
 
                     // Retrieve the current channel
                     FMOD::Channel* pChannel{};
-                    FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+                    FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
@@ -307,7 +324,7 @@ namespace leap::audio
             FMOD::Sound* pSound{};
             std::string name{};
             int id{};
-            std::unordered_multimap<int, bool> channels{};
+            std::vector<ChannelData> channels{};
         };
 
         FMOD::System* m_pSystem{};

@@ -4,7 +4,7 @@
 
 namespace leap::audio
 {
-	struct SoundData3D
+	struct SoundData3D final
 	{
 		glm::vec3 position{};
 		float minDistance{ 0.0f };
