@@ -37,7 +37,17 @@ namespace leap::graphics
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
 
+		// Queues
+		VkQueue m_GraphicsQueue{ VK_NULL_HANDLE };
+		uint32_t m_GraphicsQueueFamily{ UINT32_MAX };
+
+		// Buffers
+		VkCommandPool m_CommandPool{ VK_NULL_HANDLE };
+		VkCommandBuffer m_MainCommandBuffer{ VK_NULL_HANDLE };
+
 		void InitializeVulkan();
 		void InitializeSwapChain();
+		void InitCommands();
+
 	};
 }

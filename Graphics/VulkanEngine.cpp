@@ -46,6 +46,7 @@ void VulkanEngine::Initialize()
 	// Load the core Vulkan structures
 	InitializeVulkan();
 	InitializeSwapChain();
+	InitCommands();
 
 	m_IsInitialized = true;
 	std::cout << "VulkanEngine initialized\n";
@@ -60,6 +61,8 @@ void VulkanEngine::Cleanup()
 {
 	if (m_IsInitialized)
 	{
+		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+
 		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 		
 		// destroy swap chain resources
@@ -123,13 +126,17 @@ void VulkanEngine::InitializeVulkan()
 	// Get the VkDevice handle used in the rest of a Vulkan application
 	m_Device = vkbDevice.device;
 	m_PhysicalDevice = physicalDevice.physical_device;
+
+	// Get the graphics queue for the rest of the Vulkan application
+	m_GraphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+	m_GraphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 }
 
 void VulkanEngine::InitializeSwapChain()
 {
 	std::cout << "Initializing Swap Chain\n";
 
-	vkb::SwapchainBuilder swapChainBuilder{ m_PhysicalDevice, m_Device,m_Surface };
+	vkb::SwapchainBuilder swapChainBuilder{ m_PhysicalDevice, m_Device, m_Surface };
 
 	vkb::Swapchain vkbSwapChain = swapChainBuilder
 		.use_default_format_selection()
@@ -145,4 +152,15 @@ void VulkanEngine::InitializeSwapChain()
 	m_SwapChainImageViews = vkbSwapChain.get_image_views().value();
 
 	m_SwapChainImageFormat = vkbSwapChain.image_format;
+}
+
+void leap::graphics::VulkanEngine::InitCommands()
+{
+	
+	auto commandPoolInfo = vkinit::CommandPoolCreateInfo(m_GraphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+	VK_CHECK (vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_CommandPool));
+
+	
+	auto commandBufferInfo = vkinit::CommandBufferAllocateInfo(m_CommandPool, 1);
+	VK_CHECK(vkAllocateCommandBuffers(m_Device, &commandBufferInfo, &m_MainCommandBuffer));
 }
