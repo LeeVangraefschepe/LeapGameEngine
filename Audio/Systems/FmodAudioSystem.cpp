@@ -267,6 +267,21 @@ namespace leap::audio
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the attributes of the audio listener");
         }
 
+        bool IsPlaying(int channel)
+        {
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        {
+                            return channelData.channelId == channel;
+                        }) != end(sound.channels);
+                }) };
+
+            // If a sound is found, this channel is playing
+            return soundIt != end(m_Sounds);
+        }
+
         void Pause(int channel)
         {
             // Retrieve the current channel
@@ -555,6 +570,11 @@ int leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundDa
 {
     // Delegate the play sound to the pImpl
     return m_pImpl->PlaySound3D(id, soundData);
+}
+
+bool leap::audio::FmodAudioSystem::IsPlaying(int channel)
+{
+    return m_pImpl->IsPlaying(channel);
 }
 
 void leap::audio::FmodAudioSystem::SetVolume2D(int channel, float volume)

@@ -24,6 +24,7 @@ namespace leap::audio
 		virtual bool IsValidSound(int id);
 		virtual int PlaySound2D(int id, float volume) override;
 		virtual int PlaySound3D(int id, const SoundData3D& soundData) override;
+		virtual bool IsPlaying(int channel) override;
 		virtual void SetVolume2D(int channel, float volume) override;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) override;
 		virtual void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up) override;
