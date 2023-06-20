@@ -5,6 +5,8 @@
 
 #include "InputManager.h"
 #include "Renderer.h"
+#include "ServiceLocator/ServiceLocator.h"
+#include "Systems/FmodAudioSystem.h"
 
 #include <iostream>
 #include <glfw3.h>
@@ -47,8 +49,11 @@ void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
     m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
     m_pRenderer->Initialize();
 
+    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
+    auto& audio = ServiceLocator::GetAudio();
 
     const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
 
@@ -59,16 +64,19 @@ void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
         //Update gamecontext (Timer class)
         gameContext.Update();
 
-        /* Poll for and process events */
+        //Update audio system
+        audio.Update();
+
+        //Poll for and process events
         glfwPollEvents();
         input.ProcessInput();
 
-        /* Render here */
+        //Render here
         glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
         m_pRenderer->Draw();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Swap front and back buffers */
+        //Swap front and back buffers
         glfwSwapBuffers(m_pWindow);
 
         //Sleep to sync back with desired fps
