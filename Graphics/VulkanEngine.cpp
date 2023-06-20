@@ -47,6 +47,8 @@ void VulkanEngine::Initialize()
 	InitializeVulkan();
 	InitializeSwapChain();
 	InitCommands();
+	InitializeDefaultRenderPass();
+	InitializeFramebuffers();
 
 	m_IsInitialized = true;
 	std::cout << "VulkanEngine initialized\n";
@@ -64,10 +66,12 @@ void VulkanEngine::Cleanup()
 		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
 		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
-		
-		// destroy swap chain resources
+		vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
+
+		// destroy swap chain resources and framebuffers
 		for (int i = 0; i < m_SwapChainImages.size(); i++)
 		{
+			vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
 			vkDestroyImageView(m_Device, m_SwapChainImageViews[i], nullptr);
 		}
 
@@ -154,13 +158,91 @@ void VulkanEngine::InitializeSwapChain()
 	m_SwapChainImageFormat = vkbSwapChain.image_format;
 }
 
-void leap::graphics::VulkanEngine::InitCommands()
+void VulkanEngine::InitCommands()
 {
-	
+	std::cout << "Initializing Commands\n";
+
 	auto commandPoolInfo = vkinit::CommandPoolCreateInfo(m_GraphicsQueueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 	VK_CHECK (vkCreateCommandPool(m_Device, &commandPoolInfo, nullptr, &m_CommandPool));
 
-	
 	auto commandBufferInfo = vkinit::CommandBufferAllocateInfo(m_CommandPool, 1);
 	VK_CHECK(vkAllocateCommandBuffers(m_Device, &commandBufferInfo, &m_MainCommandBuffer));
+}
+
+void VulkanEngine::InitializeDefaultRenderPass()
+{
+	std::cout << "Initializing Default Render Pass\n";
+
+	// Description of the image that we will be writing rendering commands to
+	VkAttachmentDescription colorAttachment{};
+
+	// format should be the same as the swap chain images
+	colorAttachment.format = m_SwapChainImageFormat;
+	// MSAA samples, set to 1 (no MSAA) by default
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	// Clear when render pass begins
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	// Keep the attachment stored when render pass ends
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	// Don't care about stencil data
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+	// Image data layout before render pass starts (undefined = don't care)
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	// Image data layout after render pass (to change to), set to present by default
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	VkAttachmentReference colorAttachmentRef{};
+	// Attachment number will index into the pAttachments array in the parent render pass itself
+	colorAttachmentRef.attachment = 0;
+	// Optimal layout for writing to the image
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+	// Create one sub pass (minimum one sub pass required)
+	VkSubpassDescription subpass{};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+
+	VkRenderPassCreateInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+
+	// Connect the color attachment description to the info
+	renderPassInfo.attachmentCount = 1;
+	renderPassInfo.pAttachments = &colorAttachment;
+
+	// Connect the subpass(es) to the info
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+
+	VK_CHECK(vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass));
+}
+
+void VulkanEngine::InitializeFramebuffers()
+{
+	std::cout << "Initializing Framebuffers\n";
+
+	// Create the framebuffers for the swap chain images.
+	// This will connect the render pass to the images for rendering
+	VkFramebufferCreateInfo fbInfo{};
+	fbInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+
+	// Connect the render pass to the framebuffer
+	fbInfo.renderPass = m_RenderPass;
+	fbInfo.attachmentCount = 1;
+	fbInfo.width = m_WindowExtent.width;
+	fbInfo.height = m_WindowExtent.height;
+	fbInfo.layers = 1;
+
+	// Get the number of swap chain image views
+	const uint32_t swapChainImageViewCount = static_cast<uint32_t>(m_SwapChainImageViews.size());
+	m_Framebuffers = std::vector<VkFramebuffer>(swapChainImageViewCount);
+
+	// Create the framebuffers for each image view
+	for (uint32_t i = 0; i < swapChainImageViewCount; i++)
+	{
+		fbInfo.pAttachments = &m_SwapChainImageViews[i];
+		VK_CHECK(vkCreateFramebuffer(m_Device, &fbInfo, nullptr, &m_Framebuffers[i]));
+	}
 }

@@ -30,6 +30,7 @@ namespace leap::graphics
 		VkPhysicalDevice m_PhysicalDevice{ VK_NULL_HANDLE }; // Vulkan physical device handle
 		VkDevice m_Device{ VK_NULL_HANDLE }; // Vulkan logical device handle
 		VkSurfaceKHR m_Surface{ VK_NULL_HANDLE }; // Vulkan surface handle
+		void InitializeVulkan();
 
 		// Swap chain
 		VkSwapchainKHR m_SwapChain{ VK_NULL_HANDLE };
@@ -37,17 +38,19 @@ namespace leap::graphics
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
 
-		// Queues
+		void InitializeSwapChain();
+
+		// Queues & buffers
 		VkQueue m_GraphicsQueue{ VK_NULL_HANDLE };
 		uint32_t m_GraphicsQueueFamily{ UINT32_MAX };
-
-		// Buffers
 		VkCommandPool m_CommandPool{ VK_NULL_HANDLE };
 		VkCommandBuffer m_MainCommandBuffer{ VK_NULL_HANDLE };
-
-		void InitializeVulkan();
-		void InitializeSwapChain();
 		void InitCommands();
 
+		// Render passes
+		VkRenderPass m_RenderPass{ VK_NULL_HANDLE };
+		std::vector<VkFramebuffer> m_Framebuffers;
+		void InitializeDefaultRenderPass();
+		void InitializeFramebuffers();
 	};
 }
