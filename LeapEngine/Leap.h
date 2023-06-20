@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <memory>
 #include "Renderer.h"
 
@@ -17,7 +18,7 @@ namespace leap
 		LeapEngine& operator=(const LeapEngine& other) = delete;
 		LeapEngine& operator=(LeapEngine&& other) = delete;
 
-		void Run();
+		void Run(const std::function<void()>& load, int desiredFPS);
 
 	private:
 		GLFWwindow* m_pWindow{};
