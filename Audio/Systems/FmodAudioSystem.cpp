@@ -45,6 +45,10 @@ namespace leap::audio
             // Update the internal audio system
             m_pSystem->update();
 
+            // Variables to be reused
+            FMOD::Channel* pChannel{};
+            bool isPlaying{};
+
             // Remove all channels that are no longer playing
             for (auto& sound : m_Sounds)
             {
@@ -52,7 +56,6 @@ namespace leap::audio
                 for (auto it{ begin(channels) }; it != end(channels);)
                 {
                     // Retrieve the current channel
-                    FMOD::Channel* pChannel{};
                     FMOD_RESULT result{ m_pSystem->getChannel(it->channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
@@ -60,19 +63,17 @@ namespace leap::audio
                         throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
 
                     // Retrieve the playing state of this channel
-                    bool isPlaying{};
                     pChannel->isPlaying(&isPlaying);
 
                     // If the channel is not playing anymore, erase this channel
-                    //  Else continue to the next channel
                     if (!isPlaying)
                     {
                         it = channels.erase(it);
+                        continue;
                     }
-                    else
-                    {
-                        ++it;
-                    }
+
+                    // This channel is still playing, continue to the next channel
+                    ++it;
                 }
             }
         }
@@ -317,13 +318,15 @@ namespace leap::audio
 
         void PauseAll()
         {
+            // Channel to be reused
+            FMOD::Channel* pChannel{};
+
             // For each channel in each sound
             for (auto& sound : m_Sounds)
             {
                 for (const auto& channelData : sound.channels)
                 {
                     // Retrieve the current channel
-                    FMOD::Channel* pChannel{};
                     FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
@@ -375,6 +378,9 @@ namespace leap::audio
 
         void ResumeAll()
         {
+            // channel to be reused
+            FMOD::Channel* pChannel{};
+
             // For each channel in each sound
             for (auto& sound : m_Sounds)
             {
@@ -383,7 +389,6 @@ namespace leap::audio
                     if (channelData.paused) continue;
 
                     // Retrieve the current channel
-                    FMOD::Channel* pChannel{};
                     FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
@@ -435,13 +440,15 @@ namespace leap::audio
 
         void MuteAll()
         {
+            // Channel to be reused
+            FMOD::Channel* pChannel{};
+
             // For each channel in each sound
             for (auto& sound : m_Sounds)
             {
                 for (const auto& channelData : sound.channels)
                 {
                     // Retrieve the current channel
-                    FMOD::Channel* pChannel{};
                     FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
@@ -493,6 +500,9 @@ namespace leap::audio
 
         void UnmuteAll()
         {
+            // Channel to be reused
+            FMOD::Channel* pChannel{};
+
             // For each channel in each sound
             for (auto& sound : m_Sounds)
             {
@@ -501,7 +511,6 @@ namespace leap::audio
                     if (channelData.muted) continue;
 
                     // Retrieve the current channel
-                    FMOD::Channel* pChannel{};
                     FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
 
                     // Throw an error if the channel was not found
