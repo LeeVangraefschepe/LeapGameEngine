@@ -206,13 +206,6 @@ namespace leap::audio
             if (result != FMOD_OK)
                 throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
 
-            // Set the right 3D spread settings
-            result = pChannel->set3DSpread(180.0f);
-
-            // Throw an error if the 3D spread failed
-            if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to set 3D spread settings");
-
             // Set the roll off mode of this channel
             result = pChannel->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
 
@@ -260,13 +253,13 @@ namespace leap::audio
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
         }
 
-        void UpdateListener3D(const glm::vec3& position)
+        void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up)
         {
             // Set the 3D attributes of the listener
             const FMOD_VECTOR fmodPosition{ position.x, position.y, position.z };
-            const FMOD_VECTOR fmodVelocity{ };
-            const FMOD_VECTOR fmodForward{ 0.0f, 0.0f, 1.0f };
-            const FMOD_VECTOR fmodUp{ 0.0f, 1.0f, 0.0f };
+            const FMOD_VECTOR fmodVelocity{ velocity.x, velocity.y, velocity.z };
+            const FMOD_VECTOR fmodForward{ forward.x, forward.y, forward.z };
+            const FMOD_VECTOR fmodUp{ up.x, up.y, up.z };
             const FMOD_RESULT result{ m_pSystem->set3DListenerAttributes(0, &fmodPosition, &fmodVelocity, &fmodForward, &fmodUp) };
 
             // Throw an error if changing the min/max attributes failed
@@ -575,9 +568,9 @@ void leap::audio::FmodAudioSystem::UpdateSound3D(int channel, const SoundData3D&
     m_pImpl->UpdateSound3D(channel, soundData);
 }
 
-void leap::audio::FmodAudioSystem::UpdateListener3D(const glm::vec3& position)
+void leap::audio::FmodAudioSystem::UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up)
 {
-    m_pImpl->UpdateListener3D(position);
+    m_pImpl->UpdateListener3D(position, velocity, forward, up);
 }
 
 void leap::audio::FmodAudioSystem::Pause(int channel)

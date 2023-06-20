@@ -26,7 +26,7 @@ namespace leap::audio
 		virtual int PlaySound3D(int id, const SoundData3D& soundData) override;
 		virtual void SetVolume2D(int channel, float volume) override;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) override;
-		virtual void UpdateListener3D(const glm::vec3& position) override;
+		virtual void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up) override;
 		virtual void Pause(int channel) override;
 		virtual void Resume(int channel) override;
 		virtual void PauseAll() override;
