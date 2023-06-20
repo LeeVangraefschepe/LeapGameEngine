@@ -52,5 +52,11 @@ namespace leap::graphics
 		std::vector<VkFramebuffer> m_Framebuffers;
 		void InitializeDefaultRenderPass();
 		void InitializeFramebuffers();
+
+		// Render loop
+		VkSemaphore m_PresentSemaphore{ VK_NULL_HANDLE };
+		VkSemaphore m_RenderSemaphore{ VK_NULL_HANDLE };
+		VkFence m_RenderFence{ VK_NULL_HANDLE };
+		void InitializeSyncStructures();
 	};
 }
