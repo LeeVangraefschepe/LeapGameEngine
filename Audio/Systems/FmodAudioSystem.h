@@ -19,8 +19,8 @@ namespace leap::audio
 		FmodAudioSystem& operator=(const FmodAudioSystem& other) = delete;
 		FmodAudioSystem& operator=(FmodAudioSystem&& other) = delete;
 
-		virtual int LoadSound(const std::string& filePath) override;
-		virtual int LoadSoundAsync(const std::string& filePath) override;
+		virtual int LoadSound(const std::string& filePath, bool is3DSound = false) override;
+		virtual int LoadSoundAsync(const std::string& filePath, bool is3DSound = false) override;
 		virtual bool IsValidSound(int id);
 		virtual int PlaySound2D(int id, float volume) override;
 		virtual int PlaySound3D(int id, const SoundData3D& soundData) override;

@@ -77,13 +77,16 @@ namespace leap::audio
             }
         }
 
-        int LoadSound(const std::string& filePath)
+        int LoadSound(const std::string& filePath, bool is3DSound)
         {
             // Create a new sound object and initialize its name and id
             FMODSound sound{ filePath, static_cast<int>(m_Sounds.size()) };
 
+            // Choose the correct sound mode
+            const FMOD_MODE soundMode{ static_cast<FMOD_MODE>(is3DSound ? FMOD_3D : FMOD_DEFAULT) };
+            
             // Create the FMOD sound in sync
-            const FMOD_RESULT result{ m_pSystem->createSound(filePath.c_str(), FMOD_DEFAULT, nullptr, &sound.pSound) };
+            const FMOD_RESULT result{ m_pSystem->createSound(filePath.c_str(), soundMode, nullptr, &sound.pSound) };
 
             // Throw an error if the sound was not loaded correctly
             if (result != FMOD_OK || !sound.pSound)
@@ -99,13 +102,16 @@ namespace leap::audio
             return sound.id;
         }
 
-        int LoadSoundAsync(const std::string& filePath)
+        int LoadSoundAsync(const std::string& filePath, bool is3DSound)
         {
             // Create a new sound object and initialize its name and id
             FMODSound sound{ filePath, static_cast<int>(m_Sounds.size()) };
 
+            // Choose the correct sound mode
+            const FMOD_MODE soundMode{ static_cast<FMOD_MODE>(is3DSound ? FMOD_3D : FMOD_DEFAULT) };
+
             // Create the FMOD sound in sync
-            m_pSystem->createSound(filePath.c_str(), FMOD_NONBLOCKING, nullptr, &sound.pSound);
+            m_pSystem->createSound(filePath.c_str(), FMOD_NONBLOCKING | soundMode, nullptr, &sound.pSound);
 
             // Store the sound object
             m_Sounds.emplace_back(sound);
@@ -181,6 +187,91 @@ namespace leap::audio
             // Throw an error if setting the volume failed
             if (result != FMOD_OK)
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+        }
+
+        int PlaySound3D(int id, const SoundData3D& soundData)
+        {
+            // Throw an error if no sound exists for this id
+            if (m_Sounds.size() <= id)
+                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
+
+            // Retrieve the sound with this id
+            FMODSound& sound{ m_Sounds[id] };
+
+            // Play the sound
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
+
+            // Throw an error if the sound was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
+
+            // Set the right 3D spread settings
+            result = pChannel->set3DSpread(180.0f);
+
+            // Throw an error if the 3D spread failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Failed to set 3D spread settings");
+
+            // Set the roll off mode of this channel
+            result = pChannel->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
+
+            // Throw an error if settings the roll of mode failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
+
+            // Retrieve the channel id
+            int channel{};
+            pChannel->getIndex(&channel);
+
+            // Insert the new channel to the sound
+            sound.channels.emplace_back(ChannelData{ channel, false, false });
+
+            // Update the 3D sound
+            UpdateSound3D(channel, soundData);
+
+            // Return the current playing channel
+            return channel;
+        }
+
+        void UpdateSound3D(int channel, const SoundData3D& soundData)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Set the 3D attributes for this channel
+            const FMOD_VECTOR position{ soundData.position.x, soundData.position.y, soundData.position.z };
+            result = pChannel->set3DAttributes(&position, nullptr);
+
+            // Throw an error if changing the 3D attributes failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+
+            // Set the min and max distance for this channel
+            result = pChannel->set3DMinMaxDistance(soundData.minDistance, soundData.maxDistance);
+
+            // Throw an error if changing the min/max attributes failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+        }
+
+        void UpdateListener3D(const glm::vec3& position)
+        {
+            // Set the 3D attributes of the listener
+            const FMOD_VECTOR fmodPosition{ position.x, position.y, position.z };
+            const FMOD_VECTOR fmodVelocity{ };
+            const FMOD_VECTOR fmodForward{ 0.0f, 0.0f, 1.0f };
+            const FMOD_VECTOR fmodUp{ 0.0f, 1.0f, 0.0f };
+            const FMOD_RESULT result{ m_pSystem->set3DListenerAttributes(0, &fmodPosition, &fmodVelocity, &fmodForward, &fmodUp) };
+
+            // Throw an error if changing the min/max attributes failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't set the attributes of the audio listener");
         }
 
         void Pause(int channel)
@@ -444,16 +535,16 @@ leap::audio::FmodAudioSystem::~FmodAudioSystem()
 {
 }
 
-int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath)
+int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath, bool is3DSound)
 {
     // Delegate the load sound to the pImpl
-    return m_pImpl->LoadSound(filePath);
+    return m_pImpl->LoadSound(filePath, is3DSound);
 }
 
-int leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath)
+int leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath, bool is3DSound)
 {
     // Delegate the load sound to the pImpl
-    return m_pImpl->LoadSoundAsync(filePath);
+    return m_pImpl->LoadSoundAsync(filePath, is3DSound);
 }
 
 bool leap::audio::FmodAudioSystem::IsValidSound(int id)
@@ -469,7 +560,8 @@ int leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume)
 
 int leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData)
 {
-    return -1;
+    // Delegate the play sound to the pImpl
+    return m_pImpl->PlaySound3D(id, soundData);
 }
 
 void leap::audio::FmodAudioSystem::SetVolume2D(int channel, float volume)
@@ -480,10 +572,12 @@ void leap::audio::FmodAudioSystem::SetVolume2D(int channel, float volume)
 
 void leap::audio::FmodAudioSystem::UpdateSound3D(int channel, const SoundData3D& soundData)
 {
+    m_pImpl->UpdateSound3D(channel, soundData);
 }
 
 void leap::audio::FmodAudioSystem::UpdateListener3D(const glm::vec3& position)
 {
+    m_pImpl->UpdateListener3D(position);
 }
 
 void leap::audio::FmodAudioSystem::Pause(int channel)
