@@ -6,6 +6,6 @@ namespace leap::audio
 	{
 		int channelId{};
 		bool paused{};
-		float volume{};
+		bool muted{};
 	};
 }

@@ -159,7 +159,7 @@ namespace leap::audio
             pChannel->getIndex(&channel);
 
             // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, volume });
+            sound.channels.emplace_back(ChannelData{ channel, false, false });
 
             // Return the current playing channel
             return channel;
@@ -181,21 +181,6 @@ namespace leap::audio
             // Throw an error if setting the volume failed
             if (result != FMOD_OK)
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
-
-            // Find the sound that is using this channel
-            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
-                {
-                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
-                        {
-                            return channelData.channelId == channel;
-                        }) != end(sound.channels);
-                }) };
-
-            // Update the volume in the sound
-            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
-                {
-                    return channelData.channelId == channel;
-                })->volume = volume;
         }
 
         void Pause(int channel)
@@ -316,6 +301,124 @@ namespace leap::audio
             }
         }
 
+        void Mute(int channel)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Mute this channel
+            result = pChannel->setMute(true);
+
+            // Throw an error if changing the mute state failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't mute this channel");
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        {
+                            return channelData.channelId == channel;
+                        }) != end(sound.channels);
+                }) };
+
+            // Update the mute state in the sound
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
+                {
+                    return channelData.channelId == channel;
+                })->muted = true;
+        }
+
+        void MuteAll()
+        {
+            // For each channel in each sound
+            for (auto& sound : m_Sounds)
+            {
+                for (const auto& channelData : sound.channels)
+                {
+                    // Retrieve the current channel
+                    FMOD::Channel* pChannel{};
+                    FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
+
+                    // Throw an error if the channel was not found
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+                    // Unmute this channel
+                    result = pChannel->setMute(true);
+
+                    // Throw an error if changing the mute state failed
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+                }
+            }
+        }
+
+        void Unmute(int channel)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Unmute this channel
+            result = pChannel->setMute(false);
+
+            // Throw an error if changing the mute state failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        {
+                            return channelData.channelId == channel;
+                        }) != end(sound.channels);
+                }) };
+
+            // Update the mute state in the sound
+            std::find_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
+                {
+                    return channelData.channelId == channel;
+                })->muted = false;
+        }
+
+        void UnmuteAll()
+        {
+            // For each channel in each sound
+            for (auto& sound : m_Sounds)
+            {
+                for (const auto& channelData : sound.channels)
+                {
+                    if (channelData.muted) continue;
+
+                    // Retrieve the current channel
+                    FMOD::Channel* pChannel{};
+                    FMOD_RESULT result{ m_pSystem->getChannel(channelData.channelId, &pChannel) };
+
+                    // Throw an error if the channel was not found
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+                    // Unmute this channel
+                    result = pChannel->setMute(false);
+
+                    // Throw an error if changing the mute state failed
+                    if (result != FMOD_OK)
+                        throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+                }
+            }
+        }
+
     private:
         struct FMODSound
         {
@@ -405,18 +508,22 @@ void leap::audio::FmodAudioSystem::ResumeAll()
 
 void leap::audio::FmodAudioSystem::Mute(int channel)
 {
+    m_pImpl->Mute(channel);
 }
 
 void leap::audio::FmodAudioSystem::Unmute(int channel)
 {
+    m_pImpl->Unmute(channel);
 }
 
 void leap::audio::FmodAudioSystem::MuteAll()
 {
+    m_pImpl->MuteAll();
 }
 
 void leap::audio::FmodAudioSystem::UnmuteAll()
 {
+    m_pImpl->UnmuteAll();
 }
 
 void leap::audio::FmodAudioSystem::Update()
