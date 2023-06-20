@@ -3,11 +3,9 @@
 #include "InputManagerGLFW3.h"
 #include "Renderer.h"
 
-#include "ServiceLocator.h"
-#include "Systems/FmodAudioSystem.h"
-
 #include <iostream>
 #include <glfw3.h>
+
 
 leap::LeapEngine::LeapEngine()
 {
@@ -47,9 +45,6 @@ void leap::LeapEngine::Run()
     m_pRenderer = new Renderer(m_pWindow);
     m_pRenderer->Initialize();
 
-    ServiceLocator::RegisterAudioSystem<leap::audio::FmodAudioSystem>();
-    auto& audio{ ServiceLocator::GetAudio() };
-
     while (!glfwWindowShouldClose(m_pWindow))
     {
         /* Poll for and process events */
@@ -63,9 +58,6 @@ void leap::LeapEngine::Run()
 
         /* Swap front and back buffers */
         glfwSwapBuffers(m_pWindow);
-
-        /* Update audio system */
-        audio.Update();
     }
 
     glfwTerminate();
