@@ -30,6 +30,7 @@ using namespace std;
 
 // Vulkan includes
 #include "VulkanInitializers.h"
+#include "VulkanPipelineBuilder.h"
 
 using namespace leap::graphics;
 
@@ -107,6 +108,10 @@ void VulkanEngine::Draw()
 	vkCmdBeginRenderPass(m_MainCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	// RENDER STUFF HERE
+
+	// Bind the graphics pipeline
+	vkCmdBindPipeline(m_MainCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_TrianglePipeline);
+	vkCmdDraw(m_MainCommandBuffer, 3, 1, 0, 0);
 
 	// End the render pass
 	vkCmdEndRenderPass(m_MainCommandBuffer);
@@ -433,4 +438,52 @@ void VulkanEngine::InitializePipelines()
 		std::cout << "Error building the triangle vertex shader module\n";
 	else
 		std::cout << "Successfully built the triangle vertex shader module\n";
+
+	// Build pipeline layout that controls inputs/outputs of the shader
+	VkPipelineLayoutCreateInfo  pipelineLayoutInfo{ vkinit::PipelineLayoutCreateInfo() };
+	VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutInfo, nullptr, &m_TrianglePipelineLayout));
+
+	// Build the stage-create-info for both vertex and fragment stages.
+	// This lets the pipeline know the shader modules per stage
+	PipelineBuilder pipelineBuilder;
+
+	pipelineBuilder.m_ShaderStages.push_back(
+		vkinit::PipelineShaderStageCreateInfo(VK_SHADER_STAGE_VERTEX_BIT, triangleVertShader)
+	);
+
+	pipelineBuilder.m_ShaderStages.push_back(
+		vkinit::PipelineShaderStageCreateInfo(VK_SHADER_STAGE_FRAGMENT_BIT, triangleFragShader)
+	);
+
+	// Vertex input controls how to read vertices from vertex buffers
+	pipelineBuilder.m_VertexInputInfo = vkinit::VertexInputStateCreateInfo();
+
+	// Set input assembly state, which controls primitive topology
+	pipelineBuilder.m_InputAssembly = vkinit::InputAssemblyCreateInfo(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+
+	// Build the viewport and scissor from the swapchain extents
+	pipelineBuilder.m_Viewport.x = 0.0f;
+	pipelineBuilder.m_Viewport.y = 0.0f;
+	pipelineBuilder.m_Viewport.width = static_cast<float>(m_WindowExtent.width);
+	pipelineBuilder.m_Viewport.height = static_cast<float>(m_WindowExtent.height);
+	pipelineBuilder.m_Viewport.minDepth = 0.0f;
+	pipelineBuilder.m_Viewport.maxDepth = 1.0f;
+
+	pipelineBuilder.m_Scissor.offset = { 0, 0 };
+	pipelineBuilder.m_Scissor.extent = m_WindowExtent;
+
+	// Build rasterizer
+	pipelineBuilder.m_Rasterizer = vkinit::RasterizationStateCreateInfo(VK_POLYGON_MODE_FILL);
+
+	// Build multisampling
+	pipelineBuilder.m_Multisampling = vkinit::MultisamplingStateCreateInfo();
+
+	// Build color blend attachment with no blending and writing to RGBA
+	pipelineBuilder.m_ColorBlendAttachment = vkinit::ColorBlendAttachmentState();
+
+	// Use the triangle layout
+	pipelineBuilder.m_PipelineLayout = m_TrianglePipelineLayout;
+
+	// Build the pipeline
+	m_TrianglePipeline = pipelineBuilder.BuildPipeline(m_Device, m_RenderPass);
 }

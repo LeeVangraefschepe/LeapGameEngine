@@ -62,5 +62,9 @@ namespace leap::graphics
 		// Shaders
 		bool LoadShaderModule(const char* filePath, VkShaderModule* outShaderModule);
 		void InitializePipelines();
+
+		// Graphics pipeline
+		VkPipelineLayout m_TrianglePipelineLayout{ VK_NULL_HANDLE };
+		VkPipeline m_TrianglePipeline{};
 	};
 }
