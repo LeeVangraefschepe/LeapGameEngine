@@ -11,6 +11,7 @@
 
 // STL includes
 #include <iostream>
+#include <fstream>
 
 #pragma region macros
 // Vulkan error macro
@@ -50,6 +51,7 @@ void VulkanEngine::Initialize()
 	InitializeDefaultRenderPass();
 	InitializeFramebuffers();
 	InitializeSyncStructures();
+	InitializePipelines();
 
 	m_IsInitialized = true;
 	std::cout << "VulkanEngine initialized\n";
@@ -371,4 +373,64 @@ void VulkanEngine::InitializeSyncStructures()
 
 	VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_PresentSemaphore));
 	VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_RenderSemaphore));
+}
+
+bool VulkanEngine::LoadShaderModule(const char* filePath, VkShaderModule* outShaderModule)
+{
+	// Open the file stream, seek to the end of the file
+	std::ifstream file(filePath, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open())
+		return false;
+
+	// Get the file size
+	size_t fileSize = static_cast<size_t>(file.tellg());
+
+	// SPRIV expects the buffer to be on uint32_t, so make sure to reserve a buffer big enough for that
+	std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
+
+	// Put cursor at the beginning of the file
+	file.seekg(0);
+
+	// Load the entire file into the buffer
+	file.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+
+	// Close the file stream
+	file.close();
+
+	// Create a new shader module, using the buffer we loaded
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.pNext = nullptr;
+
+	// Code size has to be in bytes, so multiply the int in the buffer by the size of an int
+	createInfo.codeSize = buffer.size() * sizeof(uint32_t);
+	createInfo.pCode = buffer.data();
+
+	// Validate creation
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(m_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+		return false;
+
+	// Set the outShaderModule to the newly created shader module
+	*outShaderModule = shaderModule;
+
+	return true;
+}
+
+void VulkanEngine::InitializePipelines()
+{
+	std::cout << "Initializing Pipelines\n";
+
+	VkShaderModule triangleFragShader;
+	if (!LoadShaderModule("../Graphics/Shaders/triangle.frag.spv", &triangleFragShader))
+		std::cout << "Error building the triangle fragment shader module\n";
+	else
+		std::cout << "Successfully built the triangle fragment shader module\n";
+
+	VkShaderModule triangleVertShader;
+	if (!LoadShaderModule("../Graphics/Shaders/triangle.vert.spv", &triangleVertShader))
+		std::cout << "Error building the triangle vertex shader module\n";
+	else
+		std::cout << "Successfully built the triangle vertex shader module\n";
 }

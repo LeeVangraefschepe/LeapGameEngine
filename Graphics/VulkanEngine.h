@@ -58,5 +58,9 @@ namespace leap::graphics
 		VkSemaphore m_RenderSemaphore{ VK_NULL_HANDLE };
 		VkFence m_RenderFence{ VK_NULL_HANDLE };
 		void InitializeSyncStructures();
+
+		// Shaders
+		bool LoadShaderModule(const char* filePath, VkShaderModule* outShaderModule);
+		void InitializePipelines();
 	};
 }
