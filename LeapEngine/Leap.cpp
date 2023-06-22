@@ -1,10 +1,17 @@
 #include "Leap.h"
 
+#include <chrono>
+#include <functional>
+
 #include "InputManager.h"
 #include "Renderer.h"
+#include "ServiceLocator/ServiceLocator.h"
+#include "Systems/FmodAudioSystem.h"
 
 #include <iostream>
 #include <glfw3.h>
+
+#include "GameContext/GameContext.h"
 
 leap::LeapEngine::LeapEngine()
 {
@@ -34,28 +41,47 @@ leap::LeapEngine::LeapEngine()
     input::InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
-void leap::LeapEngine::Run()
+void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
 {
 	std::cout << "Engine startup\n";
+    load();
 
-    m_pRenderer = std::make_unique<leap::graphics::Renderer>(m_pWindow);
+    m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
     m_pRenderer->Initialize();
 
+    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+
     auto& input = input::InputManager::GetInstance();
+    auto& gameContext = GameContext::GetInstance();
+    auto& audio = ServiceLocator::GetAudio();
+
+    const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
-        /* Poll for and process events */
+        const auto currentTime = std::chrono::high_resolution_clock::now();
+
+        //Update gamecontext (Timer class)
+        gameContext.Update();
+
+        //Update audio system
+        audio.Update();
+
+        //Poll for and process events
         glfwPollEvents();
         input.ProcessInput();
 
-        /* Render here */
+        //Render here
         glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
         m_pRenderer->Draw();
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* Swap front and back buffers */
+        //Swap front and back buffers
         glfwSwapBuffers(m_pWindow);
+
+        //Sleep to sync back with desired fps
+        const auto sleepTimeMs = frameTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
     }
 
     glfwTerminate();
