@@ -1,10 +1,25 @@
 #pragma once
 #include <vector>
+#include <deque>
+#include <functional>
 #include "VulkanTypes.h"
 
 class GLFWwindow;
 namespace leap::graphics
 {
+	struct DeletionQueue
+	{
+		std::deque <std::function<void()>> deletors;
+
+		void Flush()
+		{
+			for (auto it = deletors.rbegin(); it != deletors.rend(); it++)
+				(*it)();
+
+			deletors.clear();
+		}
+	};
+
 	class VulkanEngine final
 	{
 	public:
@@ -66,5 +81,8 @@ namespace leap::graphics
 		// Graphics pipeline
 		VkPipelineLayout m_TrianglePipelineLayout{ VK_NULL_HANDLE };
 		VkPipeline m_TrianglePipeline{};
+
+		// Deletion
+		DeletionQueue m_MainDeletionQueue;
 	};
 }

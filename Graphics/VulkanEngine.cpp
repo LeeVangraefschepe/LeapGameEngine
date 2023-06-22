@@ -165,24 +165,10 @@ void VulkanEngine::Cleanup()
 {
 	if (m_IsInitialized)
 	{
-		// Wait for the GPU to be done with the last frame, 1s timeout
-		vkWaitForFences(m_Device, 1, &m_RenderFence, true, 1000000000);
+		// Wait for the GPU to be done with the last frame
+		vkDeviceWaitIdle(m_Device);
 
-		vkDestroySemaphore(m_Device, m_RenderSemaphore, nullptr);
-		vkDestroySemaphore(m_Device, m_PresentSemaphore, nullptr);
-		vkDestroyFence(m_Device, m_RenderFence, nullptr);
-
-		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
-
-		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
-		vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
-
-		// destroy swap chain resources and framebuffers
-		for (int i = 0; i < m_SwapChainImages.size(); i++)
-		{
-			vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
-			vkDestroyImageView(m_Device, m_SwapChainImageViews[i], nullptr);
-		}
+		m_MainDeletionQueue.Flush();
 
 		vkDestroyDevice(m_Device, nullptr);
 		vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
@@ -265,6 +251,10 @@ void VulkanEngine::InitializeSwapChain()
 	m_SwapChainImageViews = vkbSwapChain.get_image_views().value();
 
 	m_SwapChainImageFormat = vkbSwapChain.image_format;
+
+	m_MainDeletionQueue.deletors.emplace_back([=]() {
+			vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr); 
+		});
 }
 
 void VulkanEngine::InitCommands()
@@ -276,6 +266,10 @@ void VulkanEngine::InitCommands()
 
 	auto commandBufferInfo = vkinit::CommandBufferAllocateInfo(m_CommandPool, 1);
 	VK_CHECK(vkAllocateCommandBuffers(m_Device, &commandBufferInfo, &m_MainCommandBuffer));
+
+	m_MainDeletionQueue.deletors.emplace_back([=]() {
+		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+		});
 }
 
 void VulkanEngine::InitializeDefaultRenderPass()
@@ -326,6 +320,10 @@ void VulkanEngine::InitializeDefaultRenderPass()
 	renderPassInfo.pSubpasses = &subpass;
 
 	VK_CHECK(vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass));
+
+	m_MainDeletionQueue.deletors.emplace_back([=]() {
+		vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
+		});
 }
 
 void VulkanEngine::InitializeFramebuffers()
@@ -353,6 +351,11 @@ void VulkanEngine::InitializeFramebuffers()
 	{
 		fbInfo.pAttachments = &m_SwapChainImageViews[i];
 		VK_CHECK(vkCreateFramebuffer(m_Device, &fbInfo, nullptr, &m_Framebuffers[i]));
+
+		m_MainDeletionQueue.deletors.emplace_back([=]() {
+			vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
+			vkDestroyImageView(m_Device, m_SwapChainImageViews[i], nullptr);
+			});
 	}
 }
 
@@ -360,24 +363,24 @@ void VulkanEngine::InitializeSyncStructures()
 {
 	std::cout << "Initializing Sync Structures\n";
 
-	VkFenceCreateInfo fenceCreateInfo{};
-	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-	fenceCreateInfo.pNext = nullptr;
-
-	// We want to create the fence with the Create Signaled flag,
-	// so we can wait on it before using it on a GPU command (for the first frame)
-	fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
+	VkFenceCreateInfo fenceCreateInfo{ vkinit::FenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT) };
 	VK_CHECK(vkCreateFence(m_Device, &fenceCreateInfo, nullptr, &m_RenderFence));
 
+	m_MainDeletionQueue.deletors.emplace_back([=]() {
+		vkDestroyFence(m_Device, m_RenderFence, nullptr);
+		});
+
 	// Sempahore needs no flags
-	VkSemaphoreCreateInfo semaphoreCreateInfo{};
-	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	semaphoreCreateInfo.pNext = nullptr;
-	semaphoreCreateInfo.flags = 0;
+	VkSemaphoreCreateInfo semaphoreCreateInfo{ vkinit::SemaphoreCreateInfo() };
 
 	VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_PresentSemaphore));
 	VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr, &m_RenderSemaphore));
+
+	m_MainDeletionQueue.deletors.emplace_back([=]()
+		{
+			vkDestroySemaphore(m_Device, m_PresentSemaphore, nullptr);
+			vkDestroySemaphore(m_Device, m_RenderSemaphore, nullptr);
+		});
 }
 
 bool VulkanEngine::LoadShaderModule(const char* filePath, VkShaderModule* outShaderModule)
@@ -428,13 +431,13 @@ void VulkanEngine::InitializePipelines()
 	std::cout << "Initializing Pipelines\n";
 
 	VkShaderModule triangleFragShader;
-	if (!LoadShaderModule("../Graphics/Shaders/triangle.frag.spv", &triangleFragShader))
+	if (!LoadShaderModule("../Graphics/Shaders/colored_triangle.frag.spv", &triangleFragShader))
 		std::cout << "Error building the triangle fragment shader module\n";
 	else
 		std::cout << "Successfully built the triangle fragment shader module\n";
 
 	VkShaderModule triangleVertShader;
-	if (!LoadShaderModule("../Graphics/Shaders/triangle.vert.spv", &triangleVertShader))
+	if (!LoadShaderModule("../Graphics/Shaders/colored_triangle.vert.spv", &triangleVertShader))
 		std::cout << "Error building the triangle vertex shader module\n";
 	else
 		std::cout << "Successfully built the triangle vertex shader module\n";
@@ -486,4 +489,12 @@ void VulkanEngine::InitializePipelines()
 
 	// Build the pipeline
 	m_TrianglePipeline = pipelineBuilder.BuildPipeline(m_Device, m_RenderPass);
+
+	vkDestroyShaderModule(m_Device, triangleVertShader, nullptr);
+	vkDestroyShaderModule(m_Device, triangleFragShader, nullptr);
+
+	m_MainDeletionQueue.deletors.emplace_back([=]() {
+		vkDestroyPipeline(m_Device, m_TrianglePipeline, nullptr);
+		vkDestroyPipelineLayout(m_Device, m_TrianglePipelineLayout, nullptr);
+		});
 }
