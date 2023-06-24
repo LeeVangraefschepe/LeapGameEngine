@@ -18,7 +18,7 @@ namespace leap
 		LeapEngine& operator=(const LeapEngine& other) = delete;
 		LeapEngine& operator=(LeapEngine&& other) = delete;
 
-		void Run(const std::function<void()>& load, int desiredFPS);
+		void Run(int desiredFPS);
 
 	private:
 		GLFWwindow* m_pWindow{};

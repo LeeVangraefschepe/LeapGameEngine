@@ -12,6 +12,7 @@
 #include <glfw3.h>
 
 #include "GameContext/GameContext.h"
+#include "SceneGraph/SceneManager.h"
 
 leap::LeapEngine::LeapEngine()
 {
@@ -41,10 +42,9 @@ leap::LeapEngine::LeapEngine()
     input::InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
-void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
+void leap::LeapEngine::Run(int desiredFPS)
 {
 	std::cout << "Engine startup\n";
-    load();
 
     m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
     m_pRenderer->Initialize();
@@ -55,6 +55,9 @@ void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
     auto& gameContext = GameContext::GetInstance();
     auto& audio = ServiceLocator::GetAudio();
 
+    auto& sceneManager = SceneManager::GetInstance();
+    sceneManager.LoadScene(0);
+
     const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
 
     while (!glfwWindowShouldClose(m_pWindow))
@@ -64,20 +67,25 @@ void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
         //Update gamecontext (Timer class)
         gameContext.Update();
 
-        //Update audio system
+        sceneManager.OnFrameStart();
+        sceneManager.Update();
+
         audio.Update();
 
-        //Poll for and process events
         glfwPollEvents();
         input.ProcessInput();
 
+        sceneManager.LateUpdate();
+
         //Render here
         glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
+        sceneManager.Render();
         m_pRenderer->Draw();
+        sceneManager.OnGUI();
         glClear(GL_COLOR_BUFFER_BIT);
-
-        //Swap front and back buffers
         glfwSwapBuffers(m_pWindow);
+
+        sceneManager.OnFrameEnd();
 
         //Sleep to sync back with desired fps
         const auto sleepTimeMs = frameTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();

@@ -1,6 +1,6 @@
 #Game cmake
 
-add_executable(UnnamedAdventureGame main.cpp)
+add_executable(UnnamedAdventureGame main.cpp "Scenes/MainMenuScene.cpp")
 
 # DLL Copies
 # Define a custom target to copy the FMOD DLL
