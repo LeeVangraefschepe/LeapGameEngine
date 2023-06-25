@@ -1,10 +1,13 @@
 #include "GameObject.h"
 
+#include "../Components/Transform/Transform.h"
+
 #include <stdexcept>
 
 leap::GameObject::GameObject(const std::string& name)
 	: m_Name{ name }
 {
+	m_pTransform = AddComponent<Transform>();
 }
 
 void leap::GameObject::SetParent(GameObject* pParent)
@@ -262,6 +265,11 @@ void leap::GameObject::UpdateCleanup()
 
 	// Cleanup every child
 	for (const auto& pChild : m_pChildren) pChild->UpdateCleanup();
+}
+
+leap::Transform* leap::GameObject::GetTransform() const
+{
+	return m_pTransform;
 }
 
 #pragma region ComponentMethods
