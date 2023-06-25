@@ -61,7 +61,17 @@ namespace leap
 		const glm::vec3& GetLocalScale() const;
 
 	private:
+		enum class DirtyFlags
+		{
+			None = 0,
+			Translation = 1,
+			Rotation = 2,
+			Scale = 4
+		};
+
 		void UpdateTransform();
+		bool IsDirty(DirtyFlags flag) const;
+		void SetDirty(DirtyFlags flag);
 
 		glm::vec3 m_LocalPosition{};
 		glm::vec3 m_WorldPosition{};
@@ -73,7 +83,6 @@ namespace leap
 
 		glm::vec3 m_LocalScale{};
 		glm::vec3 m_WorldScale{};
-
-		bool m_IsDirty{ true };
+		unsigned int m_IsDirty{ true };
 	};
 }
