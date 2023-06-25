@@ -24,16 +24,16 @@ namespace leap
 		bool IsActive() const;
 
 	protected:
-		virtual void Awake() const {};
-		virtual void Start() const {};
-		virtual void OnEnable() const {};
-		virtual void OnDisable() const {};
-		virtual void Update() const {};
-		virtual void FixedUpdate() const {};
-		virtual void LateUpdate() const {};
-		virtual void Render() const {};
-		virtual void OnGUI() const {};
-		virtual void OnDestroy() const {};
+		virtual void Awake() {};
+		virtual void Start() {};
+		virtual void OnEnable() {};
+		virtual void OnDisable() {};
+		virtual void Update() {};
+		virtual void FixedUpdate() {};
+		virtual void LateUpdate() {};
+		virtual void Render() {};
+		virtual void OnGUI() {};
+		virtual void OnDestroy() {};
 
 	private:
 		friend GameObject;
