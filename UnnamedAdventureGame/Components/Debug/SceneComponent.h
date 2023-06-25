@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+
 #include "Components/Component.h"
 
 namespace leap
@@ -19,9 +21,9 @@ namespace unag
 		SceneComponent& operator=(SceneComponent&& other) = delete;
 
 	private:
-		void Start() const override;
-		void Update() const override;
+		void Start() override;
+		void Update() override;
 
-		leap::Command* m_pCommand;
+		std::shared_ptr<leap::Command> m_pCommand;
 	};
 }

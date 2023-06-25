@@ -7,22 +7,22 @@
 
 unag::SceneComponent::~SceneComponent()
 {
+	leap::input::InputManager::GetInstance().RemoveCommand(m_pCommand);
 }
 
-void unag::SceneComponent::Start() const
+void unag::SceneComponent::Start()
 {
 	std::cout << "Started from object: " << GetGameObject()->GetName() << "\n";
 	auto& sceneManager = leap::SceneManager::GetInstance();
-	const auto command = std::shared_ptr<leap::Command>{ new leap::LambdaCommand{[&]()
+	m_pCommand = std::shared_ptr<leap::Command>{ new leap::LambdaCommand{[&]()
 	{
 		std::cout << "Scene switching\n";
 		sceneManager.LoadScene(0);
 	} } };
-	//m_pCommand = command.get();
-	leap::input::InputManager::GetInstance().AddCommand(command, leap::input::InputManager::EventPress, leap::input::InputManager::KeyboardInput::KeyW);
+	leap::input::InputManager::GetInstance().AddCommand(m_pCommand, leap::input::InputManager::EventPress, leap::input::InputManager::KeyboardInput::KeyW);
 }
 
-void unag::SceneComponent::Update() const
+void unag::SceneComponent::Update()
 {
 	
 }
