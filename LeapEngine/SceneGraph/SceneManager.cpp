@@ -11,19 +11,12 @@ void leap::SceneManager::AddScene(const std::string& name, const std::function<v
 
 void leap::SceneManager::LoadScene(unsigned index)
 {
-	if (index >= m_Scenes.size())
-	{
-		throw std::runtime_error("Tried to load scene that isn't known to the scenemanager");
-		return;
-	}
-
-	const auto& sceneData = m_Scenes[index];
-	m_Scene = std::make_unique<Scene>(sceneData.name);
-	sceneData.load(*m_Scene);
+	m_LoadScene = static_cast<int>(index);
 }
 
-void leap::SceneManager::OnFrameStart() const
+void leap::SceneManager::OnFrameStart()
 {
+	if (m_LoadScene >= 0) { LoadInternalScene(); }
 	m_Scene->OnFrameStart();
 }
 
@@ -55,4 +48,17 @@ void leap::SceneManager::OnGUI() const
 void leap::SceneManager::OnFrameEnd() const
 {
 	m_Scene->OnFrameEnd();
+}
+
+void leap::SceneManager::LoadInternalScene()
+{
+	if (static_cast<unsigned>(m_LoadScene) >= m_Scenes.size())
+	{
+		throw std::runtime_error("Tried to load scene that isn't known to the scenemanager");
+		return;
+	}
+	const auto& sceneData = m_Scenes[m_LoadScene];
+	m_LoadScene = -1;
+	m_Scene = std::make_unique<Scene>(sceneData.name);
+	sceneData.load(*m_Scene);
 }

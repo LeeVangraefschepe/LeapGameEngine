@@ -24,13 +24,15 @@ namespace leap
 
 	private:
 		friend LeapEngine;
-		void OnFrameStart() const;
+		void OnFrameStart();
 		void FixedUpdate() const;
 		void Update() const;
 		void LateUpdate() const;
 		void Render() const;
 		void OnGUI() const;
 		void OnFrameEnd() const;
+
+		void LoadInternalScene();
 
 		struct SceneData final
 		{
@@ -39,5 +41,6 @@ namespace leap
 		};
 		std::vector<SceneData> m_Scenes{};
 		std::unique_ptr<Scene> m_Scene{};
+		int m_LoadScene{ -1 };
 	};
 }

@@ -67,13 +67,13 @@ void leap::LeapEngine::Run(int desiredFPS)
         //Update gamecontext (Timer class)
         gameContext.Update();
 
+        glfwPollEvents();
+        input.ProcessInput();
+
         sceneManager.OnFrameStart();
         sceneManager.Update();
 
         audio.Update();
-
-        glfwPollEvents();
-        input.ProcessInput();
 
         sceneManager.LateUpdate();
 

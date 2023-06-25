@@ -5,6 +5,11 @@ leap::Scene::Scene(std::string name) : m_Name(std::move(name))
 	m_RootObject = std::make_unique<GameObject>(m_Name);
 }
 
+leap::GameObject* leap::Scene::CreateGameObject(const std::string& name) const
+{
+	return m_RootObject->CreateChild(name);
+}
+
 void leap::Scene::Add(GameObject* object) const
 {
 	object->SetParent(m_RootObject.get());

@@ -17,6 +17,7 @@ namespace leap
 		Scene& operator=(const Scene& other) = delete;
 		Scene& operator=(Scene&& other) = delete;
 
+		GameObject* CreateGameObject(const std::string& name) const;
 		void Add(GameObject* object) const;
 		void RemoveAll();
 		const GameObject* GetRootObject() const;
