@@ -168,6 +168,8 @@ namespace leap::input
         void AddCommand(std::shared_ptr<Command> command, WheelInput key);
         glm::vec2 GetCursorPosition() const;
 
+        void RemoveCommand(const std::shared_ptr<Command>& command);
+
         InputManager(const InputManager& other) = delete;
         InputManager(InputManager&& other) = delete;
         InputManager& operator=(const InputManager& other) = delete;
