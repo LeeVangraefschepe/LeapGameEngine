@@ -84,5 +84,6 @@ namespace leap::graphics
 
 		// Deletion
 		DeletionQueue m_MainDeletionQueue;
+
 	};
 }

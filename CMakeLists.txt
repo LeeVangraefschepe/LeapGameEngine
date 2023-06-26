@@ -18,6 +18,10 @@ find_package(OpenGL REQUIRED)
 # Vulkan
 find_package(Vulkan REQUIRED)
 
+#VMA
+add_library(VMA INTERFACE)
+target_include_directories(VMA INTERFACE "${CMAKE_SOURCE_DIR}/3rdParty/VMA")
+
 # GLFW include paths
 set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
 set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/glfw3.lib")
@@ -90,6 +94,7 @@ target_link_libraries(
 	${GLFW_LIBRARY_DIR} 
 	Vulkan::Vulkan 
 	OpenGL::GL
+	VMA
 )
 
 # Input Engine
