@@ -96,6 +96,12 @@ void VulkanEngine::Draw()
 	VkClearValue clearValue;
 	clearValue.color = { {0.1f, 0.1f, 0.85f, 1.0f} };
 
+	// Depth clear value
+	VkClearValue depthClear;
+	depthClear.depthStencil.depth = 1.f;
+
+	VkClearValue clearValues[] = { clearValue, depthClear };
+
 	// Begin the render pass
 	VkRenderPassBeginInfo rpInfo{};
 	rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -109,8 +115,8 @@ void VulkanEngine::Draw()
 	rpInfo.framebuffer = m_Framebuffers[swapchainImageIndex];
 
 	// Connect clear values
-	rpInfo.clearValueCount = 1;
-	rpInfo.pClearValues = &clearValue;
+	rpInfo.clearValueCount = 2;
+	rpInfo.pClearValues = &clearValues[0];
 
 	// Begin the render pass
 	vkCmdBeginRenderPass(m_MainCommandBuffer, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -298,6 +304,37 @@ void VulkanEngine::InitializeSwapChain()
 	m_MainDeletionQueue.deletors.emplace_back([=]() {
 			vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr); 
 		});
+
+	// Depth buffer image matches window extents
+	VkExtent3D depthImageExtent 
+	{
+		m_WindowExtent.width,
+		m_WindowExtent.height,
+		1
+	};
+
+	// Depth format (must be changed to support stencil)
+	m_DepthFormat = VK_FORMAT_D32_SFLOAT;
+
+	VkImageCreateInfo depthImageCreateInfo = vkinit::ImageCreateInfo(m_DepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depthImageExtent);
+	
+	// Allocate image on GPU
+	VmaAllocationCreateInfo depthImageAllocInfo{};
+	depthImageAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+	depthImageAllocInfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+	// Allocate mem and create image
+	vmaCreateImage(m_Allocator, &depthImageCreateInfo, &depthImageAllocInfo, &m_DepthImage.image, &m_DepthImage.allocation, nullptr);
+
+	// Build depth buffer image view
+	VkImageViewCreateInfo depthImageViewCreateInfo = vkinit::ImageViewCreateInfo(m_DepthFormat, m_DepthImage.image, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+	VK_CHECK(vkCreateImageView(m_Device, &depthImageViewCreateInfo, nullptr, &m_DepthImageView));
+
+	m_MainDeletionQueue.deletors.emplace_back([=]() {
+		vkDestroyImageView(m_Device, m_DepthImageView, nullptr);
+		vmaDestroyImage(m_Allocator, m_DepthImage.image, m_DepthImage.allocation);
+		});
 }
 
 void VulkanEngine::InitCommands()
@@ -345,22 +382,68 @@ void VulkanEngine::InitializeDefaultRenderPass()
 	// Optimal layout for writing to the image
 	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+	// Description of the depth image
+	VkAttachmentDescription depthAttachment{};
+	depthAttachment.flags = 0;
+	depthAttachment.format = m_DepthFormat;
+	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depthAttachmentRef{};
+	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 	// Create one sub pass (minimum one sub pass required)
 	VkSubpassDescription subpass{};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
+	// Connect depth attachment to subpass
+	subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
 	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 
+	VkAttachmentDescription attachments[2] = { colorAttachment, depthAttachment };
+
 	// Connect the color attachment description to the info
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
+	renderPassInfo.attachmentCount = 2;
+	renderPassInfo.pAttachments = &attachments[0];
 
 	// Connect the subpass(es) to the info
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+
+	// These dependencies tell Vulkan that the attachment cannot be used before the previous renderpasses have finished using it
+	VkSubpassDependency colorDependency{};
+	colorDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	colorDependency.dstSubpass = 0;
+	
+	colorDependency.srcAccessMask = 0;
+	colorDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	colorDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	colorDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+	VkSubpassDependency depthDependency{};
+	depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	depthDependency.dstSubpass = 0;
+
+	depthDependency.srcAccessMask = 0;
+	depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+
+	depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+
+	VkSubpassDependency dependencies[2] = { colorDependency, depthDependency };
+
+	renderPassInfo.dependencyCount = 2;
+	renderPassInfo.pDependencies = &dependencies[0];
 
 	VK_CHECK(vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass));
 
@@ -392,7 +475,11 @@ void VulkanEngine::InitializeFramebuffers()
 	// Create the framebuffers for each image view
 	for (uint32_t i = 0; i < swapChainImageViewCount; i++)
 	{
-		fbInfo.pAttachments = &m_SwapChainImageViews[i];
+		VkImageView attachments[2] = { m_SwapChainImageViews[i], m_DepthImageView };
+
+		fbInfo.attachmentCount = 2;
+		fbInfo.pAttachments = attachments;
+
 		VK_CHECK(vkCreateFramebuffer(m_Device, &fbInfo, nullptr, &m_Framebuffers[i]));
 
 		m_MainDeletionQueue.deletors.emplace_back([=]() {
@@ -548,6 +635,9 @@ void VulkanEngine::InitializePipelines()
 
 	// Use the triangle layout
 	pipelineBuilder.m_PipelineLayout = m_MeshPipelineLayout;
+
+	// Depth testing
+	pipelineBuilder.m_DepthStencil = vkinit::DepthStencilCreateInfo(true, true, VK_COMPARE_OP_LESS_OR_EQUAL);
 
 	// Build the pipeline
 	m_MeshPipeline = pipelineBuilder.BuildPipeline(m_Device, m_RenderPass);

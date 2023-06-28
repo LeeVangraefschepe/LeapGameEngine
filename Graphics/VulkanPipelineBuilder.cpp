@@ -39,6 +39,9 @@ VkPipeline PipelineBuilder::BuildPipeline(VkDevice device, VkRenderPass renderPa
     // Vertex input
     pipelineInfo.pVertexInputState = &m_VertexInputInfo;
 
+    // Depth state
+    pipelineInfo.pDepthStencilState = &m_DepthStencil;
+
     // Input assembly
     pipelineInfo.pInputAssemblyState = &m_InputAssembly;
 

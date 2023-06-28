@@ -16,6 +16,7 @@ namespace leap::graphics
 		VkPipelineColorBlendAttachmentState m_ColorBlendAttachment{};
 		VkPipelineMultisampleStateCreateInfo m_Multisampling{};
 		VkPipelineLayout m_PipelineLayout{ VK_NULL_HANDLE };
+		VkPipelineDepthStencilStateCreateInfo m_DepthStencil;
 
 		VkPipeline BuildPipeline(VkDevice device, VkRenderPass renderPass);
 	};

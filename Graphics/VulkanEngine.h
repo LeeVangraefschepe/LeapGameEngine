@@ -105,5 +105,11 @@ namespace leap::graphics
 		Mesh m_TeapotMesh;
 		void LoadMeshes();
 		void UploadMesh(Mesh& mesh);
+
+		// Depth buffer
+		VkImageView m_DepthImageView{ VK_NULL_HANDLE };
+		AllocatedImage m_DepthImage;
+
+		VkFormat m_DepthFormat;
 	};
 }
