@@ -69,7 +69,9 @@ namespace leap
 			Scale = 4
 		};
 
-		void UpdateTransform();
+		void UpdateTranslation();
+		void UpdateRotation();
+		void UpdateScale();
 		bool IsDirty(DirtyFlags flag) const;
 		void SetDirty(DirtyFlags flag);
 

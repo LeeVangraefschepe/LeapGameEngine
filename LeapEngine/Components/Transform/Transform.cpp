@@ -219,35 +219,35 @@ void leap::Transform::Scale(float scaleDelta)
 #pragma region Getters
 const glm::vec3& leap::Transform::GetWorldPosition()
 {
-	if (IsDirty(DirtyFlags::Translation)) UpdateTransform();
+	if (IsDirty(DirtyFlags::Translation)) UpdateTranslation();
 
 	return m_WorldPosition;
 }
 
 const glm::quat& leap::Transform::GetWorldRotation()
 {
-	if (IsDirty(DirtyFlags::Rotation)) UpdateTransform();
+	if (IsDirty(DirtyFlags::Rotation)) UpdateRotation();
 
 	return m_WorldRotation;
 }
 
 const glm::vec3& leap::Transform::GetWorldEulerRotation()
 {
-	if (IsDirty(DirtyFlags::Rotation)) UpdateTransform();
+	if (IsDirty(DirtyFlags::Rotation)) UpdateRotation();
 
 	return m_WorldRotationEuler;
 }
 
 glm::vec3 leap::Transform::GetWorldEulerDegrees()
 {
-	if (IsDirty(DirtyFlags::Rotation)) UpdateTransform();
+	if (IsDirty(DirtyFlags::Rotation)) UpdateRotation();
 
 	return glm::degrees(m_WorldRotationEuler);
 }
 
 const glm::vec3& leap::Transform::GetWorldScale()
 {
-	if (IsDirty(DirtyFlags::Scale)) UpdateTransform();
+	if (IsDirty(DirtyFlags::Scale)) UpdateScale();
 
 	return m_WorldScale;
 }
@@ -277,8 +277,7 @@ const glm::vec3& leap::Transform::GetLocalScale() const
 	return m_LocalScale;
 }
 #pragma endregion
-
-void leap::Transform::UpdateTransform()
+void leap::Transform::UpdateTranslation()
 {
 	GameObject* pParentObj{ GetGameObject()->GetParent() };
 
@@ -287,40 +286,60 @@ void leap::Transform::UpdateTransform()
 
 	Transform* pParent{ pParentObj->GetTransform() };
 
-	if (m_IsDirty & static_cast<unsigned int>(DirtyFlags::Translation))
-	{
-		// Retrieve the transformation of the parent
-		const glm::vec3& parentWorldPosition{ pParent->GetWorldPosition() };
-		const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
-		const glm::vec3& parentWorldScale{ pParent->GetWorldScale() };
+	// Retrieve the transformation of the parent
+	const glm::vec3& parentWorldPosition{ pParent->GetWorldPosition() };
+	const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
+	const glm::vec3& parentWorldScale{ pParent->GetWorldScale() };
 
-		// Calculate world position
-		m_WorldPosition = parentWorldPosition + (parentWorldRotation * (parentWorldScale * m_LocalPosition));
+	// Calculate world position
+	m_WorldPosition = parentWorldPosition + (parentWorldRotation * (parentWorldScale * m_LocalPosition));
 
-		m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Translation);
-	}
+	// Disable the translation dirty flag
+	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Translation);
 
-	if (m_IsDirty & static_cast<unsigned int>(DirtyFlags::Rotation))
-	{
-		// Retrieve the transformation of the parent
-		const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
+	return;
+}
 
-		// Calculate world rotation
-		m_WorldRotation = parentWorldRotation * m_LocalRotation;
+void leap::Transform::UpdateRotation()
+{
+	GameObject* pParentObj{ GetGameObject()->GetParent() };
 
-		m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Rotation);
-	}
+	// The root gameobject cannot be moved
+	if (!pParentObj) return;
 
-	if (m_IsDirty & static_cast<unsigned int>(DirtyFlags::Scale))
-	{
-		// Retrieve the transformation of the parent
-		const glm::vec3& parentWorldScale{ pParent->GetWorldScale() };
+	Transform* pParent{ pParentObj->GetTransform() };
 
-		// Calculate world scale
-		m_WorldScale = parentWorldScale * m_LocalScale;
+	// Retrieve the transformation of the parent
+	const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
 
-		m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Scale);
-	}
+	// Calculate world rotation
+	m_WorldRotation = parentWorldRotation * m_LocalRotation;
+
+	// Disable the rotation dirty flag
+	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Rotation);
+
+	return;
+}
+
+void leap::Transform::UpdateScale()
+{
+	GameObject* pParentObj{ GetGameObject()->GetParent() };
+
+	// The root gameobject cannot be moved
+	if (!pParentObj) return;
+
+	Transform* pParent{ pParentObj->GetTransform() };
+
+	// Retrieve the transformation of the parent
+	const glm::vec3& parentWorldScale{ pParent->GetWorldScale() };
+
+	// Calculate world scale
+	m_WorldScale = parentWorldScale * m_LocalScale;
+
+	// Disable the scale dirty flag
+	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Scale);
+
+	return;
 }
 
 bool leap::Transform::IsDirty(DirtyFlags flag) const
