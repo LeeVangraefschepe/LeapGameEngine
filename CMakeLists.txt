@@ -104,6 +104,7 @@ target_link_libraries(
 	VMA
 	GLM
 	VkBootstrap
+	tinyobjloader
 )
 
 # Input Engine

@@ -123,10 +123,10 @@ void VulkanEngine::Draw()
 
 	// Bind the vertex buffer with an offset of 0
 	VkDeviceSize offset = 0;
-	vkCmdBindVertexBuffers(m_MainCommandBuffer, 0, 1, &m_TriangleMesh.vertexBuffer.buffer, &offset);
+	vkCmdBindVertexBuffers(m_MainCommandBuffer, 0, 1, &m_TeapotMesh.vertexBuffer.buffer, &offset);
 
 	// WVP matrix
-	glm::vec3 camPos {0.f, 0.f, -5.f};
+	glm::vec3 camPos {0.f, -2.f, -5.f};
 
 	// World
 	glm::mat4 world = glm::rotate(glm::mat4{1.f}, glm::radians(m_FrameNumber  * 0.4f), glm::vec3(0,1,0));
@@ -134,6 +134,7 @@ void VulkanEngine::Draw()
 	glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
 	// Projection
 	glm::mat4 projection = glm::perspective(glm::radians(60.f), (float)m_WindowExtent.width / (float)m_WindowExtent.height, 0.1f, 200.f);
+	projection[1][1] *= -1;
 
 	glm::mat4 WVP = projection * view * world;
 
@@ -143,7 +144,7 @@ void VulkanEngine::Draw()
 	vkCmdPushConstants(m_MainCommandBuffer, m_MeshPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
 
 	// Draw the mesh
-	vkCmdDraw(m_MainCommandBuffer, m_TriangleMesh.vertices.size(), 1, 0, 0);
+	vkCmdDraw(m_MainCommandBuffer, m_TeapotMesh.vertices.size(), 1, 0, 0);
 
 	// End the render pass
 	vkCmdEndRenderPass(m_MainCommandBuffer);
@@ -575,7 +576,9 @@ void VulkanEngine::LoadMeshes()
 	m_TriangleMesh.vertices[1].color = { 0.1f, 0.85f, 0.1f }; //pure green
 	m_TriangleMesh.vertices[2].color = { 0.1f, 0.85f, 0.1f }; //pure green
 
-	UploadMesh(m_TriangleMesh);
+	m_TeapotMesh.LoadFromObj("Meshes/Teapot.obj");
+
+	UploadMesh(m_TeapotMesh);
 }
 
 void VulkanEngine::UploadMesh(Mesh& mesh)
