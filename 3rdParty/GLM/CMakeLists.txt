@@ -45,7 +45,6 @@ source_group("SIMD Files" FILES ${SIMD_HEADER})
 
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE ../)
-set(GLMIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
 
 if(BUILD_STATIC_LIBS)
 add_library(glm_static STATIC ${ROOT_TEXT} ${ROOT_MD} ${ROOT_NAT}

@@ -7,7 +7,7 @@
 #include <glfw3native.h>
 
 // Bootstrap library
-#include "VkBootstrap.h"
+#include <VkBootstrap.h>
 
 // STL includes
 #include <iostream>

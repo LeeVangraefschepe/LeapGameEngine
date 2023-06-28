@@ -18,9 +18,8 @@ find_package(OpenGL REQUIRED)
 # Vulkan
 find_package(Vulkan REQUIRED)
 
-#VMA
-add_library(VMA INTERFACE)
-target_include_directories(VMA INTERFACE "${CMAKE_SOURCE_DIR}/3rdParty/VMA")
+# Third party
+add_subdirectory(3rdParty)
 
 # GLFW include paths
 set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
@@ -36,7 +35,7 @@ else()
 	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/bin/release/fmod64.dll")
 	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/lib/release/fmod64_vc.lib")
 endif()
-message("Include dir: ${FMOD_INCLUDE_DIR} with ${FMOD_LIBRARY_DIR} and ${FMOD_DLL_DIR}")
+message("Including FMOD: ${FMOD_INCLUDE_DIR} with ${FMOD_LIBRARY_DIR} and ${FMOD_DLL_DIR}")
 
 # PhysX
 set(PHYSX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/include")
@@ -63,29 +62,37 @@ else()
 	set(PHYSX_COOKING_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXCooking_64.lib")
 	set(PHYSX_FOUNDATION_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXFoundation_64.lib")
 endif()
-message("Include dir: ${PHYSX_INCLUDE_DIR}")
-
-# GLM
-add_subdirectory(3rdParty/GLM)
-message("Include dir: ${GLMIncludeDir}")
+message("Including PHYSX: ${PHYSX_INCLUDE_DIR}")
 
 # Utils
 add_subdirectory(Utils)
-message("Include dir: ${EngineUtilsIncludeDir}")
+message("Including Utils: ${EngineUtilsIncludeDir}")
 
 # Physics Engine
 add_subdirectory(Physics)
-message("Include dir: ${PhysicsEngineIncludeDir}")
-target_include_directories(PhysicsEngine PUBLIC ${GLMIncludeDir} ${PHYSX_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(PhysicsEngine PUBLIC ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR})
+message("Including Physics: ${PhysicsEngineIncludeDir}")
+
+target_include_directories(
+	PhysicsEngine PUBLIC 
+	${PHYSX_INCLUDE_DIR}
+	${EngineUtilsIncludeDir}
+)
+target_link_libraries(
+	PhysicsEngine PUBLIC
+	${PHYSX_LIBRARY_DIR}
+	${PHYSX_COMMON_LIBRARY_DIR}
+	${PHYSX_COOKING_LIBRARY_DIR}
+	${PHYSX_FOUNDATION_LIBRARY_DIR}
+	GLM
+)
 
 # Graphics Engine
 add_subdirectory(Graphics)
-message("Include dir: ${GraphicsEngineIncludeDir}")
+message("Including Graphics: ${GraphicsEngineIncludeDir}")
+
 target_include_directories(
 	GraphicsEngine PUBLIC 
 	${GLFW_INCLUDE_DIR}
-	${GLMIncludeDir}
 	${EngineUtilsIncludeDir}
 	${VkBootstrapIncludeDir}
 )
@@ -95,28 +102,54 @@ target_link_libraries(
 	Vulkan::Vulkan 
 	OpenGL::GL
 	VMA
+	GLM
+	VkBootstrap
 )
 
 # Input Engine
 add_subdirectory(Inputs)
-message("Include dir: ${InputEngineIncludeDir}")
-target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
+message("Including Input: ${InputEngineIncludeDir}")
+
+target_include_directories(
+	InputEngine PUBLIC 
+	${GLFW_INCLUDE_DIR} 
+	${EngineUtilsIncludeDir}
+)
+target_link_libraries(
+	InputEngine PUBLIC 
+	${GLFW_LIBRARY_DIR} 
+	OpenGL::GL
+	GLM
+)
 
 # Audio Engine
 add_subdirectory(Audio)
-message("Include dir: ${AudioEngineIncludeDir}")
-target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${FMOD_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(AudioEngine PUBLIC ${FMOD_LIBRARY_DIR})
+message("Including Audio: ${AudioEngineIncludeDir}")
+
+target_include_directories(
+	AudioEngine PUBLIC 
+	${FMOD_INCLUDE_DIR} 
+	${EngineUtilsIncludeDir}
+)
+target_link_libraries(
+	AudioEngine PUBLIC 
+	${FMOD_LIBRARY_DIR} 
+	GLM
+)
 
 # Networking Engine
 add_subdirectory(Networking)
-target_include_directories(NetworkingEngine PUBLIC ${EngineUtilsIncludeDir})
-message("Include dir: ${NetworkingEngineIncludeDir}")
+message("Including Networking: ${NetworkingEngineIncludeDir}")
+
+target_include_directories(
+	NetworkingEngine PUBLIC 
+	${EngineUtilsIncludeDir}
+)
 
 # Main Engine
 add_subdirectory(LeapEngine)
-message("Include dir: ${LeapEngineIncludeDir}")
+message("Including Engine: ${LeapEngineIncludeDir}")
+
 target_include_directories(
 	LeapEngine PUBLIC 
 	${PhysicsEngineIncludeDir} 
@@ -125,7 +158,6 @@ target_include_directories(
 	${AudioEngineIncludeDir}
 	${NetworkingEngineIncludeDir}
 	${GLFW_INCLUDE_DIR}
-	${GLMIncludeDir} 
 	${EngineUtilsIncludeDir})
 target_link_libraries(
 	LeapEngine PUBLIC 
@@ -135,9 +167,17 @@ target_link_libraries(
 	AudioEngine
 	NetworkingEngine
 	${GLFW_LIBRARY_DIR}
-	OpenGL::GL)
+	OpenGL::GL
+	GLM
+)
 
 # Game Project
 add_subdirectory(UnnamedAdventureGame)
-target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
-target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine)
+target_include_directories(
+	UnnamedAdventureGame PUBLIC 
+	${LeapEngineIncludeDir}
+)
+target_link_libraries(
+	UnnamedAdventureGame PUBLIC 
+	LeapEngine
+)
