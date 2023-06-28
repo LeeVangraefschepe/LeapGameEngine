@@ -5,7 +5,7 @@
 #pragma region WorldTransform
 void leap::Transform::SetWorldPosition(const glm::vec3& position)
 {
-	Transform* pParent{ GetGameObject()->GetTransform()};
+	Transform* pParent{ GetGameObject()->GetParent()->GetTransform()};
 
 	// Retrieve the transformation of the parent
 	const glm::vec3& parentWorldPosition{ pParent->GetWorldPosition() };
@@ -280,7 +280,12 @@ const glm::vec3& leap::Transform::GetLocalScale() const
 
 void leap::Transform::UpdateTransform()
 {
-	Transform* pParent{ GetGameObject()->GetTransform() };
+	GameObject* pParentObj{ GetGameObject()->GetParent() };
+
+	// The root gameobject cannot be moved
+	if (!pParentObj) return;
+
+	Transform* pParent{ pParentObj->GetTransform() };
 
 	if (m_IsDirty & static_cast<unsigned int>(DirtyFlags::Translation))
 	{
