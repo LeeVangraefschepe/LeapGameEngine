@@ -4,6 +4,10 @@ find_package(Vulkan REQUIRED)
 add_library(VMA INTERFACE)
 target_include_directories(VMA INTERFACE VMA)
 
+if (MSVC)
+    target_compile_options(VMA INTERFACE /w)
+endif()
+
 #GLM
 add_library(GLM INTERFACE)
 target_include_directories(GLM INTERFACE GLM)

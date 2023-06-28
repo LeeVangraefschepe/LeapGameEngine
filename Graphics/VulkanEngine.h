@@ -2,6 +2,12 @@
 #include <vector>
 #include <deque>
 #include <functional>
+
+// GLM
+#include <vec4.hpp>
+#include <mat4x4.hpp>
+
+#include "vk_mesh.h"
 #include "VulkanTypes.h"
 
 class GLFWwindow;
@@ -18,6 +24,12 @@ namespace leap::graphics
 
 			deletors.clear();
 		}
+	};
+
+	struct MeshPushConstants
+	{
+		glm::vec4 data;
+		glm::mat4 wvp;
 	};
 
 	class VulkanEngine final
@@ -79,11 +91,19 @@ namespace leap::graphics
 		void InitializePipelines();
 
 		// Graphics pipeline
-		VkPipelineLayout m_TrianglePipelineLayout{ VK_NULL_HANDLE };
-		VkPipeline m_TrianglePipeline{};
+		VkPipelineLayout m_MeshPipelineLayout{ VK_NULL_HANDLE };
+		VkPipeline m_MeshPipeline{ VK_NULL_HANDLE };
 
 		// Deletion
 		DeletionQueue m_MainDeletionQueue;
 
+		// Allocator
+		VmaAllocator m_Allocator{ VK_NULL_HANDLE };
+
+		// Mesh
+		Mesh m_TriangleMesh;
+		Mesh m_TeapotMesh;
+		void LoadMeshes();
+		void UploadMesh(Mesh& mesh);
 	};
 }
