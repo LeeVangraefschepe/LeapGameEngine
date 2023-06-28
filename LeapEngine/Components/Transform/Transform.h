@@ -76,13 +76,13 @@ namespace leap
 		glm::vec3 m_LocalPosition{};
 		glm::vec3 m_WorldPosition{};
 
-		glm::quat m_LocalRotation{};
+		glm::quat m_LocalRotation{ 1.0, 0.0, 0.0, 0.0 };
 		glm::vec3 m_LocalRotationEuler{};
-		glm::quat m_WorldRotation{};
+		glm::quat m_WorldRotation{ 1.0, 0.0, 0.0, 0.0 };
 		glm::vec3 m_WorldRotationEuler{};
 
-		glm::vec3 m_LocalScale{};
-		glm::vec3 m_WorldScale{};
+		glm::vec3 m_LocalScale{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_WorldScale{ 1.0f, 1.0f, 1.0f };
 		unsigned int m_IsDirty{ true };
 	};
 }
