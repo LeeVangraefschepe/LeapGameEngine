@@ -2,11 +2,11 @@
 
 #include "../Component.h"
 
-#define GLM_FORCE_SILENT_WARNINGS
 #include "vec3.hpp"
-#include "vec4.hpp"
+#include "vec2.hpp"
+#pragma warning(disable: 4201)
 #include "gtc/quaternion.hpp"
-#undef GLM_FORCE_SILENT_WARNINGS
+#pragma warning(default: 4201)
 
 namespace leap
 {
