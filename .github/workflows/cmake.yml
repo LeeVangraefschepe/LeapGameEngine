@@ -22,6 +22,9 @@ jobs:
         BUILD_PLATFORM: [x64]
 
     steps:
+    - name: Setup Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+
     - uses: actions/checkout@v3
 
     - name: Configure CMake
