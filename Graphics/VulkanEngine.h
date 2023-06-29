@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <deque>
+#include <unordered_map>
+#include <string>
 #include <functional>
 
 // GLM
@@ -30,6 +32,19 @@ namespace leap::graphics
 	{
 		glm::vec4 data;
 		glm::mat4 wvp;
+	};
+
+	struct Material
+	{
+		VkPipeline pipeline;
+		VkPipelineLayout pipelineLayout;
+	};
+
+	struct RenderObject
+	{
+		Mesh* mesh;
+		Material* material;
+		glm::mat4 transform;
 	};
 
 	class VulkanEngine final
@@ -101,7 +116,6 @@ namespace leap::graphics
 		VmaAllocator m_Allocator{ VK_NULL_HANDLE };
 
 		// Mesh
-		Mesh m_TriangleMesh;
 		Mesh m_TeapotMesh;
 		void LoadMeshes();
 		void UploadMesh(Mesh& mesh);
@@ -109,7 +123,19 @@ namespace leap::graphics
 		// Depth buffer
 		VkImageView m_DepthImageView{ VK_NULL_HANDLE };
 		AllocatedImage m_DepthImage;
-
 		VkFormat m_DepthFormat;
+
+		// Scene management
+		std::vector<RenderObject> m_Renderables;
+
+		std::unordered_map<std::string, Material> m_Materials;
+		std::unordered_map<std::string, Mesh> m_Meshes;
+
+		Material* CreateMaterial(const std::string& name, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
+		Material* GetMaterial(const std::string& name);
+		Mesh* GetMesh(const std::string& name);
+		void DrawObjects(VkCommandBuffer cmd, RenderObject* first, int count);
+
+		void InitializeScene();
 	};
 }

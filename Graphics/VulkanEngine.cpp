@@ -18,6 +18,7 @@
 
 // STL includes
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 #pragma region macros
@@ -62,6 +63,7 @@ void VulkanEngine::Initialize()
 	InitializeSyncStructures();
 	InitializePipelines();
 	LoadMeshes();
+	InitializeScene();
 
 	m_IsInitialized = true;
 	std::cout << "VulkanEngine initialized\n";
@@ -124,33 +126,7 @@ void VulkanEngine::Draw()
 	// RENDER STUFF HERE
 	// ...
 
-	// Bind the graphics pipeline
-	vkCmdBindPipeline(m_MainCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_MeshPipeline);
-
-	// Bind the vertex buffer with an offset of 0
-	VkDeviceSize offset = 0;
-	vkCmdBindVertexBuffers(m_MainCommandBuffer, 0, 1, &m_TeapotMesh.vertexBuffer.buffer, &offset);
-
-	// WVP matrix
-	glm::vec3 camPos {0.f, -2.f, -5.f};
-
-	// World
-	glm::mat4 world = glm::rotate(glm::mat4{1.f}, glm::radians(m_FrameNumber  * 0.4f), glm::vec3(0,1,0));
-	// View
-	glm::mat4 view = glm::translate(glm::mat4(1.f), camPos);
-	// Projection
-	glm::mat4 projection = glm::perspective(glm::radians(60.f), (float)m_WindowExtent.width / (float)m_WindowExtent.height, 0.1f, 200.f);
-	projection[1][1] *= -1;
-
-	glm::mat4 WVP = projection * view * world;
-
-	MeshPushConstants constants;
-	constants.wvp = WVP;
-
-	vkCmdPushConstants(m_MainCommandBuffer, m_MeshPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
-
-	// Draw the mesh
-	vkCmdDraw(m_MainCommandBuffer, m_TeapotMesh.vertices.size(), 1, 0, 0);
+	DrawObjects(m_MainCommandBuffer, m_Renderables.data(), m_Renderables.size());
 
 	// End the render pass
 	vkCmdEndRenderPass(m_MainCommandBuffer);
@@ -223,10 +199,9 @@ void VulkanEngine::InitializeVulkan()
 
 	// Make the Vulkan instance, with basic debug features
 	auto instanceDesc = builder.set_app_name("Leap Vulkan Engine")
-		.request_validation_layers(true)
+		.request_validation_layers(false)
 		.require_api_version(1, 1, 0)
 		.use_default_debug_messenger()
-		.request_validation_layers(true)
 		.build();
 
 	vkb::Instance vkbInstance = instanceDesc.value();
@@ -289,7 +264,7 @@ void VulkanEngine::InitializeSwapChain()
 	vkb::Swapchain vkbSwapChain = swapChainBuilder
 		.use_default_format_selection()
 		// use VSync present mode
-		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_present_mode(VK_PRESENT_MODE_MAILBOX_KHR)
 		.set_desired_extent(m_WindowExtent.width, m_WindowExtent.height)
 		.build()
 		.value();
@@ -642,6 +617,8 @@ void VulkanEngine::InitializePipelines()
 	// Build the pipeline
 	m_MeshPipeline = pipelineBuilder.BuildPipeline(m_Device, m_RenderPass);
 
+	CreateMaterial("defaultmesh", m_MeshPipeline, m_MeshPipelineLayout);
+
 	vkDestroyShaderModule(m_Device, vertShader, nullptr);
 	vkDestroyShaderModule(m_Device, fragShader, nullptr);
 
@@ -653,22 +630,10 @@ void VulkanEngine::InitializePipelines()
 
 void VulkanEngine::LoadMeshes()
 {
-	//make the array 3 vertices long
-	m_TriangleMesh.vertices.resize(3);
-				   
-	// vertex positions
-	m_TriangleMesh.vertices[0].position = { 1.f, 1.f, 0.0f };
-	m_TriangleMesh.vertices[1].position = { -1.f, 1.f, 0.0f };
-	m_TriangleMesh.vertices[2].position = { 0.f,-1.f, 0.0f };
-				   
-	// vertex colors, all green
-	m_TriangleMesh.vertices[0].color = { 0.1f, 0.85f, 0.1f }; //pure green
-	m_TriangleMesh.vertices[1].color = { 0.1f, 0.85f, 0.1f }; //pure green
-	m_TriangleMesh.vertices[2].color = { 0.1f, 0.85f, 0.1f }; //pure green
-
 	m_TeapotMesh.LoadFromObj("Meshes/Teapot.obj");
 
 	UploadMesh(m_TeapotMesh);
+	m_Meshes["Teapot"] = m_TeapotMesh;
 }
 
 void VulkanEngine::UploadMesh(Mesh& mesh)
@@ -704,4 +669,103 @@ void VulkanEngine::UploadMesh(Mesh& mesh)
 	vmaMapMemory(m_Allocator, mesh.vertexBuffer.allocation, &data);
 	memcpy(data, mesh.vertices.data(), mesh.vertices.size() * sizeof(Vertex));
 	vmaUnmapMemory(m_Allocator, mesh.vertexBuffer.allocation);
+}
+
+Material* VulkanEngine::CreateMaterial(const std::string& name, VkPipeline pipeline, VkPipelineLayout layout)
+{
+	Material mat;
+	mat.pipeline = pipeline;
+	mat.pipelineLayout = layout;
+	m_Materials[name] = mat;
+	return &m_Materials[name];
+}
+
+Material* VulkanEngine::GetMaterial(const std::string& name)
+{
+	auto it = m_Materials.find(name);
+	if (it == end(m_Materials))
+		return nullptr;
+	else
+		return &(*it).second;
+}
+
+Mesh* VulkanEngine::GetMesh(const std::string& name)
+{
+	auto it = m_Meshes.find(name);
+	if (it == end(m_Meshes))
+		return nullptr;
+	else
+		return &(*it).second;
+}
+
+void VulkanEngine::DrawObjects(VkCommandBuffer cmdBuffer, RenderObject* first, int count)
+{
+	glm::vec3 camPos{0.f, -10.f, -300.f};
+
+	// WVP matrix
+	glm::mat4 trans{glm::translate(glm::mat4{1.f}, camPos)};
+	glm::mat4 rot{glm::rotate(glm::radians(45.f), glm::vec3{1, 0, 0})};
+	glm::mat4 view = rot * trans;
+	glm::mat4 proj{glm::perspective(glm::radians(90.f), (float)m_WindowExtent.width / (float)m_WindowExtent.height, 0.1f, 1000.f)};
+	proj[1][1] *= -1;
+
+	Mesh* lastMesh = nullptr;
+	Material* lastMaterial = nullptr;
+	for (int i = 0; i < count; i++)
+	{
+		RenderObject& object = first[i];
+
+		// Only bind pipeline if it doesn't match with already bound one
+		if (object.material != lastMaterial)
+		{
+			vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, object.material->pipeline);
+			lastMaterial = object.material;
+		}
+
+		// Final WVP
+		glm::mat4 world = object.transform * glm::rotate(glm::mat4{1.f}, glm::radians(m_FrameNumber * 0.4f), glm::vec3(0, 1, 0));
+		glm::mat4 wvp = proj * view * world;
+
+		MeshPushConstants constants;
+		constants.wvp = wvp;
+
+		// Upload mesh to the GPU via push constants
+		vkCmdPushConstants(cmdBuffer, object.material->pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
+
+		// Only bind mesh if it's different from last bind
+		if (object.mesh != lastMesh)
+		{
+			// Bind the mesh vertex buffer with offset 0
+			VkDeviceSize offset{ 0 };
+			vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &object.mesh->vertexBuffer.buffer, &offset);
+			lastMesh = object.mesh;
+		}
+
+		vkCmdDraw(cmdBuffer, object.mesh->vertices.size(), 1, 0, 0);
+	}
+}
+
+void VulkanEngine::InitializeScene()
+{
+	constexpr int numObjects = 100;
+
+	Material* defaultMaterial = GetMaterial("defaultmesh");
+	Mesh* teapotMesh = GetMesh("Teapot");
+	const int vertCount = teapotMesh->vertices.size();
+
+	for (int x = -numObjects * 0.5f; x < numObjects * 0.5f; x++)
+	{
+		for (int y = -numObjects * 0.5f; y < numObjects * 0.5f; y++)
+		{
+			RenderObject teapot;
+			teapot.mesh = teapotMesh;
+			teapot.material = defaultMaterial;
+			teapot.transform = glm::translate(glm::mat4{1.0f}, glm::vec3(x * 10.f, 0, y * 10.f));
+
+			m_Renderables.push_back(teapot);
+		}
+	}
+
+	std::cout << "Number of renderables: " << m_Renderables.size() << "\n";
+	std::cout << std::setprecision(10) << "Number of triangles: " << (m_Renderables.size() * vertCount) / 3 << "\n";
 }
