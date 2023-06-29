@@ -314,6 +314,7 @@ void leap::Transform::UpdateRotation()
 
 	// Calculate world rotation
 	m_WorldRotation = parentWorldRotation * m_LocalRotation;
+	m_WorldRotationEuler = glm::eulerAngles(m_WorldRotation);
 
 	// Disable the rotation dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Rotation);
