@@ -28,12 +28,6 @@ namespace leap::graphics
 		}
 	};
 
-	struct MeshPushConstants
-	{
-		glm::vec4 data;
-		glm::mat4 world;
-	};
-
 	struct Material
 	{
 		VkPipeline pipeline;
@@ -64,16 +58,28 @@ namespace leap::graphics
 		glm::vec4 lightColor;
 	};
 
+	struct GPUObjectData
+	{
+		glm::mat4 world;
+	};
+
 	struct FrameData
 	{
+		// Sync objects
 		VkSemaphore presentSemaphore{ VK_NULL_HANDLE }, renderSemaphore{ VK_NULL_HANDLE };
 		VkFence renderFence{ VK_NULL_HANDLE };
 
+		// Commands
 		VkCommandPool commandPool{ VK_NULL_HANDLE };
 		VkCommandBuffer mainCommandBuffer{ VK_NULL_HANDLE };
 
+		// Buffers
 		AllocatedBuffer cameraBuffer;
+		AllocatedBuffer objectBuffer;
+
+		// Descriptors
 		VkDescriptorSet globalDescriptor;
+		VkDescriptorSet objectDescriptor;
 	};
 
 	// Number of frames that can be processed concurrently
@@ -123,6 +129,8 @@ namespace leap::graphics
 
 		// Descriptor sets
 		VkDescriptorSetLayout m_GlobalSetLayout{ VK_NULL_HANDLE };
+		VkDescriptorSetLayout m_ObjectSetLayout{ VK_NULL_HANDLE };
+
 		VkDescriptorPool m_DescriptorPool{ VK_NULL_HANDLE };
 		void InitDescriptors();
 
