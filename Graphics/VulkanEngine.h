@@ -31,7 +31,7 @@ namespace leap::graphics
 	struct MeshPushConstants
 	{
 		glm::vec4 data;
-		glm::mat4 wvp;
+		glm::mat4 world;
 	};
 
 	struct Material
@@ -46,6 +46,38 @@ namespace leap::graphics
 		Material* material;
 		glm::mat4 transform;
 	};
+
+	struct GPUCameraData
+	{
+		glm::mat4 view;
+		glm::mat4 proj;
+		glm::mat4 viewProj;
+		glm::mat4 viewInv;
+	};
+
+	struct GPUSceneData
+	{
+		glm::vec4 fogColor;
+		glm::vec4 fogDistance;
+		glm::vec4 ambientColor; // w is ambient power
+		glm::vec4 lightDir; // w is light power
+		glm::vec4 lightColor;
+	};
+
+	struct FrameData
+	{
+		VkSemaphore presentSemaphore{ VK_NULL_HANDLE }, renderSemaphore{ VK_NULL_HANDLE };
+		VkFence renderFence{ VK_NULL_HANDLE };
+
+		VkCommandPool commandPool{ VK_NULL_HANDLE };
+		VkCommandBuffer mainCommandBuffer{ VK_NULL_HANDLE };
+
+		AllocatedBuffer cameraBuffer;
+		VkDescriptorSet globalDescriptor;
+	};
+
+	// Number of frames that can be processed concurrently
+	constexpr uint8_t MAX_FRAMES_IN_FLIGHT = 2;
 
 	class VulkanEngine final
 	{
@@ -85,9 +117,14 @@ namespace leap::graphics
 		// Queues & buffers
 		VkQueue m_GraphicsQueue{ VK_NULL_HANDLE };
 		uint32_t m_GraphicsQueueFamily{ UINT32_MAX };
-		VkCommandPool m_CommandPool{ VK_NULL_HANDLE };
-		VkCommandBuffer m_MainCommandBuffer{ VK_NULL_HANDLE };
+		VkPhysicalDeviceProperties m_DeviceProperties;
 		void InitCommands();
+		AllocatedBuffer CreateBuffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
+		// Descriptor sets
+		VkDescriptorSetLayout m_GlobalSetLayout{ VK_NULL_HANDLE };
+		VkDescriptorPool m_DescriptorPool{ VK_NULL_HANDLE };
+		void InitDescriptors();
 
 		// Render passes
 		VkRenderPass m_RenderPass{ VK_NULL_HANDLE };
@@ -96,9 +133,8 @@ namespace leap::graphics
 		void InitializeFramebuffers();
 
 		// Render loop
-		VkSemaphore m_PresentSemaphore{ VK_NULL_HANDLE };
-		VkSemaphore m_RenderSemaphore{ VK_NULL_HANDLE };
-		VkFence m_RenderFence{ VK_NULL_HANDLE };
+		FrameData m_Frames[MAX_FRAMES_IN_FLIGHT];
+		FrameData& GetCurrentFrame();
 		void InitializeSyncStructures();
 
 		// Shaders
@@ -130,6 +166,10 @@ namespace leap::graphics
 
 		std::unordered_map<std::string, Material> m_Materials;
 		std::unordered_map<std::string, Mesh> m_Meshes;
+
+		GPUSceneData m_GPUSceneData;
+		AllocatedBuffer m_SceneDataBuffer;
+		size_t PadUniformBufferSize(size_t originalSize);
 
 		Material* CreateMaterial(const std::string& name, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
 		Material* GetMaterial(const std::string& name);
