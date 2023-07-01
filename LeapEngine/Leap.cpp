@@ -56,9 +56,11 @@ void leap::LeapEngine::Run(int desiredFPS)
     auto& audio = ServiceLocator::GetAudio();
 
     auto& sceneManager = SceneManager::GetInstance();
+    const auto timer = gameContext.GetTimer();
     sceneManager.LoadScene(0);
 
     const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
+    float fixedTotalTime{};
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
@@ -66,11 +68,20 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         //Update gamecontext (Timer class)
         gameContext.Update();
+        fixedTotalTime += timer->GetDeltaTime();
 
         glfwPollEvents();
         input.ProcessInput();
 
         sceneManager.OnFrameStart();
+
+        const float fixedInterval = timer->GetFixedTime();
+        while (fixedTotalTime >= fixedInterval)
+        {
+            fixedTotalTime -= fixedInterval;
+            sceneManager.FixedUpdate();
+        }
+
         sceneManager.Update();
 
         audio.Update();
