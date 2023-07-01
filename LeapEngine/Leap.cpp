@@ -1,8 +1,6 @@
 #include "Leap.h"
 
 #include <chrono>
-#include <functional>
-
 #include "InputManager.h"
 #include "Renderer.h"
 #include "ServiceLocator/ServiceLocator.h"
