@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 
+#include <sstream>
 #include <stdexcept>
 
 #include "Scene.h"
@@ -12,6 +13,24 @@ void leap::SceneManager::AddScene(const std::string& name, const std::function<v
 void leap::SceneManager::LoadScene(unsigned index)
 {
 	m_LoadScene = static_cast<int>(index);
+}
+
+void leap::SceneManager::LoadScene(const std::string& name)
+{
+	if (
+		const auto it = std::ranges::find_if(m_Scenes, [&](const auto& scene)
+			{
+				return scene.name == name;
+			}); it != m_Scenes.end()
+		)
+	{
+		m_LoadScene = static_cast<int>(std::distance(m_Scenes.begin(), it));
+		return;
+	}
+
+	std::stringstream ss{};
+	ss << "No scene found with name: " << name;
+	throw std::exception{ss.str().c_str()};
 }
 
 void leap::SceneManager::OnFrameStart()

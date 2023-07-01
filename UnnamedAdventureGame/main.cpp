@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "Leap.h"
 #include "SceneGraph/SceneManager.h"
 #include "Scenes/MainMenuScene.h"

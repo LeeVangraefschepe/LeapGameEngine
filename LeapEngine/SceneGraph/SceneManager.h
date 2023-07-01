@@ -21,6 +21,7 @@ namespace leap
 
 		void AddScene(const std::string& name, const std::function<void(Scene&)>& load);
 		void LoadScene(unsigned index);
+		void LoadScene(const std::string& name);
 
 	private:
 		friend LeapEngine;
