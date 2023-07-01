@@ -10,7 +10,6 @@ namespace leap
 {
 	class Transform;
 	class Scene;
-	class LeapEngine;
 
 	class GameObject final
 	{
@@ -58,7 +57,6 @@ namespace leap
 		Transform* GetTransform() const;
 	private:
 		friend Scene;
-		friend LeapEngine;
 
 		void OnEnable() const;
 		void OnDisable() const;
