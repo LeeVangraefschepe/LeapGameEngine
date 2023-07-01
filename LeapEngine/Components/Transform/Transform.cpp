@@ -171,7 +171,18 @@ void leap::Transform::Translate(float xDelta, float yDelta, float zDelta)
 void leap::Transform::Rotate(const glm::vec3& rotationDelta, bool degrees)
 {
 	const glm::quat quaternionDelta{ degrees ? glm::radians(rotationDelta) : rotationDelta };
-	m_LocalRotation *= quaternionDelta;
+	/*glm::vec3 halfRotationDelta{ (degrees ? glm::radians(rotationDelta) : rotationDelta) };
+	halfRotationDelta.x = halfRotationDelta.x < 0.0f ? halfRotationDelta.x + glm::two_pi<float>() : halfRotationDelta.x;
+	halfRotationDelta.y = halfRotationDelta.y < 0.0f ? halfRotationDelta.y + glm::two_pi<float>() : halfRotationDelta.y;
+	halfRotationDelta.z = halfRotationDelta.z < 0.0f ? halfRotationDelta.z + glm::two_pi<float>() : halfRotationDelta.z;
+	halfRotationDelta /= 2.0f;
+
+	glm::quat quaternionDeltaX{ cosf(halfRotationDelta.x), sinf(halfRotationDelta.x), 0.0f, 0.0f };
+	glm::quat quaternionDeltaY{ cosf(halfRotationDelta.y), 0.0f, sinf(halfRotationDelta.y), 0.0f };
+	glm::quat quaternionDeltaZ{ cosf(halfRotationDelta.z), 0.0f, 0.0f, sinf(halfRotationDelta.z) };
+	glm::quat quaternionDelta{ quaternionDeltaZ * quaternionDeltaY * quaternionDeltaX };*/
+
+	m_LocalRotation = quaternionDelta * m_LocalRotation;
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
@@ -184,7 +195,7 @@ void leap::Transform::Rotate(float xDelta, float yDelta, float zDelta, bool degr
 
 void leap::Transform::Rotate(const glm::quat& rotationDelta)
 {
-	m_LocalRotation *= rotationDelta;
+	m_LocalRotation = rotationDelta * m_LocalRotation;
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
@@ -296,8 +307,6 @@ void leap::Transform::UpdateTranslation()
 
 	// Disable the translation dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Translation);
-
-	return;
 }
 
 void leap::Transform::UpdateRotation()
@@ -313,13 +322,11 @@ void leap::Transform::UpdateRotation()
 	const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
 
 	// Calculate world rotation
-	m_WorldRotation = parentWorldRotation * m_LocalRotation;
+	m_WorldRotation = m_LocalRotation * parentWorldRotation;
 	m_WorldRotationEuler = glm::eulerAngles(m_WorldRotation);
 
 	// Disable the rotation dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Rotation);
-
-	return;
 }
 
 void leap::Transform::UpdateScale()
@@ -339,8 +346,6 @@ void leap::Transform::UpdateScale()
 
 	// Disable the scale dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Scale);
-
-	return;
 }
 
 bool leap::Transform::IsDirty(DirtyFlags flag) const
