@@ -10,11 +10,6 @@ leap::GameObject* leap::Scene::CreateGameObject(const std::string& name) const
 	return m_RootObject->CreateChild(name);
 }
 
-void leap::Scene::Add(GameObject* object) const
-{
-	object->SetParent(m_RootObject.get());
-}
-
 void leap::Scene::RemoveAll()
 {
 	m_RootObject.reset();
