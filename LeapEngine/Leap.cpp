@@ -80,7 +80,7 @@ void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
 
         //Render here
         glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
-        //m_pRenderer->Draw();
+        m_pRenderer->Draw();
         glClear(GL_COLOR_BUFFER_BIT);
 
         //Swap front and back buffers
