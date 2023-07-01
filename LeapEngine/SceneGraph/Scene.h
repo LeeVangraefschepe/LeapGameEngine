@@ -10,7 +10,7 @@ namespace leap
 	{
 	public:
 		explicit Scene(const std::string& name);
-		~Scene() = default;
+		~Scene();
 
 		Scene(const Scene& other) = delete;
 		Scene(Scene&& other) = delete;
@@ -19,7 +19,7 @@ namespace leap
 
 		GameObject* CreateGameObject(const std::string& name) const;
 		void RemoveAll();
-		const GameObject* GetRootObject() const;
+		GameObject* GetRootObject() const;
 
 	private:
 		friend SceneManager;

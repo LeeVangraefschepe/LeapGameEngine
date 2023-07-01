@@ -5,6 +5,11 @@
 
 #include "Scene.h"
 
+leap::Scene* leap::SceneManager::GetActiveScene() const
+{
+	return m_Scene.get();
+}
+
 void leap::SceneManager::AddScene(const std::string& name, const std::function<void(Scene&)>& load)
 {
 	m_Scenes.emplace_back(SceneData{ name, load });

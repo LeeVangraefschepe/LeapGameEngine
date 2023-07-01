@@ -19,6 +19,7 @@ namespace leap
 		SceneManager& operator=(const SceneManager& other) = delete;
 		SceneManager& operator=(SceneManager&& other) = delete;
 
+		Scene* GetActiveScene() const;
 		void AddScene(const std::string& name, const std::function<void(Scene&)>& load);
 		void LoadScene(unsigned index);
 		void LoadScene(const std::string& name);
