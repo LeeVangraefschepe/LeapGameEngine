@@ -9,7 +9,7 @@ namespace leap
 	class Scene final
 	{
 	public:
-		explicit Scene(std::string name);
+		explicit Scene(const std::string& name);
 		~Scene() = default;
 
 		Scene(const Scene& other) = delete;
@@ -31,7 +31,6 @@ namespace leap
 		void OnGUI() const;
 		void OnFrameEnd() const;
 
-		std::string m_Name;
 		std::unique_ptr<GameObject> m_RootObject;
 	};
 }
