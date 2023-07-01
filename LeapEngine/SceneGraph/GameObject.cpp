@@ -32,8 +32,6 @@ void leap::GameObject::SetParent(GameObject* pParent)
 
 	// Set the new parent of this gameobject
 	m_pParent = pParent;
-
-	// TODO: Set transform data
 }
 
 leap::GameObject* leap::GameObject::CreateChild(const std::string& name)

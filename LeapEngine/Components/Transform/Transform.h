@@ -85,6 +85,7 @@ namespace leap
 
 		glm::vec3 m_LocalScale{ 1.0f, 1.0f, 1.0f };
 		glm::vec3 m_WorldScale{ 1.0f, 1.0f, 1.0f };
-		unsigned int m_IsDirty{ true };
+
+		unsigned int m_IsDirty{ static_cast<unsigned int>(DirtyFlags::Translation) | static_cast<unsigned int>(DirtyFlags::Rotation) | static_cast<unsigned int>(DirtyFlags::Scale) };
 	};
 }
