@@ -171,16 +171,6 @@ void leap::Transform::Translate(float xDelta, float yDelta, float zDelta)
 void leap::Transform::Rotate(const glm::vec3& rotationDelta, bool degrees)
 {
 	const glm::quat quaternionDelta{ degrees ? glm::radians(rotationDelta) : rotationDelta };
-	/*glm::vec3 halfRotationDelta{ (degrees ? glm::radians(rotationDelta) : rotationDelta) };
-	halfRotationDelta.x = halfRotationDelta.x < 0.0f ? halfRotationDelta.x + glm::two_pi<float>() : halfRotationDelta.x;
-	halfRotationDelta.y = halfRotationDelta.y < 0.0f ? halfRotationDelta.y + glm::two_pi<float>() : halfRotationDelta.y;
-	halfRotationDelta.z = halfRotationDelta.z < 0.0f ? halfRotationDelta.z + glm::two_pi<float>() : halfRotationDelta.z;
-	halfRotationDelta /= 2.0f;
-
-	glm::quat quaternionDeltaX{ cosf(halfRotationDelta.x), sinf(halfRotationDelta.x), 0.0f, 0.0f };
-	glm::quat quaternionDeltaY{ cosf(halfRotationDelta.y), 0.0f, sinf(halfRotationDelta.y), 0.0f };
-	glm::quat quaternionDeltaZ{ cosf(halfRotationDelta.z), 0.0f, 0.0f, sinf(halfRotationDelta.z) };
-	glm::quat quaternionDelta{ quaternionDeltaZ * quaternionDeltaY * quaternionDeltaX };*/
 
 	m_LocalRotation = quaternionDelta * m_LocalRotation;
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
