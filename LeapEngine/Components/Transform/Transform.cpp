@@ -277,6 +277,7 @@ const glm::vec3& leap::Transform::GetLocalScale() const
 {
 	return m_LocalScale;
 }
+
 #pragma endregion
 void leap::Transform::UpdateTranslation()
 {
@@ -346,4 +347,29 @@ bool leap::Transform::IsDirty(DirtyFlags flag) const
 void leap::Transform::SetDirty(DirtyFlags flag)
 {
 	m_IsDirty |= static_cast<unsigned int>(flag);
+}
+
+void leap::Transform::KeepWorldTransform(GameObject* pParent)
+{
+	// Retrieve all transformations of this component
+	const auto& worldPosition{ GetWorldPosition() };
+	const auto& worldRotation{ GetWorldRotation() };
+	const auto& worldScale{ GetWorldScale() };
+	// Retrieve all transformations of the parent
+	Transform* pParentTransform{ pParent->GetTransform() };
+	const auto& parentPosition{ pParentTransform->GetWorldPosition() };
+	const auto& parentRotation{ pParentTransform->GetWorldRotation() };
+	const auto& parentScale{ pParentTransform->GetWorldScale() };
+
+	// Calculate the inverse of the new parent's world scale and rotation
+	const glm::vec3 inverseParentScale{ 1.0f / parentScale };
+	const glm::quat inverseParentRotation{ glm::inverse(parentRotation) };
+	
+	// Calculate the difference between world rotations
+	const glm::quat deltaRotation{ inverseParentRotation * worldRotation };
+
+	// Calculate the new local positions that keep the world space transform depending on the given parent 
+	SetLocalPosition(inverseParentRotation * (inverseParentScale * (worldPosition - parentPosition)));
+	SetLocalRotation(deltaRotation * worldRotation);
+	SetLocalRotation(worldScale * inverseParentScale);
 }

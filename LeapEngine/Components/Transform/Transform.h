@@ -60,6 +60,8 @@ namespace leap
 		glm::vec3 GetLocalEulerDegrees() const;
 		const glm::vec3& GetLocalScale() const;
 
+		void KeepWorldTransform(GameObject* pParent);
+
 	private:
 		enum class DirtyFlags
 		{
