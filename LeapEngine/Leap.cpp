@@ -6,6 +6,8 @@
 #include "ServiceLocator/ServiceLocator.h"
 #include "Systems/FmodAudioSystem.h"
 
+#include "vec3.hpp"
+
 #include <iostream>
 #include <glfw3.h>
 
@@ -40,9 +42,12 @@ leap::LeapEngine::LeapEngine()
     input::InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
+leap::LeapEngine::~LeapEngine()
+{}
+
 void leap::LeapEngine::Run(int desiredFPS)
 {
-	std::cout << "Engine startup\n";
+	  std::cout << "Engine startup\n";
 
     m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
     m_pRenderer->Initialize();
