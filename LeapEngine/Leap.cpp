@@ -8,6 +8,8 @@
 #include "ServiceLocator/ServiceLocator.h"
 #include "Systems/FmodAudioSystem.h"
 
+#include "vec3.hpp"
+
 #include <iostream>
 #include <glfw3.h>
 
@@ -39,6 +41,11 @@ leap::LeapEngine::LeapEngine()
     glfwMakeContextCurrent(m_pWindow);
 
     input::InputManager::GetInstance().SetWindow(m_pWindow);
+}
+
+leap::LeapEngine::~LeapEngine()
+{
+
 }
 
 void leap::LeapEngine::Run(const std::function<void()>& load, int desiredFPS)
