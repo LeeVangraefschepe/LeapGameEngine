@@ -1,6 +1,7 @@
 #include "InputManager.h"
 #include "Command.h"
 #include <glfw3.h>
+#include <ranges>
 
 void leap::input::InputManager::SetWindow(GLFWwindow* window)
 {
@@ -45,6 +46,39 @@ glm::vec2 leap::input::InputManager::GetCursorPosition() const
 	glm::dvec2 position{};
 	glfwGetCursorPos(m_pWindow, &position.x, &position.y);
 	return position;
+}
+
+void leap::input::InputManager::RemoveCommand(const std::shared_ptr<Command>& command)
+{
+	for (auto& binding : m_keyboardCommands | std::views::values)
+	{
+		for (auto& savedCommand : binding | std::views::values)
+		{
+			if (auto iter = std::find(savedCommand.begin(), savedCommand.end(), command); iter != savedCommand.end())
+			{
+				savedCommand.erase(iter);
+			}
+		}
+	}
+
+	for (auto& binding : m_mouseCommands | std::views::values)
+	{
+		for (auto& savedCommand : binding | std::views::values)
+		{
+			if (auto iter = std::find(savedCommand.begin(), savedCommand.end(), command); iter != savedCommand.end())
+			{
+				savedCommand.erase(iter);
+			}
+		}
+	}
+
+	for (auto& savedCommand : m_wheelCommands | std::views::values)
+	{
+		if (auto iter = std::find(savedCommand.begin(), savedCommand.end(), command); iter != savedCommand.end())
+		{
+			savedCommand.erase(iter);
+		}
+	}
 }
 
 void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)

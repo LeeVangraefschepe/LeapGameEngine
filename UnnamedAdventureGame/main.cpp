@@ -1,15 +1,12 @@
-#include <iostream>
-
 #include "Leap.h"
+#include "SceneGraph/SceneManager.h"
+#include "Scenes/MainMenuScene.h"
 
-void Demo()
-{
-	
-}
 
 int main()
 {
 	leap::LeapEngine engine{};
-	engine.Run(Demo, 60);
+	leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
+	engine.Run(60);
 	return 0;
 }

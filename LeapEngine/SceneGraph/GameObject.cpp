@@ -4,6 +4,8 @@
 
 #include <stdexcept>
 
+#include "SceneManager.h"
+
 leap::GameObject::GameObject(const std::string& name)
 	: m_Name{ name }
 {
@@ -12,8 +14,10 @@ leap::GameObject::GameObject(const std::string& name)
 
 void leap::GameObject::SetParent(GameObject* pParent)
 {
-	// TODO: Add parenting to root
-	if (pParent == nullptr) return;
+	if (pParent == nullptr)
+	{
+		pParent = SceneManager::GetInstance().GetActiveScene()->GetRootObject();
+	}
 
 	GameObject* pPrevParent{ m_pParent };
 
@@ -24,7 +28,7 @@ void leap::GameObject::SetParent(GameObject* pParent)
 	if (pPrevParent == pParent) return;
 
 	// Move the unique ptr of itself from the parent to this function
-	auto selfIt{ std::find_if(begin(pPrevParent->m_pChildren), end(pPrevParent->m_pChildren), [this](const auto& pChild) { return pChild.get() == this; }) };
+	const auto selfIt{ std::find_if(begin(pPrevParent->m_pChildren), end(pPrevParent->m_pChildren), [this](const auto& pChild) { return pChild.get() == this; }) };
 	std::unique_ptr<GameObject> pSelf{ std::move(*selfIt) };
 
 	// Keep the world transform
