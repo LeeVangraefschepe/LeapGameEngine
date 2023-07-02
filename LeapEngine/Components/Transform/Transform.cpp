@@ -70,9 +70,9 @@ void leap::Transform::SetWorldScale(float x, float y, float z)
 	const glm::vec3& invParentWorldScale{ 1.0f / parentWorldScale.x, 1.0f / parentWorldScale.y, 1.0f / parentWorldScale.z };
 
 	// Apply the inverse transformation to the desired world position
-	m_LocalRotation.x = invParentWorldScale.x * x;
-	m_LocalRotation.y = invParentWorldScale.y * y;
-	m_LocalRotation.z = invParentWorldScale.z * z;
+	m_LocalScale.x = invParentWorldScale.x * x;
+	m_LocalScale.y = invParentWorldScale.y * y;
+	m_LocalScale.z = invParentWorldScale.z * z;
 
 	SetDirty(DirtyFlags::Scale);
 }
