@@ -39,18 +39,17 @@ void leap::Component::ChangeActiveState()
 	SetPreviousActiveWorld(IsActiveWorld());
 
 	// Retrieve the local states
-	const bool isActiveLocal{ IsActiveLocal() };
 	const bool isActiveLocalNextFrame{ IsActiveLocalNextFrame() };
 
 	// Only change the local state if necessary
-	if (isActiveLocalNextFrame != isActiveLocal)
+	if (isActiveLocalNextFrame != IsActiveLocal())
 	{
 		// Set the new local state
 		SetActiveLocal(isActiveLocalNextFrame);
 	}
 
 	// Update the world state of this component
-	SetActiveWorld(isActiveLocal && m_pOwner->IsActive());
+	SetActiveWorld(IsActiveLocal() && m_pOwner->IsActive());
 }
 
 void leap::Component::TryCallStart()
