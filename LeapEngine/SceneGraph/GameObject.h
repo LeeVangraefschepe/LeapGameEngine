@@ -77,7 +77,6 @@ namespace leap
 		void OnFrameStart();
 		void MoveNewObjectsAndComponents();
 		void CallAwake() const;
-		void OnFrameStartCleanup();
 		void ChangeActiveState();
 		void SetWorldState(bool isActive);
 		void CallStart() const;
@@ -104,10 +103,10 @@ namespace leap
 
 		enum class StateFlags : char
 		{
-			IsActiveLocalNextFrame = 1,
-			IsActiveLocal = 2,
-			IsActiveWorld = 4,
-			IsMarkedAsDead = 8
+			IsActiveLocalNextFrame	= 1 << 0,
+			IsActiveLocal			= 1 << 1,
+			IsActiveWorld			= 1 << 2,
+			IsMarkedAsDead			= 1 << 3
 		};
 
 		unsigned char m_StateFlags{ static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame) };
@@ -119,11 +118,9 @@ namespace leap
 		Transform* m_pTransform{};
 
 		std::vector<std::unique_ptr<GameObject>> m_pChildrenToAdd{};
-		std::vector<GameObject*> m_pNewestChildren{};
 		std::vector<std::unique_ptr<GameObject>> m_pChildren{};
 
 		std::vector<std::unique_ptr<Component>> m_pComponentsToAdd{};
-		std::vector<Component*> m_pNewestComponents{};
 		std::vector<std::unique_ptr<Component>> m_pComponents{};
 	};
 

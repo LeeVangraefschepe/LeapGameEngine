@@ -99,7 +99,6 @@ void leap::GameObject::OnFrameStart()
 {
 	MoveNewObjectsAndComponents(); // Move components and children from the temp container to the normal container
 	CallAwake(); // Call Awake on all new children and components
-	OnFrameStartCleanup(); // Clear all the temp containers
 	ChangeActiveState(); // Update the local and world active states
 	CallStart(); // Call the start when needed
 	CallEnableAndDisable(); // Call OnEnable and OnDisable when needed
@@ -107,17 +106,15 @@ void leap::GameObject::OnFrameStart()
 
 void leap::GameObject::MoveNewObjectsAndComponents()
 {	
-	// Store the raw new components and move the components from the temp container to the default container
+	// Move the components from the temp container to the default container
 	for (auto& pComponent : m_pComponentsToAdd)
 	{
-		m_pNewestComponents.emplace_back(pComponent.get());
 		m_pComponents.emplace_back(std::move(pComponent));
 	}
 
-	// Store the raw new children and move the children from the temp container to the default container
+	// Move the children from the temp container to the default container
 	for (auto& pChild : m_pChildrenToAdd)
 	{
-		m_pNewestChildren.emplace_back(pChild.get());
 		m_pChildren.emplace_back(std::move(pChild));
 	}
 
@@ -134,26 +131,20 @@ void leap::GameObject::MoveNewObjectsAndComponents()
 
 void leap::GameObject::CallAwake() const
 {
-	// Call awake on all the new components and children
-	for (auto pComponent : m_pNewestComponents) pComponent->Awake();
-
-	// Call awake on all children
-	for (const auto& pChild : m_pNewestChildren)
+	// Call awake on the new components and children
+	for (const auto& pComponent : m_pComponents)
 	{
-		if (pChild) pChild->CallAwake();
+		if (!pComponent->IsInitialized())
+		{
+			pComponent->Initialize();
+			pComponent->Awake();
+		}
 	}
-}
-
-void leap::GameObject::OnFrameStartCleanup()
-{
-	// Clear all the new object containers
-	m_pNewestChildren.clear();
-	m_pNewestComponents.clear();
-
-	// Clear all new containers of the children
+	
+	// Call awake on all children
 	for (const auto& pChild : m_pChildren)
 	{
-		if (pChild) pChild->OnFrameStartCleanup();
+		if (pChild) pChild->CallAwake();
 	}
 }
 
