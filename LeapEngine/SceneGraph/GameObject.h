@@ -36,10 +36,10 @@ namespace leap
 		const std::string& GetTag() const { return m_Tag; }
 
 		void SetActive(bool isActive);
-		bool IsActive() { return m_IsActiveWorld; }
+		bool IsActive() const;
 
 		void Destroy();
-		bool IsMarkedAsDead() const { return m_IsMarkedDead; };
+		bool IsMarkedAsDead() const;
 
 		template <class T>
 		T* AddComponent();
@@ -92,13 +92,26 @@ namespace leap
 		void CheckDestroyFlag() const;
 		void UpdateCleanup();
 
+		/// <summary>
+		/// These functions are internally used to 
+		/// change and check values of the m_StateFlags bitmask
+		/// </summary>
+		bool IsActiveLocalNextFrame() const;
+		bool IsActiveLocal() const;
+		void SetActiveLocal(bool isActive);
+		bool IsActiveWorld() const;
+		void SetActiveWorld(bool isActive);
 
-		bool m_NextIsActiveLocal{ true };
-		bool m_IsActiveLocal{ false };
+		enum class StateFlags : char
+		{
+			IsActiveLocalNextFrame = 1,
+			IsActiveLocal = 2,
+			IsActiveWorld = 4,
+			IsMarkedAsDead = 8
+		};
 
-		bool m_IsActiveWorld{ false };
+		unsigned char m_StateFlags{ static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame) };
 
-		bool m_IsMarkedDead{};
 		const char* m_Name{};
 		const char* m_Tag{};
 
