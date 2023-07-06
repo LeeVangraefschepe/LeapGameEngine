@@ -6,7 +6,7 @@
 
 #include "SceneManager.h"
 
-leap::GameObject::GameObject(const std::string& name)
+leap::GameObject::GameObject(const char* name)
 	: m_Name{ name }
 {
 	m_pTransform = AddComponent<Transform>();
@@ -41,7 +41,7 @@ void leap::GameObject::SetParent(GameObject* pParent)
 	m_pParent = pParent;
 }
 
-leap::GameObject* leap::GameObject::CreateChild(const std::string& name)
+leap::GameObject* leap::GameObject::CreateChild(const char* name)
 {
 	// Create a new gameobject
 	auto pGameObject{ std::make_unique<GameObject>(name) };

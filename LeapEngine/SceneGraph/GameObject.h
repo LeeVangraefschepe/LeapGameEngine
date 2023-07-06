@@ -14,7 +14,7 @@ namespace leap
 	class GameObject final
 	{
 	public:
-		GameObject(const std::string& name);
+		GameObject(const char* name);
 		~GameObject() = default;
 
 		GameObject(const GameObject& other) = delete;
@@ -25,14 +25,14 @@ namespace leap
 		void SetParent(GameObject* pParent);
 		GameObject* GetParent() const { return m_pParent; };
 
-		GameObject* CreateChild(const std::string& name);
+		GameObject* CreateChild(const char* name);
 		GameObject* GetChild(int index) const;
 		size_t GetChildCount() const { return m_pChildren.size(); };
 
-		void SetName(const std::string& name) { m_Name = name; }
+		void SetName(const char* name) { m_Name = name; }
 		const std::string& GetName() const { return m_Name; };
 
-		void SetTag(const std::string& tag) { m_Tag = tag; }
+		void SetTag(const char* tag) { m_Tag = tag; }
 		const std::string& GetTag() const { return m_Tag; }
 
 		void SetActive(bool isActive);
@@ -67,6 +67,8 @@ namespace leap
 		void OnGUI() const;
 		void OnDestroy() const;
 
+		const char* GetRawName() const { return m_Name; };
+
 		/// <summary>
 		/// Internally used to initialize gameobjects/components and update their active state
 		/// This will call the Awake, Start, OnEnable and OnDisable methods
@@ -90,8 +92,6 @@ namespace leap
 		void CheckDestroyFlag() const;
 		void UpdateCleanup();
 
-		std::string m_Name{};
-		std::string m_Tag{};
 
 		bool m_NextIsActiveLocal{ true };
 		bool m_IsActiveLocal{ false };
@@ -99,6 +99,8 @@ namespace leap
 		bool m_IsActiveWorld{ false };
 
 		bool m_IsMarkedDead{};
+		const char* m_Name{};
+		const char* m_Tag{};
 
 		GameObject* m_pParent{};
 		Transform* m_pTransform{};

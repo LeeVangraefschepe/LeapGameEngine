@@ -10,7 +10,7 @@ leap::Scene* leap::SceneManager::GetActiveScene() const
 	return m_Scene.get();
 }
 
-void leap::SceneManager::AddScene(const std::string& name, const std::function<void(Scene&)>& load)
+void leap::SceneManager::AddScene(const char* name, const std::function<void(Scene&)>& load)
 {
 	m_Scenes.emplace_back(SceneData{ name, load });
 }
@@ -83,6 +83,6 @@ void leap::SceneManager::LoadInternalScene()
 	}
 	const auto& sceneData = m_Scenes[m_LoadScene];
 	m_LoadScene = -1;
-	m_Scene = std::make_unique<Scene>(sceneData.name);
+	m_Scene = std::make_unique<Scene>(sceneData.name.c_str());
 	sceneData.load(*m_Scene);
 }
