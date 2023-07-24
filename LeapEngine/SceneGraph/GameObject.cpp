@@ -1,16 +1,23 @@
 #include "GameObject.h"
 
+#include "../Components/Transform/Transform.h"
+
 #include <stdexcept>
+
+#include "SceneManager.h"
 
 leap::GameObject::GameObject(const std::string& name)
 	: m_Name{ name }
 {
+	m_pTransform = AddComponent<Transform>();
 }
 
 void leap::GameObject::SetParent(GameObject* pParent)
 {
-	// TODO: Add parenting to root
-	if (pParent == nullptr) return;
+	if (pParent == nullptr)
+	{
+		pParent = SceneManager::GetInstance().GetActiveScene()->GetRootObject();
+	}
 
 	GameObject* pPrevParent{ m_pParent };
 
@@ -21,16 +28,17 @@ void leap::GameObject::SetParent(GameObject* pParent)
 	if (pPrevParent == pParent) return;
 
 	// Move the unique ptr of itself from the parent to this function
-	auto selfIt{ std::find_if(begin(pPrevParent->m_pChildren), end(pPrevParent->m_pChildren), [this](const auto& pChild) { return pChild.get() == this; }) };
+	const auto selfIt{ std::find_if(begin(pPrevParent->m_pChildren), end(pPrevParent->m_pChildren), [this](const auto& pChild) { return pChild.get() == this; }) };
 	std::unique_ptr<GameObject> pSelf{ std::move(*selfIt) };
-	
+
+	// Keep the world transform
+	GetTransform()->KeepWorldTransform(pParent);
+
 	// Add self to the new parent
-	pParent->m_pChildrenToAdd.emplace_back(std::move(pSelf));
+	pParent->m_pChildren.emplace_back(std::move(pSelf));
 
 	// Set the new parent of this gameobject
 	m_pParent = pParent;
-
-	// TODO: Set transform data
 }
 
 leap::GameObject* leap::GameObject::CreateChild(const std::string& name)
@@ -262,6 +270,11 @@ void leap::GameObject::UpdateCleanup()
 
 	// Cleanup every child
 	for (const auto& pChild : m_pChildren) pChild->UpdateCleanup();
+}
+
+leap::Transform* leap::GameObject::GetTransform() const
+{
+	return m_pTransform;
 }
 
 #pragma region ComponentMethods

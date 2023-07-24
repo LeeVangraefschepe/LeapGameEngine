@@ -15,12 +15,15 @@ namespace leap
 		Timer& operator=(Timer&& other) = delete;
 		
 		float GetDeltaTime() const { return m_DeltaTime; }
+		float GetFixedTime() const { return m_FixedTime; }
+		void SetFixedTime(float value) { m_FixedTime = value; }
 
 	private:
 		friend GameContext;
 		void Update();
 
-		float m_DeltaTime;
+		float m_FixedTime{ 0.02f };
+		float m_DeltaTime{};
 		std::chrono::time_point<std::chrono::steady_clock> m_End;
 	};
 }

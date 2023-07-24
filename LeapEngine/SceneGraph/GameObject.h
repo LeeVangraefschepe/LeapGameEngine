@@ -8,6 +8,7 @@
 
 namespace leap
 {
+	class Transform;
 	class Scene;
 
 	class GameObject final
@@ -52,6 +53,8 @@ namespace leap
 		void RemoveComponent();
 		template <class T>
 		void RemoveComponent(T* pComponent);
+
+		Transform* GetTransform() const;
 	private:
 		friend Scene;
 
@@ -98,6 +101,7 @@ namespace leap
 		bool m_IsMarkedDead{};
 
 		GameObject* m_pParent{};
+		Transform* m_pTransform{};
 
 		std::vector<std::unique_ptr<GameObject>> m_pChildrenToAdd{};
 		std::vector<GameObject*> m_pNewestChildren{};
