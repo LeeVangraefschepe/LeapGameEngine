@@ -14,7 +14,7 @@ namespace leap
 	class GameObject final
 	{
 	public:
-		GameObject(const std::string& name);
+		GameObject(const char* name);
 		~GameObject() = default;
 
 		GameObject(const GameObject& other) = delete;
@@ -25,21 +25,21 @@ namespace leap
 		void SetParent(GameObject* pParent);
 		GameObject* GetParent() const { return m_pParent; };
 
-		GameObject* CreateChild(const std::string& name);
+		GameObject* CreateChild(const char* name);
 		GameObject* GetChild(int index) const;
 		size_t GetChildCount() const { return m_pChildren.size(); };
 
-		void SetName(const std::string& name) { m_Name = name; }
+		void SetName(const char* name) { m_Name = name; }
 		const std::string& GetName() const { return m_Name; };
 
-		void SetTag(const std::string& tag) { m_Tag = tag; }
+		void SetTag(const char* tag) { m_Tag = tag; }
 		const std::string& GetTag() const { return m_Tag; }
 
 		void SetActive(bool isActive);
-		bool IsActive() { return m_IsActiveWorld; }
+		bool IsActive() const;
 
 		void Destroy();
-		bool IsMarkedAsDead() const { return m_IsMarkedDead; };
+		bool IsMarkedAsDead() const;
 
 		template <class T>
 		T* AddComponent();
@@ -67,6 +67,8 @@ namespace leap
 		void OnGUI() const;
 		void OnDestroy() const;
 
+		const char* GetRawName() const { return m_Name; };
+
 		/// <summary>
 		/// Internally used to initialize gameobjects/components and update their active state
 		/// This will call the Awake, Start, OnEnable and OnDisable methods
@@ -75,7 +77,6 @@ namespace leap
 		void OnFrameStart();
 		void MoveNewObjectsAndComponents();
 		void CallAwake() const;
-		void OnFrameStartCleanup();
 		void ChangeActiveState();
 		void SetWorldState(bool isActive);
 		void CallStart() const;
@@ -90,25 +91,36 @@ namespace leap
 		void CheckDestroyFlag() const;
 		void UpdateCleanup();
 
-		std::string m_Name{};
-		std::string m_Tag{};
+		/// <summary>
+		/// These functions are internally used to 
+		/// change and check values of the m_StateFlags bitmask
+		/// </summary>
+		bool IsActiveLocalNextFrame() const;
+		bool IsActiveLocal() const;
+		void SetActiveLocal(bool isActive);
+		bool IsActiveWorld() const;
+		void SetActiveWorld(bool isActive);
 
-		bool m_NextIsActiveLocal{ true };
-		bool m_IsActiveLocal{ false };
+		enum class StateFlags : char
+		{
+			IsActiveLocalNextFrame	= 1 << 0,
+			IsActiveLocal			= 1 << 1,
+			IsActiveWorld			= 1 << 2,
+			IsMarkedAsDead			= 1 << 3
+		};
 
-		bool m_IsActiveWorld{ false };
+		unsigned char m_StateFlags{ static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame) };
 
-		bool m_IsMarkedDead{};
+		const char* m_Name{};
+		const char* m_Tag{};
 
 		GameObject* m_pParent{};
 		Transform* m_pTransform{};
 
 		std::vector<std::unique_ptr<GameObject>> m_pChildrenToAdd{};
-		std::vector<GameObject*> m_pNewestChildren{};
 		std::vector<std::unique_ptr<GameObject>> m_pChildren{};
 
 		std::vector<std::unique_ptr<Component>> m_pComponentsToAdd{};
-		std::vector<Component*> m_pNewestComponents{};
 		std::vector<std::unique_ptr<Component>> m_pComponents{};
 	};
 

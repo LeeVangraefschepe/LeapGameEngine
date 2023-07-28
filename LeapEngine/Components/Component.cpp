@@ -4,7 +4,12 @@
 
 void leap::Component::Destroy()
 {
-	m_IsMarkedDead = true;
+	m_StateFlags |= static_cast<unsigned char>(StateFlags::IsMarkedAsDead);
+}
+
+bool leap::Component::IsMarkedAsDead() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsMarkedAsDead);
 }
 
 void leap::Component::SetActive(bool isActive)
@@ -12,12 +17,15 @@ void leap::Component::SetActive(bool isActive)
 	// Set the next active state
 	// The new active state will be handled at the end of the frame
 	//		(e.g. call OnEnable/OnDisable)
-	m_NextIsActiveLocal = isActive;
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame);
 }
 
 bool leap::Component::IsActive() const
 {
-	return m_IsActiveLocal && m_pOwner->IsActive();
+	return IsActiveWorld();
 }
 
 void leap::Component::SetOwner(GameObject* pOwner)
@@ -28,35 +36,103 @@ void leap::Component::SetOwner(GameObject* pOwner)
 void leap::Component::ChangeActiveState()
 {
 	// Cache the previous world state
-	m_PrevIsActiveWorld = m_IsActiveWorld;
+	SetPreviousActiveWorld(IsActiveWorld());
 
-	if (m_NextIsActiveLocal != m_IsActiveLocal)
+	// Retrieve the local states
+	const bool isActiveLocalNextFrame{ IsActiveLocalNextFrame() };
+
+	// Only change the local state if necessary
+	if (isActiveLocalNextFrame != IsActiveLocal())
 	{
 		// Set the new local state
-		m_IsActiveLocal = m_NextIsActiveLocal;
+		SetActiveLocal(isActiveLocalNextFrame);
 	}
 
 	// Update the world state of this component
-	m_IsActiveWorld = m_IsActiveLocal && m_pOwner->IsActive();
+	SetActiveWorld(IsActiveLocal() && m_pOwner->IsActive());
 }
 
 void leap::Component::TryCallStart()
 {
 	// Don't call start twice
-	if (m_HasStarted) return;
+	if (HasStarted()) return;
 	
 	// Don't call start if the component is not active
-	if (!m_IsActiveWorld) return;
+	if (!IsActiveWorld()) return;
 
-	m_HasStarted = true;
+	// Active the started bit flag
+	m_StateFlags |= static_cast<unsigned char>(StateFlags::HasStarted);
+
 	Start();
 }
 
 void leap::Component::TryCallEnableAndDisable()
 {
-	// Don't call a method if the worldstate hasn't changed
-	if (m_PrevIsActiveWorld == m_IsActiveWorld) return;
+	const bool isActiveWorld{ IsActiveWorld() };
 
-	if (m_IsActiveWorld) OnEnable();
+	// Don't call a method if the worldstate hasn't changed
+	if (WasActiveWorldPreviousFrame() == isActiveWorld) return;
+
+	// Call the appropriate method
+	if (isActiveWorld) OnEnable();
 	else OnDisable();
+}
+
+bool leap::Component::IsActiveLocalNextFrame() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame);
+}
+
+bool leap::Component::IsActiveLocal() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsActiveLocal);
+}
+
+void leap::Component::SetActiveLocal(bool isActive)
+{
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::IsActiveLocal);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::IsActiveLocal);
+}
+
+bool leap::Component::IsActiveWorld() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsActiveWorld);
+}
+
+void leap::Component::SetActiveWorld(bool isActive)
+{
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::IsActiveWorld);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::IsActiveWorld);
+}
+
+bool leap::Component::WasActiveWorldPreviousFrame() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::WasActiveWorldPreviousFrame);
+}
+
+void leap::Component::SetPreviousActiveWorld(bool isActive)
+{
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::WasActiveWorldPreviousFrame);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::WasActiveWorldPreviousFrame);
+}
+
+bool leap::Component::HasStarted() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::HasStarted);
+}
+
+bool leap::Component::IsInitialized() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsInitialized);
+}
+
+void leap::Component::Initialize()
+{
+	m_StateFlags |= static_cast<unsigned char>(StateFlags::IsInitialized);
 }

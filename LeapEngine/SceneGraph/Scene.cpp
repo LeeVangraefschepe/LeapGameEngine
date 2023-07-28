@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-leap::Scene::Scene(const std::string& name)
+leap::Scene::Scene(const char* name)
 {
 	m_RootObject = std::make_unique<GameObject>(name);
 }
@@ -10,7 +10,7 @@ leap::Scene::~Scene()
 	m_RootObject->OnDestroy();
 }
 
-leap::GameObject* leap::Scene::CreateGameObject(const std::string& name) const
+leap::GameObject* leap::Scene::CreateGameObject(const char* name) const
 {
 	return m_RootObject->CreateChild(name);
 }
@@ -18,7 +18,7 @@ leap::GameObject* leap::Scene::CreateGameObject(const std::string& name) const
 void leap::Scene::RemoveAll()
 {
 	m_RootObject->OnDestroy();
-	std::string name = m_RootObject->GetName();
+	const char* name = m_RootObject->GetRawName();
 	m_RootObject.reset();
 	m_RootObject = std::make_unique<GameObject>(name);
 }

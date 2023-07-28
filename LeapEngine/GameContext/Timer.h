@@ -7,7 +7,7 @@ namespace leap
 	class Timer final
 	{
 	public:
-		Timer() = default;
+		Timer();
 		~Timer() = default;
 		Timer(const Timer& other) = delete;
 		Timer(Timer&& other) = delete;
@@ -24,6 +24,6 @@ namespace leap
 
 		float m_FixedTime{ 0.02f };
 		float m_DeltaTime{};
-		std::chrono::time_point<std::chrono::steady_clock> m_End;
+		std::chrono::time_point<std::chrono::steady_clock> m_End{};
 	};
 }
