@@ -2,16 +2,16 @@
 
 using namespace leap::graphics;
 
-Renderer::Renderer(GLFWwindow* pWindow)
-	: m_pVulkanEngine{ std::make_unique<VulkanEngine>(pWindow) }
+Renderer::Renderer(GLFWwindow*)
+	: m_pEngine{ std::make_unique<DirectXEngine>() }
 {}
 
 void Renderer::Initialize()
 {
-	m_pVulkanEngine->Initialize();
+	m_pEngine->Initialize();
 }
 
 void Renderer::Draw()
 {
-	m_pVulkanEngine->Draw();
+	m_pEngine->Draw();
 }

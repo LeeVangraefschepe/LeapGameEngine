@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "Vulkan/VulkanEngine.h"
+#include "DirectX/DirectXEngine.h"
 
 namespace leap::graphics
 {
@@ -13,6 +14,7 @@ namespace leap::graphics
 		void Draw();
 
 	private:
-		std::unique_ptr<VulkanEngine> m_pVulkanEngine;
+		//Create interface for this later
+		std::unique_ptr<DirectXEngine> m_pEngine;
 	};
 }
