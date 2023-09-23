@@ -1,5 +1,5 @@
 #Graphics engine cmake
-add_library(GraphicsEngine STATIC Renderer.h Renderer.cpp Vulkan/VulkanTypes.h Vulkan/VulkanInitializers.h Vulkan/VulkanInitializers.cpp Vulkan/VulkanEngine.h Vulkan/VulkanEngine.cpp Vulkan/VkBootstrap.h Vulkan/VkBootstrap.cpp DirectX/DirectXEngine.cpp)
+add_library(GraphicsEngine STATIC Renderer.h Renderer.cpp Vulkan/VulkanTypes.h Vulkan/VulkanInitializers.h Vulkan/VulkanInitializers.cpp Vulkan/VulkanEngine.h Vulkan/VulkanEngine.cpp Vulkan/VkBootstrap.h Vulkan/VkBootstrap.cpp DirectX/DirectXEngine.cpp Interfaces/IRenderer.h)
 
 # DirectXTex
 set(DIRECTX_TEX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/DirectXTex/include")
