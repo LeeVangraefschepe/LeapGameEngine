@@ -2,6 +2,7 @@
 
 namespace leap::graphics
 {
+	class Camera;
 	class IRenderer
 	{
 	public:
@@ -9,14 +10,17 @@ namespace leap::graphics
 
 		virtual void Initialize() = 0;
 		virtual void Draw() = 0;
+		virtual void SetActiveCamera(Camera*) = 0;
+		virtual Camera* GetCamera() = 0;
 	};
 
 	class DefaultRenderer final : public IRenderer
 	{
 	public:
 		virtual ~DefaultRenderer() = default;
-
 		virtual void Initialize() override {}
 		virtual void Draw() override {}
+		virtual void SetActiveCamera(Camera*) override {}
+		virtual Camera* GetCamera() override { return nullptr; }
 	};
 }
