@@ -5,19 +5,27 @@
 
 #include "InputManager.h"
 #include "LambdaCommand.h"
+#include "Components/Transform/Transform.h"
 
 #include "ServiceLocator/ServiceLocator.h"
 #include "Interfaces/IRenderer.h"
+
+#include <Components/RenderComponents/MeshRenderer.h>
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
+	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -2.0f);
 
 	leap::GameObject* pCameraObj2{ scene.CreateGameObject("Other Camera") };
 	leap::CameraComponent* pOtherCamera{ pCameraObj2->AddComponent<leap::CameraComponent>() };
 	pOtherCamera->GetData()->SetColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+
+	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial("Data/Pos3D.fx")};
+
+	scene.CreateGameObject("Mesh")->AddComponent<leap::MeshRendererComponent>()->SetMaterial(pMaterial);
 
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]() 

@@ -177,5 +177,32 @@ void leap::graphics::DirectXEngine::Draw()
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
+	for (const auto& pMaterial : m_pMaterials)
+	{
+		pMaterial->SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
+	}
+
+	for (const auto& pMeshRenderer : m_pRenderers)
+	{
+		pMeshRenderer->Draw();
+	}
+
 	m_pSwapChain->Present(0, 0);
+}
+
+leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
+{
+	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(m_pDevice, m_pDeviceContext));
+	return m_pRenderers[m_pRenderers.size() - 1].get();
+}
+
+void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRenderer)
+{
+	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
+}
+
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(const std::string& path)
+{
+	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, path));
+	return m_pMaterials[m_pMaterials.size() - 1].get();
 }

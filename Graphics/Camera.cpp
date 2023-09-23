@@ -3,7 +3,7 @@
 leap::graphics::Camera::Camera(float aspectRatio, float fovAngle):
 m_AspectRatio(aspectRatio)
 {
-	m_Fov = tanf((glm::radians(fovAngle)));
+	m_Fov = tanf((glm::radians(fovAngle) / 2));
 	CalculateProjectionMatrix();
 	CalculateViewMatrix();
 }
