@@ -2,7 +2,7 @@
 
 #include <chrono>
 #include "InputManager.h"
-#include "Renderer.h"
+#include "Interfaces/IRenderer.h"
 #include "ServiceLocator/ServiceLocator.h"
 #include "Systems/FmodAudioSystem.h"
 
@@ -47,9 +47,9 @@ leap::LeapEngine::~LeapEngine()
 
 void leap::LeapEngine::Run(int desiredFPS)
 {
-	  std::cout << "Engine startup\n";
+	std::cout << "Engine startup\n";
 
-    m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
+    m_pRenderer = &ServiceLocator::GetRenderer();
     m_pRenderer->Initialize();
 
     ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();

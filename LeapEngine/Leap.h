@@ -7,7 +7,7 @@ namespace leap
 {
 	namespace graphics
 	{
-		class Renderer;
+		class IRenderer;
 	}
 
 	class LeapEngine final
@@ -24,6 +24,6 @@ namespace leap
 
 	private:
 		GLFWwindow* m_pWindow{};
-		std::unique_ptr<leap::graphics::Renderer> m_pRenderer;
+		leap::graphics::IRenderer* m_pRenderer;
 	};
 }
