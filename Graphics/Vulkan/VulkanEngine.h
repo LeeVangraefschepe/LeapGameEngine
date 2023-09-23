@@ -1,19 +1,19 @@
 #pragma once
 #include <vector>
 #include "VulkanTypes.h"
+#include "../Interfaces/IRenderer.h"
 
 class GLFWwindow;
 namespace leap::graphics
 {
-	class VulkanEngine final
+	class VulkanEngine final : public IRenderer
 	{
 	public:
 		VulkanEngine(GLFWwindow* pWindow);
-		~VulkanEngine();
+		virtual ~VulkanEngine();
 
-		void Initialize();
-		void Draw();
-		void Cleanup();
+		virtual void Initialize() override;
+		virtual void Draw() override;
 
 	private:
 		// GLFW window
@@ -37,6 +37,7 @@ namespace leap::graphics
 		std::vector<VkImage> m_SwapChainImages;
 		std::vector<VkImageView> m_SwapChainImageViews;
 
+		void Cleanup();
 		void InitializeVulkan();
 		void InitializeSwapChain();
 	};
