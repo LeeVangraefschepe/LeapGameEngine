@@ -13,7 +13,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
-	pMainCamera->SetActive(true);
+	pMainCamera->SetAsActiveCamera(true);
 
 	leap::GameObject* pCameraObj2{ scene.CreateGameObject("Other Camera") };
 	leap::CameraComponent* pOtherCamera{ pCameraObj2->AddComponent<leap::CameraComponent>() };
@@ -25,11 +25,11 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 				leap::graphics::IRenderer& renderer{ leap::ServiceLocator::GetRenderer() };
 				if (renderer.GetCamera() == pMainCamera->GetData())
 				{
-					pOtherCamera->SetActive(true);
+					pOtherCamera->SetAsActiveCamera(true);
 				}
 				else
 				{
-					pMainCamera->SetActive(true);
+					pMainCamera->SetAsActiveCamera(true);
 				}
 			}),
 		leap::input::InputManager::InputType::EventPress, 

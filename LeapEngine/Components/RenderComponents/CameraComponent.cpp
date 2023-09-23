@@ -1,9 +1,10 @@
 #include "CameraComponent.h"
 
 #include <Camera.h>
+#include <Interfaces/IRenderer.h>
 
 #include "../../ServiceLocator/ServiceLocator.h"
-#include "Interfaces/IRenderer.h"
+#include "../Transform/Transform.h"
 
 leap::CameraComponent::CameraComponent()
 {
@@ -14,7 +15,16 @@ leap::CameraComponent::~CameraComponent()
 {
 }
 
-void leap::CameraComponent::SetActive(bool active) const
+void leap::CameraComponent::LateUpdate()
+{
+	// Only update the internal camera data if the camera is currently active
+	if (ServiceLocator::GetRenderer().GetCamera() != m_pCamera.get()) return;
+
+	// TODO: Update internal camera data with transform
+	//Transform* pTransform{ GetTransform() };
+}
+
+void leap::CameraComponent::SetAsActiveCamera(bool active) const
 {
 	graphics::IRenderer& renderer{ ServiceLocator::GetRenderer() };
 
