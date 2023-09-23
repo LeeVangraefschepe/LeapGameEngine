@@ -7,20 +7,26 @@ struct ID3D11DepthStencilView;
 struct ID3D11Resource;
 struct ID3D11RenderTargetView;
 
+#include "../Interfaces/IRenderer.h"
+
 namespace leap::graphics
 {
-	class DirectXEngine
+	class Camera;
+
+	class DirectXEngine final : public IRenderer
 	{
 	public:
 		DirectXEngine(GLFWwindow* pWindow);
-		~DirectXEngine();
+		~DirectXEngine() override;
 		DirectXEngine(const DirectXEngine& other) = delete;
 		DirectXEngine(DirectXEngine&& other) = delete;
 		DirectXEngine& operator=(const DirectXEngine& other) = delete;
 		DirectXEngine& operator=(DirectXEngine&& other) = delete;
 
-		void Initialize();
-		void Draw();
+		virtual void Initialize() override;
+		virtual void Draw() override;
+		virtual void SetActiveCamera(Camera* pCamera) override { m_pCamera = pCamera; }
+		virtual Camera* GetCamera() override { return m_pCamera; }
 
 	private:
 		GLFWwindow* m_pWindow;
@@ -33,5 +39,6 @@ namespace leap::graphics
 		ID3D11RenderTargetView* m_pRenderTargetView{ nullptr };
 
 		bool m_IsInitialized{};
+		Camera* m_pCamera{};
 	};
 }

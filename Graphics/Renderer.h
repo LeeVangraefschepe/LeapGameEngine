@@ -8,7 +8,7 @@ namespace leap::graphics
 	class Renderer final
 	{
 	public:
-		Renderer(class GLFWwindow* pWindow);
+		Renderer(GLFWwindow* pWindow);
 
 		void Initialize();
 		void Draw();

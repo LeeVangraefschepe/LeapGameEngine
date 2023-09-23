@@ -6,6 +6,8 @@
 
 #include <glm.hpp>
 
+#include "../Camera.h"
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -169,8 +171,9 @@ void leap::graphics::DirectXEngine::Initialize()
 void leap::graphics::DirectXEngine::Draw()
 {
 	if (!m_IsInitialized) return;
-	glm::vec4 clearColor{ 0.39f, 0.59f, 0.93f, 1.f };
+	if (!m_pCamera) return;
 
+	const glm::vec4& clearColor = m_pCamera->GetColor();
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
