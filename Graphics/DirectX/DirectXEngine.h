@@ -31,5 +31,7 @@ namespace leap::graphics
 		ID3D11DepthStencilView* m_pDepthStencilView{ nullptr };
 		ID3D11Resource* m_pRenderTargetBuffer{ nullptr };
 		ID3D11RenderTargetView* m_pRenderTargetView{ nullptr };
+
+		bool m_IsInitialized{};
 	};
 }

@@ -4,6 +4,8 @@
 #include "DirectXEngine.h"
 #include "DirectXTex.h"
 
+#include <glm.hpp>
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -160,8 +162,17 @@ void leap::graphics::DirectXEngine::Initialize()
 	viewport.MinDepth = 0;
 	viewport.MaxDepth = 1;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
+
+	m_IsInitialized = true;
 }
 
 void leap::graphics::DirectXEngine::Draw()
 {
+	if (!m_IsInitialized) return;
+	glm::vec4 clearColor{ 0.39f, 0.59f, 0.93f, 1.f };
+
+	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	m_pSwapChain->Present(0, 0);
 }
