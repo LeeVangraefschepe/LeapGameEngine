@@ -50,15 +50,17 @@ void leap::LeapEngine::Run(int desiredFPS)
 {
 	std::cout << "Engine startup\n";
 
+    auto& input = input::InputManager::GetInstance();
+    auto& gameContext = GameContext::GetInstance();
+    auto& audio = ServiceLocator::GetAudio();
+
+    gameContext.SetWindow(m_pWindow);
+
     ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
     ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
 
     m_pRenderer = &ServiceLocator::GetRenderer();
     m_pRenderer->Initialize();
-
-    auto& input = input::InputManager::GetInstance();
-    auto& gameContext = GameContext::GetInstance();
-    auto& audio = ServiceLocator::GetAudio();
 
     auto& sceneManager = SceneManager::GetInstance();
     const auto timer = gameContext.GetTimer();
