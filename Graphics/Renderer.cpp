@@ -2,8 +2,8 @@
 
 using namespace leap::graphics;
 
-Renderer::Renderer(GLFWwindow*)
-	: m_pEngine{ std::make_unique<DirectXEngine>() }
+Renderer::Renderer(GLFWwindow* pWindow)
+	: m_pEngine{ std::make_unique<DirectXEngine>(pWindow) }
 {}
 
 void Renderer::Initialize()
