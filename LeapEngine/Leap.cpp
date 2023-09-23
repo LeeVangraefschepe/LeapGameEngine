@@ -5,6 +5,7 @@
 #include "Interfaces/IRenderer.h"
 #include "ServiceLocator/ServiceLocator.h"
 #include "Systems/FmodAudioSystem.h"
+#include "DirectX/DirectXEngine.h"
 
 #include "vec3.hpp"
 
@@ -49,10 +50,12 @@ void leap::LeapEngine::Run(int desiredFPS)
 {
 	std::cout << "Engine startup\n";
 
+    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+    ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
+
     m_pRenderer = &ServiceLocator::GetRenderer();
     m_pRenderer->Initialize();
 
-    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
 
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();

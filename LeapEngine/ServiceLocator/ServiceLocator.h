@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+class GLFWwindow;
 
 namespace leap
 {
@@ -23,7 +24,7 @@ namespace leap
 		template <typename T>
 		static void RegisterAudioSystem();
 		template <typename T>
-		static void RegisterRenderer();
+		static void RegisterRenderer(GLFWwindow* pWindow);
 	private:
 		static std::unique_ptr<audio::AudioSystem> m_pAudioSystem;
 		static std::unique_ptr<audio::DefaultAudioSystem> m_pDefaultAudioSystem;
@@ -39,9 +40,9 @@ namespace leap
 	}
 
 	template<typename T>
-	inline void ServiceLocator::RegisterRenderer()
+	inline void ServiceLocator::RegisterRenderer(GLFWwindow* pWindow)
 	{
 		static_assert(std::is_base_of<graphics::IRenderer, T>::value);
-		m_pRenderer = std::make_unique<T>();
+		m_pRenderer = std::make_unique<T>(pWindow);
 	}
 }
