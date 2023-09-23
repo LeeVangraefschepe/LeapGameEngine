@@ -23,6 +23,9 @@ namespace leap
 
 		void SetMaterial(graphics::IMaterial* pMaterial);
 
+	protected:
+		virtual void LateUpdate() override;
+
 	private:
 		graphics::IMeshRenderer* m_pRenderer{};
 	};

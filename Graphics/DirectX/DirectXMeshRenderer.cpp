@@ -55,6 +55,9 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 {
 	if (m_pMaterial == nullptr) return;
 
+	// Apply the world transformation
+	m_pMaterial->SetWorldMatrix(m_Transform);
+
 	// Set primitive topology
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -91,4 +94,9 @@ void leap::graphics::DirectXMeshRenderer::SetMaterial(IMaterial* pMaterial)
 	// Reload the input layout
 	if (m_pInputLayout) m_pInputLayout->Release();
 	m_pInputLayout = m_pMaterial->LoadInputLayout(m_pDevice);
+}
+
+void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4 transform)
+{
+	m_Transform = transform;
 }

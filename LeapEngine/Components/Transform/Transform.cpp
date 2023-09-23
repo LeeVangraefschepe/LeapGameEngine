@@ -278,7 +278,35 @@ const glm::vec3& leap::Transform::GetLocalScale() const
 	return m_LocalScale;
 }
 
+glm::mat4x4 leap::Transform::GetWorldTransform()
+{
+	glm::mat4x4 worldTransform{ 1.0f };
+
+	glm::translate(worldTransform, GetWorldPosition());
+	
+	glm::mat4x4 rotationMatrix{ glm::mat4_cast(GetWorldRotation()) };
+	worldTransform = worldTransform * rotationMatrix;
+
+	worldTransform = glm::scale(worldTransform, GetWorldScale());
+
+	return worldTransform;
+}
+
+glm::mat4x4 leap::Transform::GetLocalTransform() const
+{
+	glm::mat4x4 worldTransform{};
+
+	glm::translate(worldTransform, m_LocalPosition);
+
+	glm::mat4x4 rotationMatrix{ glm::mat4_cast(m_LocalRotation) };
+	worldTransform = worldTransform * rotationMatrix;
+
+	worldTransform = glm::scale(worldTransform, m_LocalScale);
+
+	return worldTransform;
+}
 #pragma endregion
+
 void leap::Transform::UpdateTranslation()
 {
 	GameObject* pParentObj{ GetGameObject()->GetParent() };

@@ -7,6 +7,8 @@
 #include <sstream>
 #include <iostream>
 
+glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
+
 leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile)
 {
 	m_pEffect = LoadEffect(pDevice, assetFile);
@@ -77,7 +79,13 @@ ID3DX11EffectTechnique* leap::graphics::DirectXMaterial::GetTechnique() const
 
 void leap::graphics::DirectXMaterial::SetViewProjectionMatrix(const glm::mat4x4& viewProjMatrix)
 {
-	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&viewProjMatrix));
+	m_ViewProjMatrix = viewProjMatrix;
+}
+
+void leap::graphics::DirectXMaterial::SetWorldMatrix(const glm::mat4x4& worldMatrix)
+{
+	const glm::mat4x4 wvpMatrix{ m_ViewProjMatrix * worldMatrix };
+	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&wvpMatrix));
 }
 
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)

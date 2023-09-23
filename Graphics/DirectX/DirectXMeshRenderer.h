@@ -4,6 +4,8 @@
 
 #include "../Data/Vertex.h"
 
+#include "mat4x4.hpp"
+
 #include <vector>
 #include <memory>
 
@@ -31,6 +33,7 @@ namespace leap::graphics
 		virtual void Draw() override;
 		virtual IMaterial* GetMaterial() override;
 		virtual void SetMaterial(IMaterial* pMaterial) override;
+		virtual void SetTransform(const glm::mat4x4 transform) override;
 
 	private:
 		DirectXMaterial* m_pMaterial{};
@@ -40,6 +43,7 @@ namespace leap::graphics
 
 		std::vector<Vertex> m_Vertices{};
 		std::vector<unsigned int> m_Indices{};
+		glm::mat4x4 m_Transform{};
 
 		ID3D11InputLayout* m_pInputLayout{};
 		ID3D11Buffer* m_pVertexBuffer{};

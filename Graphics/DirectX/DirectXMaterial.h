@@ -26,10 +26,13 @@ namespace leap::graphics
 		ID3D11InputLayout* LoadInputLayout(ID3D11Device* pDevice) const;
 		ID3DX11EffectTechnique* GetTechnique() const;
 
-		void SetViewProjectionMatrix(const glm::mat4x4& viewProjMatrix);
+		static void SetViewProjectionMatrix(const glm::mat4x4& viewProjMatrix);
+		void SetWorldMatrix(const glm::mat4x4& worldMatrix);
 
 	private:
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::string& assetFile);
+
+		static glm::mat4x4 m_ViewProjMatrix;
 
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
 

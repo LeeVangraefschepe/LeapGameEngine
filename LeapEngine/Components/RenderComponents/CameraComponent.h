@@ -22,10 +22,12 @@ namespace leap
 		CameraComponent& operator=(const CameraComponent& other) = delete;
 		CameraComponent& operator=(CameraComponent&& other) = delete;
 
-		virtual void LateUpdate() override;
-
 		void SetAsActiveCamera(bool active) const;
 		graphics::Camera* GetData() const { return m_pCamera.get(); }
+
+	protected:
+		virtual void LateUpdate() override;
+
 	private:
 		std::unique_ptr<graphics::Camera> m_pCamera{};
 	};

@@ -60,6 +60,9 @@ namespace leap
 		glm::vec3 GetLocalEulerDegrees() const;
 		const glm::vec3& GetLocalScale() const;
 
+		glm::mat4x4 GetWorldTransform();
+		glm::mat4x4 GetLocalTransform() const;
+
 		void KeepWorldTransform(GameObject* pParent);
 
 	private:
