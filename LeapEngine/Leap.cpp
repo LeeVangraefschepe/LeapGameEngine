@@ -56,7 +56,6 @@ void leap::LeapEngine::Run(int desiredFPS)
     m_pRenderer = &ServiceLocator::GetRenderer();
     m_pRenderer->Initialize();
 
-
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
     auto& audio = ServiceLocator::GetAudio();

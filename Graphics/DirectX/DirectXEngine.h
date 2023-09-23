@@ -26,7 +26,7 @@ namespace leap::graphics
 		virtual void Initialize() override;
 		virtual void Draw() override;
 		virtual void SetActiveCamera(Camera* pCamera) override { m_pCamera = pCamera; }
-		virtual Camera* GetCamera() override { return m_pCamera; }
+		virtual Camera* GetCamera() const override { return m_pCamera; }
 
 	private:
 		GLFWwindow* m_pWindow;
