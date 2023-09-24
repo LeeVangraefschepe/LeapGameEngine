@@ -375,6 +375,14 @@ bool leap::Transform::IsDirty(DirtyFlags flag) const
 void leap::Transform::SetDirty(DirtyFlags flag)
 {
 	m_IsDirty |= static_cast<unsigned int>(flag);
+
+	for (int i = 0; i < GetGameObject()->GetChildCount(); ++i)
+	{
+		Transform* pChild{ GetGameObject()->GetChild(i)->GetTransform() };
+		pChild->SetDirty(DirtyFlags::Rotation);
+		pChild->SetDirty(DirtyFlags::Scale);
+		pChild->SetDirty(DirtyFlags::Translation);
+	}
 }
 
 void leap::Transform::KeepWorldTransform(GameObject* pParent)
