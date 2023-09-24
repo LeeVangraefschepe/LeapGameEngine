@@ -26,7 +26,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
 	pDirLight->GetTransform()->SetWorldRotation(-0.577f, -0.577f, 0.577f);
-	pDirLight->AddComponent<Transformator>();
+	//pDirLight->AddComponent<Transformator>();
 
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
@@ -38,24 +38,16 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pOtherCamera->GetData()->SetColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 	pCameraObj2->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 
-	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader()) };
-	pMaterial->SetFloat4("gColor", { 1.0f, 0.0f, 0.0f, 1.0f });
+	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::Pos3D::GetShader()) };
+	//pMaterial->SetFloat4("gColor", { 1.0f, 0.0f, 0.0f, 1.0f });
 
-	const auto pMaterial2{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::Pos3D::GetShader()) };
-
-	auto mesh{ scene.CreateGameObject("Mesh") };
-	leap::MeshRendererComponent* pMeshRenderer2{ mesh->AddComponent<leap::MeshRendererComponent>() };
-	pMeshRenderer2->LoadMesh("Data/highpolybunnywithnormals.obj");
-	pMeshRenderer2->SetMaterial(pMaterial2);
-	mesh->AddComponent<Transformator>();
-	mesh->GetTransform()->Translate(2.0f, -1.0f, 0.0f);
-
-	auto shadedMesh{ mesh->CreateChild("Mesh") };
+	auto shadedMesh{ scene.CreateGameObject("Mesh") };
 	leap::MeshRendererComponent* pMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
-	pMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
+	pMeshRenderer->LoadMesh("Data/bunnywithnormals.obj");
 	pMeshRenderer->SetMaterial(pMaterial);
-	//shadedMesh->AddComponent<Transformator>();
-	shadedMesh->GetTransform()->SetLocalPosition(0.0f, 0.0f, 1.0f);
+	shadedMesh->AddComponent<Transformator>();
+	//shadedMesh->GetTransform()->Scale(10.0f);
+	shadedMesh->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);
 
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]() 
