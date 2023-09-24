@@ -18,9 +18,9 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid()) return;
 
-	// Save the worldviewprojection variable of the effect as a member variable
+	// Save the worldviewprojection and world variable of the effect as a member variable
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	if (!m_pMatWorldViewProjVariable->IsValid()) return;
+	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
 }
 
 leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction)
@@ -31,9 +31,9 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid()) return;
 
-	// Save the worldviewprojection variable of the effect as a member variable
+	// Save the worldviewprojection and world variable of the effect as a member variable
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	if (!m_pMatWorldViewProjVariable->IsValid()) return;
+	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
 }
 
 leap::graphics::DirectXMaterial::~DirectXMaterial()
@@ -77,7 +77,8 @@ void leap::graphics::DirectXMaterial::SetViewProjectionMatrix(const glm::mat4x4&
 void leap::graphics::DirectXMaterial::SetWorldMatrix(const glm::mat4x4& worldMatrix)
 {
 	const glm::mat4x4 wvpMatrix{ m_ViewProjMatrix * worldMatrix };
-	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&wvpMatrix));
+	if(m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&wvpMatrix));
+	if(m_pMatWorldVariable) m_pMatWorldVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
 }
 
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)

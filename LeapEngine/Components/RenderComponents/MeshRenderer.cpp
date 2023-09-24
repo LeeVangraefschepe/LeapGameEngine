@@ -12,6 +12,11 @@ leap::MeshRendererComponent::MeshRendererComponent()
 	m_pRenderer = ServiceLocator::GetRenderer().CreateMeshRenderer();
 }
 
+void leap::MeshRendererComponent::LoadMesh(const std::string& filePath)
+{
+	m_pRenderer->LoadMesh(filePath);
+}
+
 void leap::MeshRendererComponent::SetMaterial(graphics::IMaterial* pMaterial)
 {
 	m_pRenderer->SetMaterial(pMaterial);

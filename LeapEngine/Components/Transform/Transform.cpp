@@ -282,7 +282,7 @@ glm::mat4x4 leap::Transform::GetWorldTransform()
 {
 	glm::mat4x4 worldTransform{ 1.0f };
 
-	glm::translate(worldTransform, GetWorldPosition());
+	worldTransform = glm::translate(worldTransform, GetWorldPosition());
 	
 	glm::mat4x4 rotationMatrix{ glm::mat4_cast(GetWorldRotation()) };
 	worldTransform = worldTransform * rotationMatrix;

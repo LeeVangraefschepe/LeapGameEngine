@@ -21,6 +21,7 @@ namespace leap
 		MeshRendererComponent& operator=(const MeshRendererComponent& other) = delete;
 		MeshRendererComponent& operator=(MeshRendererComponent&& other) = delete;
 
+		void LoadMesh(const std::string& filePath);
 		void SetMaterial(graphics::IMaterial* pMaterial);
 
 	protected:

@@ -40,6 +40,7 @@ namespace leap::graphics
 		static glm::mat4x4 m_ViewProjMatrix;
 
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
+		ID3DX11EffectMatrixVariable* m_pMatWorldVariable{};
 
 		std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> m_VertexDataFunction{};
 		ID3DX11Effect* m_pEffect{};
