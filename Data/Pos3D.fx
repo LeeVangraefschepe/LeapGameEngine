@@ -16,9 +16,9 @@ DepthStencilState EnableDepth
 	DepthWriteMask = ALL;
 };
 
-RasterizerState NoCulling
+RasterizerState BackCulling
 {
-	CullMode = NONE;
+    CullMode = BACK;
 };
 
 //--------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ technique11 DefaultTechnique
 {
 	pass P0
 	{
-		SetRasterizerState(NoCulling);
+        SetRasterizerState(BackCulling);
 		SetDepthStencilState(EnableDepth, 0);
 
 		SetVertexShader(CompileShader(vs_4_0, VS()));

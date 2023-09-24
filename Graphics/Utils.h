@@ -108,8 +108,8 @@ namespace leap::graphics
 					}
 
 					indices.push_back(tempIndices[0]);
-					indices.push_back(tempIndices[1]);
 					indices.push_back(tempIndices[2]);
+					indices.push_back(tempIndices[1]);
 				}
 				//read till end of line and ignore all remaining chars
 				file.ignore(1000, '\n');
