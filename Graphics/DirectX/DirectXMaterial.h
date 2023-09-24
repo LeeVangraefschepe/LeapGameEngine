@@ -3,6 +3,10 @@
 #include "../Interfaces/IMaterial.h"
 
 #include <string>
+#include <vector>
+#include <functional>
+
+#include <d3dx11effect.h>
 
 struct ID3D11InputLayout;
 struct ID3D11Device;
@@ -16,6 +20,7 @@ namespace leap::graphics
 	{
 	public:
 		DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile);
+		DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction);
 		virtual ~DirectXMaterial();
 
 		DirectXMaterial(const DirectXMaterial& other) = delete;
@@ -36,6 +41,7 @@ namespace leap::graphics
 
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
 
+		std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> m_VertexDataFunction{};
 		ID3DX11Effect* m_pEffect{};
 		ID3DX11EffectTechnique* m_pTechnique{};
 	};

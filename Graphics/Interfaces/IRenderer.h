@@ -1,12 +1,16 @@
 #pragma once
 
+#include "../ShaderDelete.h"
+
 #include <string>
+#include <memory>
 
 namespace leap::graphics
 {
 	class Camera;
 	class IMeshRenderer;
 	class IMaterial;
+	struct Shader;
 
 	class IRenderer
 	{
@@ -19,7 +23,7 @@ namespace leap::graphics
 		virtual Camera* GetCamera() const = 0;
 		virtual IMeshRenderer* CreateMeshRenderer() = 0;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) = 0;
-		virtual IMaterial* CreateMaterial(const std::string& dataPath) = 0;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader) = 0;
 	};
 
 	class DefaultRenderer final : public IRenderer
@@ -32,6 +36,6 @@ namespace leap::graphics
 		virtual Camera* GetCamera() const override { return nullptr; }
 		virtual IMeshRenderer* CreateMeshRenderer() { return nullptr; }
 		virtual void RemoveMeshRenderer(IMeshRenderer*) {}
-		virtual IMaterial* CreateMaterial(const std::string&) { return nullptr; }
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>) { return nullptr; };
 	};
 }

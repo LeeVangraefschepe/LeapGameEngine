@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
 
@@ -22,6 +23,19 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 	if (!m_pMatWorldViewProjVariable->IsValid()) return;
 }
 
+leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction)
+	: m_pEffect{ LoadEffect(pDevice, assetFile) }
+	, m_VertexDataFunction{ vertexDataFunction }
+{
+	// Save the technique of the effect as a member variable
+	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+	if (!m_pTechnique->IsValid()) return;
+
+	// Save the worldviewprojection variable of the effect as a member variable
+	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+	if (!m_pMatWorldViewProjVariable->IsValid()) return;
+}
+
 leap::graphics::DirectXMaterial::~DirectXMaterial()
 {
 	if (m_pEffect) m_pEffect->Release();
@@ -29,29 +43,7 @@ leap::graphics::DirectXMaterial::~DirectXMaterial()
 
 ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device* pDevice) const
 {
-	// Create vertex layout
-	static constexpr unsigned int numElements{ 1 };
-	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
-
-	vertexDesc[0].SemanticName = "POSITION";
-	vertexDesc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexDesc[0].AlignedByteOffset = 0;
-	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	//vertexDesc[2].SemanticName = "NORMAL";
-	//vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	//vertexDesc[2].AlignedByteOffset = 12;
-	//vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	//vertexDesc[1].SemanticName = "TANGENT";
-	//vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	//vertexDesc[1].AlignedByteOffset = 24;
-	//vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-
-	//vertexDesc[3].SemanticName = "TEXCOORD";
-	//vertexDesc[3].Format = DXGI_FORMAT_R32G32_FLOAT;
-	//vertexDesc[3].AlignedByteOffset = 36;
-	//vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	std::vector<D3D11_INPUT_ELEMENT_DESC> vertexDesc{ m_VertexDataFunction() };
 
 	// Create input layout
 	D3DX11_PASS_DESC passDesc{};
@@ -61,8 +53,8 @@ ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device
 
 	const HRESULT result{ pDevice->CreateInputLayout
 		(
-			vertexDesc,
-			numElements,
+			vertexDesc.data(),
+			static_cast<UINT>(vertexDesc.size()),
 			passDesc.pIAInputSignature,
 			passDesc.IAInputSignatureSize,
 			&pInputLayout

@@ -37,7 +37,7 @@ namespace leap::graphics
 		virtual Camera* GetCamera() const override { return m_pCamera; }
 		virtual IMeshRenderer* CreateMeshRenderer();
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
-		virtual IMaterial* CreateMaterial(const std::string& path) override;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader) override;
 
 	private:
 		GLFWwindow* m_pWindow;

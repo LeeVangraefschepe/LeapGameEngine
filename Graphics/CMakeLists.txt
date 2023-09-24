@@ -1,5 +1,5 @@
 #Graphics engine cmake
-add_library(GraphicsEngine STATIC Renderer.h Renderer.cpp Vulkan/VulkanTypes.h Vulkan/VulkanInitializers.h Vulkan/VulkanInitializers.cpp Vulkan/VulkanEngine.h Vulkan/VulkanEngine.cpp Vulkan/VkBootstrap.h Vulkan/VkBootstrap.cpp DirectX/DirectXEngine.cpp Interfaces/IRenderer.h Camera.h Camera.cpp  "DirectX/DirectXMeshRenderer.cpp" "DirectX/DirectXMaterial.cpp" "Data/Vertex.h" "Interfaces/IMaterial.h")
+add_library(GraphicsEngine STATIC Renderer.h Renderer.cpp Vulkan/VulkanTypes.h Vulkan/VulkanInitializers.h Vulkan/VulkanInitializers.cpp Vulkan/VulkanEngine.h Vulkan/VulkanEngine.cpp Vulkan/VkBootstrap.h Vulkan/VkBootstrap.cpp DirectX/DirectXEngine.cpp Interfaces/IRenderer.h  Camera.h Camera.cpp  "DirectX/DirectXMeshRenderer.cpp" "DirectX/DirectXMaterial.cpp" "Data/Vertex.h" "Interfaces/IMaterial.h" "Shader.h" "Shader.cpp" "Shaders/Pos3D.cpp" "DirectX/DirectXShaderReader.h" "DirectX/DirectXShaderReader.cpp" "ShaderDelete.cpp")
 
 # DirectXTex
 set(DIRECTX_TEX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/DirectXTex/include")

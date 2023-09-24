@@ -15,6 +15,8 @@
 #include <Components/RenderComponents/MeshRenderer.h>
 #include "../Components/Transformator.h"
 
+#include "Shaders/Pos3D.h"
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
@@ -27,7 +29,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pOtherCamera->GetData()->SetColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 	pCameraObj2->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 
-	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial("Data/Pos3D.fx")};
+	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::Pos3D::GetShader())};
 
 	auto mesh{ scene.CreateGameObject("Mesh") };
 	mesh->AddComponent<leap::MeshRendererComponent>()->SetMaterial(pMaterial);

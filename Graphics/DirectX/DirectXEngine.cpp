@@ -16,6 +16,8 @@
 #include <d3dcompiler.h>
 #include <d3dx11effect.h>
 
+#include "DirectXShaderReader.h"
+
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 
@@ -198,8 +200,9 @@ void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRende
 	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
 }
 
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(const std::string& path)
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader)
 {
-	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, path));
+	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
+	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction));
 	return m_pMaterials[m_pMaterials.size() - 1].get();
 }
