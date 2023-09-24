@@ -10,10 +10,9 @@
 
 glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
 
-leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction, const std::string& name)
+leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction)
 	: m_pEffect{ LoadEffect(pDevice, assetFile) }
 	, m_VertexDataFunction{ vertexDataFunction }
-	, m_Name{ name }
 {
 	// Save the technique of the effect as a member variable
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");

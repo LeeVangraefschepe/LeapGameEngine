@@ -203,19 +203,22 @@ void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRende
 leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
 {
 	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
-	if (auto it{ std::find_if(begin(m_pMaterials), end(m_pMaterials), [&](const auto& pMaterial) { return pMaterial->GetName() == name; }) }; it != end(m_pMaterials))
+	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
 	{
-		return it->get();
+		return it->second.get();
 	}
 
-	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction, name));
-	return m_pMaterials[m_pMaterials.size() - 1].get();
+	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
+	auto pMaterialRaw{ pMaterial.get() };
+
+	m_pMaterials[name] = std::move(pMaterial);
+	return pMaterialRaw;
 }
 
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction)
 {
 	for (const auto& pMaterial : m_pMaterials)
 	{
-		pMaterial->SetFloat3("gLightDirection", direction);
+		pMaterial.second->SetFloat3("gLightDirection", direction);
 	}
 }

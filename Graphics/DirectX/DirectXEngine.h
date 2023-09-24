@@ -54,7 +54,7 @@ namespace leap::graphics
 		ID3D11RenderTargetView* m_pRenderTargetView{ nullptr };
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
-		std::vector<std::unique_ptr<DirectXMaterial>> m_pMaterials{};
+		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
 
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};
