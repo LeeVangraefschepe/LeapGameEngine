@@ -1,4 +1,7 @@
 #include "MainMenuScene.h"
+
+#include <iostream>
+
 #include "SceneGraph/Scene.h"
 #include "Components/RenderComponents/CameraComponent.h"
 #include "Camera.h"
@@ -97,5 +100,18 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
 		leap::input::InputManager::KeyboardInput::KeyS
+	);
+	leap::input::InputManager::GetInstance().AddCommand(
+		std::make_shared<leap::LambdaCommand>([=]()
+			{
+				auto mouseDelta = static_cast<glm::vec2>(leap::input::InputManager::GetInstance().GetCursorDelta());
+				mouseDelta.y = -mouseDelta.y;
+				const auto deltaTime = leap::GameContext::GetInstance().GetTimer()->GetDeltaTime();
+				constexpr float mouseSpeed = 15.f;
+
+				pCameraObj->GetTransform()->Rotate(mouseDelta.y * deltaTime * mouseSpeed, mouseDelta.x * deltaTime * mouseSpeed, 0.f);
+			}),
+		leap::input::InputManager::InputType::EventRepeat,
+		leap::input::InputManager::MouseInput::LeftButton
 	);
 }
