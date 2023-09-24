@@ -175,7 +175,7 @@ namespace leap::input
         InputManager& operator=(const InputManager& other) = delete;
         InputManager& operator=(InputManager&& other) = delete;
 	private:
-        InputManager() = default;
+        InputManager();
         friend Singleton;
 
         static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -186,6 +186,7 @@ namespace leap::input
 
         using KeyBinding = std::map<KeyboardInput, std::vector<std::shared_ptr<Command>>>;
         std::map<InputType, KeyBinding> m_keyboardCommands{};
+        std::vector<KeyboardInput> m_pressedKeys{};
 
         using MouseBinding = std::map<MouseInput, std::vector<std::shared_ptr<Command>>>;
         std::map<InputType, MouseBinding> m_mouseCommands{};

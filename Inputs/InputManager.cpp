@@ -1,6 +1,7 @@
 #include "InputManager.h"
 #include "Command.h"
 #include <glfw3.h>
+#include <iostream>
 #include <ranges>
 
 void leap::input::InputManager::SetWindow(GLFWwindow* window)
@@ -8,11 +9,28 @@ void leap::input::InputManager::SetWindow(GLFWwindow* window)
 	m_pWindow = window;
 }
 
+void leap::input::InputManager::SetPressedBuffers(int keyboard)
+{
+	m_pressedKeys.clear();
+	m_pressedKeys.resize(keyboard, static_cast<KeyboardInput>(-1));
+}
+
 bool leap::input::InputManager::ProcessInput()
 {
 	glfwSetKeyCallback(m_pWindow, &ProcessKey);
 	glfwSetMouseButtonCallback(m_pWindow, &ProcessMouse);
 	glfwSetScrollCallback(m_pWindow, &ProcessWheel);
+
+	for (auto key : m_pressedKeys)
+	{
+		if (static_cast<int>(key) == -1) continue;
+
+		for (const auto& command : m_keyboardCommands[InputType::EventRepeat][key])
+		{
+			command->Execute();
+		}
+	}
+
 	return true;
 }
 
@@ -81,17 +99,43 @@ void leap::input::InputManager::RemoveCommand(const std::shared_ptr<Command>& co
 	}
 }
 
+leap::input::InputManager::InputManager()
+{
+	constexpr unsigned keyboardBuffer = 10;
+	m_pressedKeys.resize(keyboardBuffer, static_cast<KeyboardInput>(-1));
+}
+
 void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)
 {
+	if (static_cast<InputType>(action) == InputType::EventRepeat) return;
+
 	auto& input = GetInstance();
-	const auto& actionCommands = input.m_keyboardCommands[static_cast<InputType>(action)];
-	for (const auto& keyCommands : actionCommands)
+	const auto& actionCommands = input.m_keyboardCommands[static_cast<InputType>(action)][static_cast<KeyboardInput>(key)];
+
+	for (const auto& command : actionCommands)
 	{
-		if (keyCommands.first == static_cast<KeyboardInput>(key))
+		command->Execute();
+	}
+
+	if (static_cast<InputType>(action) == InputType::EventPress)
+	{
+		for (unsigned i{}; i < input.m_pressedKeys.size(); ++i)
 		{
-			for (const auto& command : keyCommands.second)
+			if (input.m_pressedKeys[i] == static_cast<KeyboardInput>(-1))
 			{
-				command->Execute();
+				input.m_pressedKeys[i] = static_cast<KeyboardInput>(key);
+				break;
+			}
+		}
+	}
+	else if (static_cast<InputType>(action) == InputType::EventRelease)
+	{
+		for (unsigned i{}; i < input.m_pressedKeys.size(); ++i)
+		{
+			if (input.m_pressedKeys[i] == static_cast<KeyboardInput>(key))
+			{
+				input.m_pressedKeys[i] = static_cast<KeyboardInput>(-1);
+				break;
 			}
 		}
 	}
