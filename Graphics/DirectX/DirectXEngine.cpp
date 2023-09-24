@@ -206,3 +206,11 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::un
 	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction));
 	return m_pMaterials[m_pMaterials.size() - 1].get();
 }
+
+void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction)
+{
+	for (const auto& pMaterial : m_pMaterials)
+	{
+		pMaterial->SetFloat3("gLightDirection", direction);
+	}
+}

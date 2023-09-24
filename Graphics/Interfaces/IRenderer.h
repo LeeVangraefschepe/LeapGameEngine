@@ -5,6 +5,8 @@
 #include <string>
 #include <memory>
 
+#include <vec3.hpp>
+
 namespace leap::graphics
 {
 	class Camera;
@@ -24,6 +26,7 @@ namespace leap::graphics
 		virtual IMeshRenderer* CreateMeshRenderer() = 0;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) = 0;
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader) = 0;
+		virtual void SetDirectionLight(const glm::vec3& direction) = 0;
 	};
 
 	class DefaultRenderer final : public IRenderer
@@ -34,8 +37,9 @@ namespace leap::graphics
 		virtual void Draw() override {}
 		virtual void SetActiveCamera(Camera*) override {}
 		virtual Camera* GetCamera() const override { return nullptr; }
-		virtual IMeshRenderer* CreateMeshRenderer() { return nullptr; }
-		virtual void RemoveMeshRenderer(IMeshRenderer*) {}
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>) { return nullptr; };
+		virtual IMeshRenderer* CreateMeshRenderer() override  { return nullptr; }
+		virtual void RemoveMeshRenderer(IMeshRenderer*) override {}
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>) override { return nullptr; };
+		virtual void SetDirectionLight(const glm::vec3&) override {};
 	};
 }

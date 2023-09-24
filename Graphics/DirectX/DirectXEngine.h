@@ -38,6 +38,7 @@ namespace leap::graphics
 		virtual IMeshRenderer* CreateMeshRenderer();
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader) override;
+		virtual void SetDirectionLight(const glm::vec3& direction) override;
 
 	private:
 		GLFWwindow* m_pWindow;
