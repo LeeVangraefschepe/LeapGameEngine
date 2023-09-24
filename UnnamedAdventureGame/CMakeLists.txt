@@ -1,10 +1,9 @@
-#Game cmake
+# Game cmake
 
 add_executable(UnnamedAdventureGame main.cpp "Scenes/MainMenuScene.cpp" "Components/Transformator.h" "Components/Transformator.cpp")
 
-# DLL Copies
-# Define a custom target to copy the FMOD DLL
-add_custom_command(TARGET UnnamedAdventureGame POST_BUILD
+# Copies used for .exe
+add_custom_command(TARGET UnnamedAdventureGame PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FMOD_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
     COMMENT "Copying FMOD DLL..."
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PHYSX_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
@@ -15,4 +14,6 @@ add_custom_command(TARGET UnnamedAdventureGame POST_BUILD
     COMMENT "Copying PHYSX COOKING DLL..."
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PHYSX_FOUNDATION_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
     COMMENT "Copying PHYSX FOUNDATION DLL..."
+    COMMAND ${CMAKE_COMMAND} -E copy_directory  ${DATA_FILES} ${DESTINATION_COPY}
+    COMMENT "Copying DATA..."
 )

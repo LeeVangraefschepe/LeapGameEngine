@@ -12,6 +12,10 @@ else()
     add_compile_options(-Wall -Wextra -Werror)
 endif()
 
+# Copy files
+set(DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Data")
+set(DESTINATION_COPY "${CMAKE_BINARY_DIR}/UnnamedAdventureGame/Data")
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 
