@@ -15,7 +15,7 @@
 #include "GameContext/GameContext.h"
 #include "SceneGraph/SceneManager.h"
 
-leap::LeapEngine::LeapEngine()
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
     std::cout << "Engine created\n";
 
@@ -25,7 +25,7 @@ leap::LeapEngine::LeapEngine()
 
     /* Create a windowed mode window and its OpenGL context */
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    m_pWindow = glfwCreateWindow(1280, 720, "Leap Engine", nullptr, nullptr);
+    m_pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (!m_pWindow)
     {
         glfwTerminate();
@@ -43,8 +43,10 @@ leap::LeapEngine::LeapEngine()
     input::InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
-leap::LeapEngine::~LeapEngine()
-{}
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title, const std::string& iconPath) : LeapEngine(width, height, title)
+{
+    iconPath;
+}
 
 void leap::LeapEngine::Run(int desiredFPS)
 {

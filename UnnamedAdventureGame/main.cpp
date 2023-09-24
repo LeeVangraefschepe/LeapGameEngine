@@ -5,8 +5,8 @@
 
 int main()
 {
-	leap::LeapEngine engine{};
+	leap::LeapEngine engine{1280, 720, "Leap engine"};
 	leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
-	engine.Run(60);
+	engine.Run(10000);
 	return 0;
 }
