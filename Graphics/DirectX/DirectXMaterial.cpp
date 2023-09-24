@@ -81,6 +81,42 @@ void leap::graphics::DirectXMaterial::SetWorldMatrix(const glm::mat4x4& worldMat
 	if(m_pMatWorldVariable) m_pMatWorldVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
 }
 
+void leap::graphics::DirectXMaterial::SetFloat(const std::string& varName, float data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if(var) var->AsScalar()->SetFloat(data);
+}
+
+void leap::graphics::DirectXMaterial::SetFloat2(const std::string& varName, const glm::vec2& data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+}
+
+void leap::graphics::DirectXMaterial::SetFloat3(const std::string& varName, const glm::vec3& data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+}
+
+void leap::graphics::DirectXMaterial::SetFloat4(const std::string& varName, const glm::vec4& data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+}
+
+void leap::graphics::DirectXMaterial::SetMat3x3(const std::string& varName, const glm::mat3x3& data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
+}
+
+void leap::graphics::DirectXMaterial::SetMat4x4(const std::string& varName, const glm::mat4x4& data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
+}
+
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)
 {
 	HRESULT result;

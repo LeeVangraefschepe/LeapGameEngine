@@ -34,6 +34,13 @@ namespace leap::graphics
 		static void SetViewProjectionMatrix(const glm::mat4x4& viewProjMatrix);
 		void SetWorldMatrix(const glm::mat4x4& worldMatrix);
 
+		virtual void SetFloat(const std::string& varName, float data) override;
+		virtual void SetFloat2(const std::string& varName, const glm::vec2& data) override;
+		virtual void SetFloat3(const std::string& varName, const glm::vec3& data) override;
+		virtual void SetFloat4(const std::string& varName, const glm::vec4& data) override;
+		virtual void SetMat3x3(const std::string& varName, const glm::mat3x3& data) override;
+		virtual void SetMat4x4(const std::string& varName, const glm::mat4x4& data) override;
+
 	private:
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::string& assetFile);
 

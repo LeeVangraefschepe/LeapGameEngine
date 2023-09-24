@@ -18,6 +18,8 @@
 #include "Shaders/Pos3D.h"
 #include "Shaders/PosNorm3D.h"
 
+#include "Interfaces/IMaterial.h"
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
@@ -31,6 +33,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCameraObj2->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 
 	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader()) };
+	pMaterial->SetFloat3("gLightDirection", { 0.0f, 1.0f, 0.0f });
+	pMaterial->SetFloat4("gColor", { 1.0f, 0.0f, 0.0f, 1.0f });
+
 	const auto pMaterial2{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::Pos3D::GetShader()) };
 
 	auto shadedMesh{ scene.CreateGameObject("Mesh") };
