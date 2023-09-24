@@ -162,11 +162,13 @@ namespace leap::input
         };
 #pragma endregion
         void SetWindow(GLFWwindow* window);
+        void SetPressedBuffers(int keyboard);
         bool ProcessInput();
         void AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key);
         void AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key);
         void AddCommand(std::shared_ptr<Command> command, WheelInput key);
-        glm::vec2 GetCursorPosition() const;
+        glm::ivec2 GetCursorPosition() const;
+        glm::ivec2 GetCursorDelta() const { return m_MouseDelta; }
 
         void RemoveCommand(const std::shared_ptr<Command>& command);
 
@@ -180,6 +182,7 @@ namespace leap::input
 
         static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
+        static void ProcessMousePos(GLFWwindow* window, double xpos, double ypos);
         static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
 
         GLFWwindow* m_pWindow {nullptr};
@@ -190,8 +193,12 @@ namespace leap::input
 
         using MouseBinding = std::map<MouseInput, std::vector<std::shared_ptr<Command>>>;
         std::map<InputType, MouseBinding> m_mouseCommands{};
+        std::vector<MouseInput> m_pressedButtons{};
 
         using WheelBinding = std::map<WheelInput, std::vector<std::shared_ptr<Command>>>;
         WheelBinding m_wheelCommands{};
+
+        glm::ivec2 m_MouseDelta{};
+        glm::ivec2 m_PrevMousePos{-1,-1};
 	};
 }

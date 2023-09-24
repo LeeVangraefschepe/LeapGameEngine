@@ -7,6 +7,10 @@
 void leap::input::InputManager::SetWindow(GLFWwindow* window)
 {
 	m_pWindow = window;
+	glfwSetKeyCallback(m_pWindow, &ProcessKey);
+	glfwSetMouseButtonCallback(m_pWindow, &ProcessMouse);
+	glfwSetScrollCallback(m_pWindow, &ProcessWheel);
+	glfwSetCursorPosCallback(m_pWindow, &ProcessMousePos);
 }
 
 void leap::input::InputManager::SetPressedBuffers(int keyboard)
@@ -17,15 +21,23 @@ void leap::input::InputManager::SetPressedBuffers(int keyboard)
 
 bool leap::input::InputManager::ProcessInput()
 {
-	glfwSetKeyCallback(m_pWindow, &ProcessKey);
-	glfwSetMouseButtonCallback(m_pWindow, &ProcessMouse);
-	glfwSetScrollCallback(m_pWindow, &ProcessWheel);
-
+	// Keyboard
 	for (auto key : m_pressedKeys)
 	{
 		if (static_cast<int>(key) == -1) continue;
 
 		for (const auto& command : m_keyboardCommands[InputType::EventRepeat][key])
+		{
+			command->Execute();
+		}
+	}
+
+	// Mouse
+	for (auto button : m_pressedButtons)
+	{
+		if (static_cast<int>(button) == -1) continue;
+
+		for (const auto& command : m_mouseCommands[InputType::EventRepeat][button])
 		{
 			command->Execute();
 		}
@@ -59,7 +71,7 @@ void leap::input::InputManager::AddCommand(std::shared_ptr<Command> command, Whe
 	m_wheelCommands[key].emplace_back(std::move(command));
 }
 
-glm::vec2 leap::input::InputManager::GetCursorPosition() const
+glm::ivec2 leap::input::InputManager::GetCursorPosition() const
 {
 	glm::dvec2 position{};
 	glfwGetCursorPos(m_pWindow, &position.x, &position.y);
@@ -102,7 +114,9 @@ void leap::input::InputManager::RemoveCommand(const std::shared_ptr<Command>& co
 leap::input::InputManager::InputManager()
 {
 	constexpr unsigned keyboardBuffer = 10;
+	constexpr unsigned mouseBuffer = 10;
 	m_pressedKeys.resize(keyboardBuffer, static_cast<KeyboardInput>(-1));
+	m_pressedButtons.resize(mouseBuffer, static_cast<MouseInput>(-1));
 }
 
 void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action, int)
@@ -110,9 +124,7 @@ void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action
 	if (static_cast<InputType>(action) == InputType::EventRepeat) return;
 
 	auto& input = GetInstance();
-	const auto& actionCommands = input.m_keyboardCommands[static_cast<InputType>(action)][static_cast<KeyboardInput>(key)];
-
-	for (const auto& command : actionCommands)
+	for (const auto& actionCommands = input.m_keyboardCommands[static_cast<InputType>(action)][static_cast<KeyboardInput>(key)]; const auto& command : actionCommands)
 	{
 		command->Execute();
 	}
@@ -128,7 +140,7 @@ void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action
 			}
 		}
 	}
-	else if (static_cast<InputType>(action) == InputType::EventRelease)
+	else
 	{
 		for (unsigned i{}; i < input.m_pressedKeys.size(); ++i)
 		{
@@ -143,18 +155,45 @@ void leap::input::InputManager::ProcessKey(GLFWwindow*, int key, int, int action
 
 void leap::input::InputManager::ProcessMouse(GLFWwindow*, int button, int action, int)
 {
+	if (static_cast<InputType>(action) == InputType::EventRepeat) return;
+
 	auto& input = GetInstance();
-	const auto& actionCommands = input.m_mouseCommands[static_cast<InputType>(action)];
-	for (const auto& keyCommands : actionCommands)
+	for (const auto& commands = input.m_mouseCommands[static_cast<InputType>(action)][static_cast<MouseInput>(button)]; const auto& command : commands)
 	{
-		if (keyCommands.first == static_cast<MouseInput>(button))
+		command->Execute();
+	}
+
+	if (static_cast<InputType>(action) == InputType::EventPress)
+	{
+		for (unsigned i{}; i < input.m_pressedButtons.size(); ++i)
 		{
-			for (const auto& command : keyCommands.second)
+			if (input.m_pressedButtons[i] == static_cast<MouseInput>(-1))
 			{
-				command->Execute();
+				input.m_pressedButtons[i] = static_cast<MouseInput>(button);
+				break;
 			}
 		}
 	}
+	else
+	{
+		for (unsigned i{}; i < input.m_pressedButtons.size(); ++i)
+		{
+			if (input.m_pressedButtons[i] == static_cast<MouseInput>(button))
+			{
+				input.m_pressedButtons[i] = static_cast<MouseInput>(-1);
+				break;
+			}
+		}
+	}
+}
+
+void leap::input::InputManager::ProcessMousePos(GLFWwindow*, double xpos, double ypos)
+{
+	auto& input = GetInstance();
+
+	const glm::ivec2 mousePos{ xpos, ypos };
+	input.m_MouseDelta = mousePos - input.m_PrevMousePos;
+	input.m_PrevMousePos = mousePos;
 }
 
 void leap::input::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double yoffset)
