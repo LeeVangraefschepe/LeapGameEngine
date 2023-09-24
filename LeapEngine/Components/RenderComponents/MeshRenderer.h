@@ -25,6 +25,7 @@ namespace leap
 
 	protected:
 		virtual void LateUpdate() override;
+		virtual void OnDestroy() override;
 
 	private:
 		graphics::IMeshRenderer* m_pRenderer{};

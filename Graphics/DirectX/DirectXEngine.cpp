@@ -177,10 +177,7 @@ void leap::graphics::DirectXEngine::Draw()
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	for (const auto& pMaterial : m_pMaterials)
-	{
-		pMaterial->SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
-	}
+	DirectXMaterial::SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
 
 	for (const auto& pMeshRenderer : m_pRenderers)
 	{

@@ -21,3 +21,8 @@ void leap::MeshRendererComponent::LateUpdate()
 {
 	m_pRenderer->SetTransform(GetTransform()->GetWorldTransform());
 }
+
+void leap::MeshRendererComponent::OnDestroy()
+{
+	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
+}

@@ -33,7 +33,7 @@ namespace leap::graphics
 		virtual void Draw() override;
 		virtual IMaterial* GetMaterial() override;
 		virtual void SetMaterial(IMaterial* pMaterial) override;
-		virtual void SetTransform(const glm::mat4x4 transform) override;
+		virtual void SetTransform(const glm::mat4x4& transform) override;
 
 	private:
 		DirectXMaterial* m_pMaterial{};

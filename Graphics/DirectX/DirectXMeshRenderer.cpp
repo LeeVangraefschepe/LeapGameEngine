@@ -96,7 +96,7 @@ void leap::graphics::DirectXMeshRenderer::SetMaterial(IMaterial* pMaterial)
 	m_pInputLayout = m_pMaterial->LoadInputLayout(m_pDevice);
 }
 
-void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4 transform)
+void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transform)
 {
 	m_Transform = transform;
 }
