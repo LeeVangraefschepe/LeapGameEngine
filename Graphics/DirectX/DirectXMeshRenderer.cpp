@@ -16,8 +16,6 @@ leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(ID3D11Device* pDevice, 
 leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer()
 {
 	if (m_pInputLayout) m_pInputLayout->Release();
-	if (m_pVertexBuffer) m_pVertexBuffer->Release();
-	if (m_pIndexBuffer) m_pIndexBuffer->Release();
 }
 
 void leap::graphics::DirectXMeshRenderer::Draw()

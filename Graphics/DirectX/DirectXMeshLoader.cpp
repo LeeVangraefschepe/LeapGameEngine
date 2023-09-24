@@ -48,3 +48,12 @@ const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::
 
 	return m_Meshes[dataPath];
 }
+
+leap::graphics::DirectXMeshLoader::~DirectXMeshLoader()
+{
+	for (auto& mesh : m_Meshes)
+	{
+		if (mesh.second.vertexBuffer) mesh.second.vertexBuffer->Release();
+		if (mesh.second.indexBuffer) mesh.second.indexBuffer->Release();
+	}
+}

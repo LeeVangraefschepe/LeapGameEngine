@@ -24,6 +24,7 @@ namespace leap::graphics
 
 	private:
 		DirectXMeshLoader() = default;
+		~DirectXMeshLoader();
 
 		std::unordered_map<std::string, DirectXMeshDefinition> m_Meshes{};
 
