@@ -19,8 +19,7 @@ namespace leap::graphics
 	class DirectXMaterial final : public IMaterial
 	{
 	public:
-		DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile);
-		DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction);
+		DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction, const std::string& name);
 		virtual ~DirectXMaterial();
 
 		DirectXMaterial(const DirectXMaterial& other) = delete;
@@ -41,10 +40,14 @@ namespace leap::graphics
 		virtual void SetMat3x3(const std::string& varName, const glm::mat3x3& data) override;
 		virtual void SetMat4x4(const std::string& varName, const glm::mat4x4& data) override;
 
+		const std::string& GetName() const { return m_Name; }
+
 	private:
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::string& assetFile);
 
 		static glm::mat4x4 m_ViewProjMatrix;
+
+		std::string m_Name{};
 
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
 		ID3DX11EffectMatrixVariable* m_pMatWorldVariable{};

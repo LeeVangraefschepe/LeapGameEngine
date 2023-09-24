@@ -16,6 +16,7 @@ struct ID3D11Buffer;
 
 namespace leap::graphics
 {
+	class DirectXEngine;
 	class IMaterial;
 	class DirectXMaterial;
 
@@ -42,12 +43,11 @@ namespace leap::graphics
 		ID3D11Device* m_pDevice{};
 		ID3D11DeviceContext* m_pDeviceContext{};
 
-		std::vector<Vertex> m_Vertices{};
-		std::vector<unsigned int> m_Indices{};
 		glm::mat4x4 m_Transform{};
 
 		ID3D11InputLayout* m_pInputLayout{};
 		ID3D11Buffer* m_pVertexBuffer{};
+		unsigned int m_NrIndices{};
 		ID3D11Buffer* m_pIndexBuffer{};
 	};
 }

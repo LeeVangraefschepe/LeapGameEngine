@@ -14,6 +14,9 @@ struct ID3D11RenderTargetView;
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
+
+class GLFWwindow;
 
 namespace leap::graphics
 {
@@ -37,7 +40,7 @@ namespace leap::graphics
 		virtual Camera* GetCamera() const override { return m_pCamera; }
 		virtual IMeshRenderer* CreateMeshRenderer();
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader) override;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
 		virtual void SetDirectionLight(const glm::vec3& direction) override;
 
 	private:

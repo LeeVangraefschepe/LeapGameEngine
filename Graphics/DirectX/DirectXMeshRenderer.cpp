@@ -3,6 +3,7 @@
 #include <d3dx11effect.h>
 
 #include "DirectXMaterial.h"
+#include "DirectXMeshLoader.h"
 
 #include "../Utils.h"
 
@@ -46,7 +47,7 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
 		m_pMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
-		m_pDeviceContext->DrawIndexed(static_cast<uint32_t>(m_Indices.size()), 0, 0);
+		m_pDeviceContext->DrawIndexed(m_NrIndices, 0, 0);
 	}
 }
 
@@ -71,30 +72,9 @@ void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transf
 
 void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
 {
-	Utils::ParseObj(filePath, m_Vertices, m_Indices);
+	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh(filePath, m_pDevice) };
 
-	// Create vertex buffer
-	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_IMMUTABLE;
-	bd.ByteWidth = sizeof(Vertex) * static_cast<unsigned int>(m_Vertices.size());
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-	bd.MiscFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = m_Vertices.data();
-
-	HRESULT result{ m_pDevice->CreateBuffer(&bd, &initData, &m_pVertexBuffer) };
-	if (FAILED(result)) return;
-
-	// Create index buffer
-	bd.Usage = D3D11_USAGE_IMMUTABLE;
-	bd.ByteWidth = sizeof(unsigned int) * static_cast<unsigned int>(m_Indices.size());
-	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-	bd.MiscFlags = 0;
-	initData.pSysMem = m_Indices.data();
-
-	result = m_pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
-	if (FAILED(result)) return;
+	m_pVertexBuffer = mesh.vertexBuffer;
+	m_pIndexBuffer = mesh.indexBuffer;
+	m_NrIndices = mesh.nrIndices;
 }

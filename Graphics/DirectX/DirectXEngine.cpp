@@ -181,9 +181,9 @@ void leap::graphics::DirectXEngine::Draw()
 
 	DirectXMaterial::SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
 
-	for (const auto& pMeshRenderer : m_pRenderers)
+	for (const auto& pRenderer : m_pRenderers)
 	{
-		pMeshRenderer->Draw();
+		pRenderer->Draw();
 	}
 
 	m_pSwapChain->Present(0, 0);
@@ -200,10 +200,15 @@ void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRende
 	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
 }
 
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader)
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
 {
 	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
-	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction));
+	if (auto it{ std::find_if(begin(m_pMaterials), end(m_pMaterials), [&](const auto& pMaterial) { return pMaterial->GetName() == name; }) }; it != end(m_pMaterials))
+	{
+		return it->get();
+	}
+
+	m_pMaterials.push_back(std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction, name));
 	return m_pMaterials[m_pMaterials.size() - 1].get();
 }
 
