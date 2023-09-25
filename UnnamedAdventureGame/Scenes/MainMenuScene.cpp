@@ -29,7 +29,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
 	pDirLight->GetTransform()->SetWorldRotation(-0.577f, -0.577f, 0.577f);
-	//pDirLight->AddComponent<Transformator>();
+	pDirLight->AddComponent<Transformator>();
 	
 	leap::GameObject* pCameraYawObj{ scene.CreateGameObject("Main Camera Yaw") };
 	leap::GameObject* pCameraObj{ pCameraYawObj->CreateChild("Main Camera") };
@@ -54,7 +54,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 			leap::MeshRendererComponent* pMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
 			pMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
 			pMeshRenderer->SetMaterial(pMaterial);
-			shadedMesh->AddComponent<Transformator>();
+			//shadedMesh->AddComponent<Transformator>();
 			shadedMesh->GetTransform()->Scale(10.0f);
 			shadedMesh->GetTransform()->SetLocalPosition(x * 3.0f, -1.0f, y * 3.0f);
 		}

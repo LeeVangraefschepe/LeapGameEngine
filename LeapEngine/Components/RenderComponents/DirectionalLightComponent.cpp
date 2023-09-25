@@ -7,8 +7,5 @@
 
 void leap::DirectionalLightComponent::LateUpdate()
 {
-	glm::vec3 forward{ 0.0f, 0.0f, 1.0f };
-	forward = GetTransform()->GetWorldRotation() * forward;
-
-	ServiceLocator::GetRenderer().SetDirectionLight(forward);
+	ServiceLocator::GetRenderer().SetDirectionLight(GetTransform()->GetForward());
 }
