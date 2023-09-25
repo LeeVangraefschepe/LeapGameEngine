@@ -12,6 +12,7 @@ namespace leap::graphics
 	class Camera;
 	class IMeshRenderer;
 	class IMaterial;
+	class ITexture;
 	struct Shader;
 
 	class IRenderer
@@ -21,11 +22,17 @@ namespace leap::graphics
 
 		virtual void Initialize() = 0;
 		virtual void Draw() = 0;
+
 		virtual void SetActiveCamera(Camera*) = 0;
 		virtual Camera* GetCamera() const = 0;
+
 		virtual IMeshRenderer* CreateMeshRenderer() = 0;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) = 0;
+
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) = 0;
+
+		virtual ITexture* CreateTexture(const std::string& path) = 0;
+
 		virtual void SetDirectionLight(const glm::vec3& direction) = 0;
 	};
 
@@ -40,6 +47,7 @@ namespace leap::graphics
 		virtual IMeshRenderer* CreateMeshRenderer() override  { return nullptr; }
 		virtual void RemoveMeshRenderer(IMeshRenderer*) override {}
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&) override { return nullptr; };
+		virtual ITexture* CreateTexture(const std::string&) override { return nullptr; };
 		virtual void SetDirectionLight(const glm::vec3&) override {};
 	};
 }

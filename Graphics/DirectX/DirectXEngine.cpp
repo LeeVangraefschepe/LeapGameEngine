@@ -17,6 +17,7 @@
 #include <d3dx11effect.h>
 
 #include "DirectXShaderReader.h"
+#include "DirectXTexture.h"
 
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
@@ -213,6 +214,15 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::un
 
 	m_pMaterials[name] = std::move(pMaterial);
 	return pMaterialRaw;
+}
+
+leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path)
+{
+	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, path) };
+	auto pTextureRaw{ pTexture.get() };
+
+	m_pTextures[path] = std::move(pTexture);
+	return pTextureRaw;
 }
 
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction)

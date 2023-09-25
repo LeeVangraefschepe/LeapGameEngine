@@ -23,6 +23,7 @@ namespace leap::graphics
 	class Camera;
 	class IMeshRenderer;
 	class IMaterial;
+	class DirectXTexture;
 
 	class DirectXEngine final : public IRenderer
 	{
@@ -41,6 +42,7 @@ namespace leap::graphics
 		virtual IMeshRenderer* CreateMeshRenderer();
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
+		virtual ITexture* CreateTexture(const std::string& path) override;
 		virtual void SetDirectionLight(const glm::vec3& direction) override;
 
 	private:
@@ -55,6 +57,7 @@ namespace leap::graphics
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
+		std::unordered_map<std::string, std::unique_ptr<DirectXTexture>> m_pTextures{};
 
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};

@@ -26,6 +26,9 @@
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
+	leap::graphics::ITexture* pTexture{ leap::ServiceLocator::GetRenderer().CreateTexture("Data/logo.png") };
+	pTexture = nullptr;
+
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
 	pDirLight->GetTransform()->SetWorldRotation(-0.577f, -0.577f, 0.577f);
