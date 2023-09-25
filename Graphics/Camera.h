@@ -18,8 +18,7 @@ namespace leap::graphics
 		Camera& operator=(Camera&& other) = delete;
 
 		void SetColor(const glm::vec4& color) { m_Color = color; }
-		void SetPosition(const glm::vec3& position) { m_Position = position; m_IsDirty = true; }
-		void SetRotation(const glm::quat& rotation);
+		void SetTransform(const glm::mat4x3& transform);
 
 		const glm::vec4& GetColor() const { return m_Color; }
 		const glm::mat4x4& GetInverseViewMatrix();
@@ -28,8 +27,7 @@ namespace leap::graphics
 
 	private:
 		glm::vec4 m_Color{ 0.39f, 0.59f, 0.93f, 1.f };
-		glm::vec3 m_Forward{};
-		glm::vec3 m_Position{};
+		glm::mat4x3 m_Transform{};
 		glm::mat4x4 m_InverseViewMatrix{};
 		glm::mat4x4 m_ViewMatrix{};
 		bool m_IsDirty{};

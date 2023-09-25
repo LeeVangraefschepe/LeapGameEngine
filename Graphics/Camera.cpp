@@ -8,17 +8,17 @@ m_AspectRatio(aspectRatio)
 	CalculateViewMatrix();
 }
 
-void leap::graphics::Camera::SetRotation(const glm::quat& rotation)
-{
-	constexpr glm::vec3 forward{ 0,0,1 };
-	m_Forward = forward * rotation;
-	m_IsDirty = true;
-}
-
 const glm::mat4x4& leap::graphics::Camera::GetInverseViewMatrix()
 {
 	if (m_IsDirty) CalculateViewMatrix();
 	return m_InverseViewMatrix;
+}
+
+void leap::graphics::Camera::SetTransform(const glm::mat4x3& transform)
+{
+	m_Transform = transform;
+
+	m_IsDirty = true;
 }
 
 const glm::mat4x4& leap::graphics::Camera::GetViewMatrix()
@@ -34,16 +34,12 @@ const glm::mat4x4& leap::graphics::Camera::GetProjectionMatrix() const
 
 void leap::graphics::Camera::CalculateViewMatrix()
 {
-	constexpr glm::vec3 UnitY{ 0,1,0 };
-	const auto right = normalize(glm::cross(UnitY, m_Forward));
-	const auto up = cross(m_Forward, right);
-
 	m_InverseViewMatrix = glm::mat4x4
 	{
-		glm::vec4{ right, 0 },
-		glm::vec4{ up, 0 },
-		glm::vec4{ m_Forward, 0 },
-		glm::vec4{ m_Position, 1 }
+		glm::vec4{ m_Transform[0], 0 },
+		glm::vec4{ m_Transform[1], 0 },
+		glm::vec4{ m_Transform[2], 0 },
+		glm::vec4{ m_Transform[3], 1 }
 	};
 
 	m_ViewMatrix = inverse(m_InverseViewMatrix);

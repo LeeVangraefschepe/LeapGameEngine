@@ -52,6 +52,7 @@ void leap::Transform::SetWorldRotation(const glm::quat& rotation)
 	m_LocalRotation = invParentWorldRotation * rotation;
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::SetWorldScale(const glm::vec3& scale)
@@ -110,6 +111,7 @@ void leap::Transform::SetLocalRotation(const glm::vec3& rotation, bool degrees)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::SetLocalRotation(float x, float y, float z, bool degrees)
@@ -123,6 +125,7 @@ void leap::Transform::SetLocalRotation(const glm::quat& rotation)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::SetLocalScale(const glm::vec3& scale)
@@ -176,6 +179,7 @@ void leap::Transform::Rotate(const glm::vec3& rotationDelta, bool degrees)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::Rotate(float xDelta, float yDelta, float zDelta, bool degrees)
@@ -189,6 +193,7 @@ void leap::Transform::Rotate(const glm::quat& rotationDelta)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::Scale(const glm::vec3& scaleDelta)
@@ -305,6 +310,25 @@ glm::mat4x4 leap::Transform::GetLocalTransform() const
 
 	return worldTransform;
 }
+
+const glm::vec3& leap::Transform::GetForward()
+{
+	if (IsDirty(DirtyFlags::DirectionVectors)) UpdateDirectionVectors();
+
+	return m_Forward;
+}
+const glm::vec3& leap::Transform::GetUp()
+{
+	if (IsDirty(DirtyFlags::DirectionVectors)) UpdateDirectionVectors();
+
+	return m_Up;
+}
+const glm::vec3& leap::Transform::GetRight()
+{
+	if (IsDirty(DirtyFlags::DirectionVectors)) UpdateDirectionVectors();
+
+	return m_Right;
+}
 #pragma endregion
 
 void leap::Transform::UpdateTranslation()
@@ -365,6 +389,17 @@ void leap::Transform::UpdateScale()
 
 	// Disable the scale dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Scale);
+}
+
+void leap::Transform::UpdateDirectionVectors()
+{
+	// Calculate direction vectors
+	m_Forward = GetWorldRotation() * glm::vec3{ 0.0f, 0.0f, 1.0f };
+	m_Right = glm::normalize(glm::cross(glm::vec3{ 0.0f, 1.0f, 0.0f }, m_Forward));
+	m_Up = glm::cross(m_Forward, m_Right);
+
+	// Disable the direction dirty flag
+	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::DirectionVectors);
 }
 
 bool leap::Transform::IsDirty(DirtyFlags flag) const

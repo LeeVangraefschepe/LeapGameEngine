@@ -42,7 +42,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pOtherCamera->GetData()->SetColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 	pCameraObj2->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 
-	constexpr int nrMeshesPerRow{ 100 };
+	constexpr int nrMeshesPerRow{ 50 };
 
 	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "White") };
 
@@ -80,7 +80,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
-				pCameraYawObj->GetTransform()->Translate(-10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime(), 0.0f, 0.0f);
+				pCameraYawObj->GetTransform()->Translate(-pCameraObj->GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
 		leap::input::InputManager::KeyboardInput::KeyA
@@ -88,7 +88,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
-				pCameraYawObj->GetTransform()->Translate(10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime(), 0.0f, 0.0f);
+				pCameraYawObj->GetTransform()->Translate(pCameraObj->GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
 		leap::input::InputManager::KeyboardInput::KeyD
@@ -96,7 +96,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
-				pCameraYawObj->GetTransform()->Translate(0.0f, 0.0f, 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
+				pCameraYawObj->GetTransform()->Translate(pCameraObj->GetTransform()->GetForward() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
 		leap::input::InputManager::KeyboardInput::KeyW
@@ -104,7 +104,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
-				pCameraYawObj->GetTransform()->Translate(0.0f, 0.0f, -10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
+				pCameraYawObj->GetTransform()->Translate(-pCameraObj->GetTransform()->GetForward() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
 		leap::input::InputManager::KeyboardInput::KeyS
@@ -113,11 +113,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
 				auto mouseDelta = static_cast<glm::vec2>(leap::input::InputManager::GetInstance().GetCursorDelta());
-				mouseDelta.y = -mouseDelta.y;
 				const auto deltaTime = leap::GameContext::GetInstance().GetTimer()->GetDeltaTime();
 				constexpr float mouseSpeed = 15.f;
 
-				pCameraYawObj->GetTransform()->Rotate(0.0f, -mouseDelta.x * deltaTime * mouseSpeed, 0.0f);
+				pCameraYawObj->GetTransform()->Rotate(0.0f, mouseDelta.x * deltaTime * mouseSpeed, 0.0f);
 				pCameraObj->GetTransform()->Rotate(mouseDelta.y * deltaTime * mouseSpeed, 0.0f, 0.0f);
 			}),
 		leap::input::InputManager::InputType::EventRepeat,

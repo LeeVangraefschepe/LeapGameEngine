@@ -28,8 +28,13 @@ void leap::CameraComponent::LateUpdate()
 
 	// Update internal camera data with transform
 	Transform* pTransform{ GetTransform() };
-	m_pCamera->SetPosition(pTransform->GetWorldPosition());
-	m_pCamera->SetRotation(pTransform->GetWorldRotation());
+	m_pCamera->SetTransform(
+		{
+			pTransform->GetRight(),
+			pTransform->GetUp(),
+			pTransform->GetForward(),
+			pTransform->GetWorldPosition()
+		});
 }
 
 void leap::CameraComponent::SetAsActiveCamera(bool active) const
