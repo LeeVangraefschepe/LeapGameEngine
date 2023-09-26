@@ -5,6 +5,9 @@
 #include <string>
 #include <memory>
 
+#include <wincodec.h>
+#include <dxgiformat.h>
+
 struct ID3D11Device;
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
@@ -25,7 +28,11 @@ namespace leap::graphics
 
 		virtual glm::vec4 GetPixel(int x, int y) override;
 
+		ID3D11ShaderResourceView* GetResource() const { return m_pSRV; };
+
 	private:
+		static DXGI_FORMAT ConvertWICToDXGI(const WICPixelFormatGUID& wicFormat);
+		static WICPixelFormatGUID ConvertWICToWIC(const WICPixelFormatGUID& wicFormatGUID);
 
 		ID3D11Texture2D* m_pResource{};
 		ID3D11ShaderResourceView* m_pSRV{};

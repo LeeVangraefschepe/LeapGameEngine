@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include "DirectXTexture.h"
 
 glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
 
@@ -102,6 +103,12 @@ void leap::graphics::DirectXMaterial::SetMat4x4(const std::string& varName, cons
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
 	if (var) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
+}
+
+void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ITexture* pTexture)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var) var->AsShaderResource()->SetResource(static_cast<DirectXTexture*>(pTexture)->GetResource());
 }
 
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)

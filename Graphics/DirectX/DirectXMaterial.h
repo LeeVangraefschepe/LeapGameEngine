@@ -39,6 +39,7 @@ namespace leap::graphics
 		virtual void SetFloat4(const std::string& varName, const glm::vec4& data) override;
 		virtual void SetMat3x3(const std::string& varName, const glm::mat3x3& data) override;
 		virtual void SetMat4x4(const std::string& varName, const glm::mat4x4& data) override;
+		virtual void SetTexture(const std::string& varName, ITexture* pTexture) override;
 
 	private:
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::string& assetFile);

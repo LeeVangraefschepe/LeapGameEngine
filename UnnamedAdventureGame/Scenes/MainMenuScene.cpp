@@ -23,12 +23,10 @@
 
 #include "Interfaces/IMaterial.h"
 #include "Components/RenderComponents/DirectionalLightComponent.h"
+#include <Shaders/PosNormTex3D.h>
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
-	leap::graphics::ITexture* pTexture{ leap::ServiceLocator::GetRenderer().CreateTexture("Data/logo.png") };
-	pTexture = nullptr;
-
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
 	pDirLight->GetTransform()->SetWorldRotation(-0.577f, -0.577f, 0.577f);
@@ -45,9 +43,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pOtherCamera->GetData()->SetColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 	pCameraObj2->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 
-	constexpr int nrMeshesPerRow{ 50 };
+	constexpr int nrMeshesPerRow{ 1 };
 
-	const auto pMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "White") };
+	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNormTex3D::GetShader(), "Texture") };
+	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
 	for (int x = 0; x < nrMeshesPerRow; ++x)
 	{
@@ -55,8 +54,8 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 		{
 			auto shadedMesh{ scene.CreateGameObject("Mesh") };
 			leap::MeshRendererComponent* pMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
-			pMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
-			pMeshRenderer->SetMaterial(pMaterial);
+			pMeshRenderer->LoadMesh("Data/plane.obj");
+			pMeshRenderer->SetMaterial(pTexturedMaterial);
 			//shadedMesh->AddComponent<Transformator>();
 			shadedMesh->GetTransform()->Scale(10.0f);
 			shadedMesh->GetTransform()->SetLocalPosition(x * 3.0f, -1.0f, y * 3.0f);
