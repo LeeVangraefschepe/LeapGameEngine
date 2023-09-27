@@ -12,6 +12,35 @@ const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::
 		return it->second;
 	}
 
+	DirectXMeshDefinition mesh{ CreateMesh(dataPath, pDevice) };
+
+	m_Meshes[dataPath] = mesh;
+
+	return m_Meshes[dataPath];
+}
+
+void leap::graphics::DirectXMeshLoader::Reload(ID3D11Device* pDevice)
+{
+	for (auto& mesh : m_Meshes)
+	{
+		if (mesh.second.vertexBuffer) mesh.second.vertexBuffer->Release();
+		if (mesh.second.indexBuffer) mesh.second.indexBuffer->Release();
+
+		mesh.second = CreateMesh(mesh.first, pDevice);
+	}
+}
+
+leap::graphics::DirectXMeshLoader::~DirectXMeshLoader()
+{
+	for (auto& mesh : m_Meshes)
+	{
+		if (mesh.second.vertexBuffer) mesh.second.vertexBuffer->Release();
+		if (mesh.second.indexBuffer) mesh.second.indexBuffer->Release();
+	}
+}
+
+leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectXMeshLoader::CreateMesh(const std::string& dataPath, ID3D11Device* pDevice)
+{
 	DirectXMeshDefinition mesh{};
 
 	std::vector<Vertex> vertices{};
@@ -44,16 +73,5 @@ const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::
 
 	result = pDevice->CreateBuffer(&bd, &initData, &mesh.indexBuffer);
 
-	m_Meshes[dataPath] = mesh;
-
-	return m_Meshes[dataPath];
-}
-
-leap::graphics::DirectXMeshLoader::~DirectXMeshLoader()
-{
-	for (auto& mesh : m_Meshes)
-	{
-		if (mesh.second.vertexBuffer) mesh.second.vertexBuffer->Release();
-		if (mesh.second.indexBuffer) mesh.second.indexBuffer->Release();
-	}
+	return mesh;
 }

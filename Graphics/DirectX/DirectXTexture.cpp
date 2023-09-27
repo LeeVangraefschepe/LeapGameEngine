@@ -9,6 +9,30 @@
 
 leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, const std::string& path)
 {
+	LoadTexture(pDevice, path);
+}
+
+leap::graphics::DirectXTexture::~DirectXTexture()
+{
+	if(m_pResource) m_pResource->Release();
+	if(m_pSRV) m_pSRV->Release();
+}
+
+glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/)
+{
+	return {};
+}
+
+void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, const std::string& path)
+{
+	if (m_pResource) m_pResource->Release();
+	if (m_pSRV) m_pSRV->Release();
+
+	LoadTexture(pDevice, path);
+}
+
+void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const std::string& path)
+{
 	// Create a WIC factory
 	IWICImagingFactory* pWICFactory{};
 	HRESULT result{ CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pWICFactory)) };
@@ -112,17 +136,6 @@ leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, const std:
 	pWICFactory->Release();
 	pWICDecoder->Release();
 	pWICFrame->Release();
-}
-
-leap::graphics::DirectXTexture::~DirectXTexture()
-{
-	if(m_pResource) m_pResource->Release();
-	if(m_pSRV) m_pSRV->Release();
-}
-
-glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/)
-{
-	return {};
 }
 
 DXGI_FORMAT leap::graphics::DirectXTexture::ConvertWICToDXGI(const WICPixelFormatGUID& wicFormatGUID)

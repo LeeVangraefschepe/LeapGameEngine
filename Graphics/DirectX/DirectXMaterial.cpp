@@ -14,6 +14,7 @@ glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
 leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction)
 	: m_pEffect{ LoadEffect(pDevice, assetFile) }
 	, m_VertexDataFunction{ vertexDataFunction }
+	, m_AssetFile{ assetFile }
 {
 	// Save the technique of the effect as a member variable
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
@@ -108,7 +109,30 @@ void leap::graphics::DirectXMaterial::SetMat4x4(const std::string& varName, cons
 void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ITexture* pTexture)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var) var->AsShaderResource()->SetResource(static_cast<DirectXTexture*>(pTexture)->GetResource());
+	if (var)
+	{
+		m_pTextures[varName] = static_cast<DirectXTexture*>(pTexture);
+		var->AsShaderResource()->SetResource(static_cast<DirectXTexture*>(pTexture)->GetResource());
+	}
+}
+
+void leap::graphics::DirectXMaterial::Reload(ID3D11Device* pDevice)
+{
+	if (m_pEffect) m_pEffect->Release();
+	m_pEffect = LoadEffect(pDevice, m_AssetFile);
+
+	// Save the technique of the effect as a member variable
+	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+	if (!m_pTechnique->IsValid()) return;
+
+	// Save the worldviewprojection and world variable of the effect as a member variable
+	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
+
+	for (const auto& texturePair : m_pTextures)
+	{
+		SetTexture(texturePair.first, texturePair.second);
+	}
 }
 
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)

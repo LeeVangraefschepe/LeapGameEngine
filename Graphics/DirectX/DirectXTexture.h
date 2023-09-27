@@ -30,7 +30,11 @@ namespace leap::graphics
 
 		ID3D11ShaderResourceView* GetResource() const { return m_pSRV; };
 
+		void Reload(ID3D11Device* pDevice, const std::string& path);
+
 	private:
+		void LoadTexture(ID3D11Device* pDevice, const std::string& path);
+
 		static DXGI_FORMAT ConvertWICToDXGI(const WICPixelFormatGUID& wicFormat);
 		static WICPixelFormatGUID ConvertWICToWIC(const WICPixelFormatGUID& wicFormatGUID);
 

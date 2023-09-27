@@ -82,6 +82,18 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
+				static bool antiAliasing{ false };
+				leap::graphics::IRenderer& renderer{ leap::ServiceLocator::GetRenderer() };
+				antiAliasing = !antiAliasing;
+				renderer.SetAntiAliasing(antiAliasing ? leap::graphics::AntiAliasing::X2 : leap::graphics::AntiAliasing::NONE);
+			}),
+		leap::input::InputManager::InputType::EventPress,
+		leap::input::InputManager::KeyboardInput::KeyL
+	);
+
+	leap::input::InputManager::GetInstance().AddCommand(
+		std::make_shared<leap::LambdaCommand>([=]()
+			{
 				pCameraYawObj->GetTransform()->Translate(-pCameraObj->GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,

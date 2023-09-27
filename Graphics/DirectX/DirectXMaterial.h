@@ -16,6 +16,8 @@ struct ID3DX11EffectMatrixVariable;
 
 namespace leap::graphics
 {
+	class DirectXTexture;
+
 	class DirectXMaterial final : public IMaterial
 	{
 	public:
@@ -41,6 +43,8 @@ namespace leap::graphics
 		virtual void SetMat4x4(const std::string& varName, const glm::mat4x4& data) override;
 		virtual void SetTexture(const std::string& varName, ITexture* pTexture) override;
 
+		void Reload(ID3D11Device* pDevice);
+
 	private:
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::string& assetFile);
 
@@ -51,6 +55,8 @@ namespace leap::graphics
 
 		std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> m_VertexDataFunction{};
 		ID3DX11Effect* m_pEffect{};
+		std::string m_AssetFile{};
+		std::unordered_map<std::string, DirectXTexture*> m_pTextures{};
 		ID3DX11EffectTechnique* m_pTechnique{};
 	};
 }

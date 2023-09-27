@@ -18,6 +18,7 @@
 
 #include "DirectXShaderReader.h"
 #include "DirectXTexture.h"
+#include "DirectXMeshLoader.h"
 
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
@@ -26,40 +27,117 @@ leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pW
 
 leap::graphics::DirectXEngine::~DirectXEngine()
 {
+	Release();
+}
+
+void leap::graphics::DirectXEngine::Initialize()
+{
+	ReloadDirectXEngine();
+
+	m_IsInitialized = true;
+}
+
+void leap::graphics::DirectXEngine::SetAntiAliasing(AntiAliasing antiAliasing)
+{
+	m_AntiAliasing = antiAliasing;
+
+	if(m_IsInitialized) ReloadDirectXEngine();
+}
+
+leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
+{
+	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(m_pDevice, m_pDeviceContext));
+	return m_pRenderers[m_pRenderers.size() - 1].get();
+}
+
+void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRenderer)
+{
+	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
+}
+
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
+{
+	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
+	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
+	{
+		return it->second.get();
+	}
+
+	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
+	auto pMaterialRaw{ pMaterial.get() };
+
+	m_pMaterials[name] = std::move(pMaterial);
+	return pMaterialRaw;
+}
+
+leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path)
+{
+	if (auto it{ m_pTextures.find(path) }; it != end(m_pTextures))
+	{
+		return it->second.get();
+	}
+
+	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, path) };
+	auto pTextureRaw{ pTexture.get() };
+
+	m_pTextures[path] = std::move(pTexture);
+	return pTextureRaw;
+}
+
+void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction)
+{
+	for (const auto& pMaterial : m_pMaterials)
+	{
+		pMaterial.second->SetFloat3("gLightDirection", direction);
+	}
+}
+
+void leap::graphics::DirectXEngine::Release()
+{
 	if (m_pRenderTargetView)
 	{
 		m_pRenderTargetView->Release();
+		m_pRenderTargetView = nullptr;
 	}
 	if (m_pRenderTargetBuffer)
 	{
 		m_pRenderTargetBuffer->Release();
+		m_pRenderTargetBuffer = nullptr;
 	}
 	if (m_pDepthStencilView)
 	{
 		m_pDepthStencilView->Release();
+		m_pDepthStencilView = nullptr;
 	}
 	if (m_pDepthStencilBuffer)
 	{
 		m_pDepthStencilBuffer->Release();
+		m_pDepthStencilBuffer = nullptr;
 	}
 	if (m_pSwapChain)
 	{
 		m_pSwapChain->Release();
+		m_pSwapChain = nullptr;
 	}
 	if (m_pDeviceContext)
 	{
 		m_pDeviceContext->ClearState();
 		m_pDeviceContext->Flush();
 		m_pDeviceContext->Release();
+		m_pDeviceContext = nullptr;
 	}
 	if (m_pDevice)
 	{
 		m_pDevice->Release();
+		m_pDevice = nullptr;
 	}
 }
 
-void leap::graphics::DirectXEngine::Initialize()
+void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 {
+	// Release the previous version of the graphics engine
+	Release();
+
 	/// Create device & Device context
 	UINT createDeviceFlags = 0;
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
@@ -107,7 +185,7 @@ void leap::graphics::DirectXEngine::Initialize()
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	swapChainDesc.SampleDesc.Count = 2;
+	swapChainDesc.SampleDesc.Count = static_cast<UINT>(m_AntiAliasing);
 	swapChainDesc.SampleDesc.Quality = 0;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.BufferCount = 1;
@@ -127,7 +205,7 @@ void leap::graphics::DirectXEngine::Initialize()
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilDesc.SampleDesc.Count = 2;
+	depthStencilDesc.SampleDesc.Count = static_cast<UINT>(m_AntiAliasing);
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -137,7 +215,19 @@ void leap::graphics::DirectXEngine::Initialize()
 	//View
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
 	depthStencilViewDesc.Format = depthStencilDesc.Format;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+	switch (m_AntiAliasing)
+	{
+	case AntiAliasing::NONE:
+	{
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		break;
+	}
+	case AntiAliasing::X2:
+	{
+		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
+		break;
+	}
+	}
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	result = m_pDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer);
@@ -168,7 +258,22 @@ void leap::graphics::DirectXEngine::Initialize()
 	viewport.MaxDepth = 1;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
 
-	m_IsInitialized = true;
+	for (const auto& texturePair : m_pTextures)
+	{
+		texturePair.second->Reload(m_pDevice, texturePair.first);
+	}
+
+	for (const auto& materialPair : m_pMaterials)
+	{
+		materialPair.second->Reload(m_pDevice);
+	}
+
+	DirectXMeshLoader::GetInstance().Reload(m_pDevice);
+
+	for (const auto& pRenderer : m_pRenderers)
+	{
+		pRenderer->Reload(m_pDevice, m_pDeviceContext);
+	}
 }
 
 void leap::graphics::DirectXEngine::Draw()
@@ -188,47 +293,4 @@ void leap::graphics::DirectXEngine::Draw()
 	}
 
 	m_pSwapChain->Present(0, 0);
-}
-
-leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
-{
-	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(m_pDevice, m_pDeviceContext));
-	return m_pRenderers[m_pRenderers.size() - 1].get();
-}
-
-void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRenderer)
-{
-	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
-}
-
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
-{
-	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
-	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
-	{
-		return it->second.get();
-	}
-
-	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
-	auto pMaterialRaw{ pMaterial.get() };
-
-	m_pMaterials[name] = std::move(pMaterial);
-	return pMaterialRaw;
-}
-
-leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path)
-{
-	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, path) };
-	auto pTextureRaw{ pTexture.get() };
-
-	m_pTextures[path] = std::move(pTexture);
-	return pTextureRaw;
-}
-
-void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction)
-{
-	for (const auto& pMaterial : m_pMaterials)
-	{
-		pMaterial.second->SetFloat3("gLightDirection", direction);
-	}
 }

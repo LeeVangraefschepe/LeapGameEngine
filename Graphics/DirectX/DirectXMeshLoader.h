@@ -22,9 +22,13 @@ namespace leap::graphics
 		
 		const DirectXMeshDefinition& LoadMesh(const std::string& dataPath, ID3D11Device* pDevice);
 
+		void Reload(ID3D11Device* pDevice);
+
 	private:
 		DirectXMeshLoader() = default;
 		~DirectXMeshLoader();
+
+		DirectXMeshDefinition CreateMesh(const std::string& dataPath, ID3D11Device* pDevice);
 
 		std::unordered_map<std::string, DirectXMeshDefinition> m_Meshes{};
 

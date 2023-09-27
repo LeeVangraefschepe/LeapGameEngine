@@ -70,9 +70,21 @@ void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transf
 
 void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
 {
+	m_FilePath = filePath;
+
 	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh(filePath, m_pDevice) };
 
 	m_pVertexBuffer = mesh.vertexBuffer;
 	m_pIndexBuffer = mesh.indexBuffer;
 	m_NrIndices = mesh.nrIndices;
+}
+
+void leap::graphics::DirectXMeshRenderer::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+{
+	LoadMesh(m_FilePath);
+
+	m_pDevice = pDevice;
+	m_pDeviceContext = pDeviceContext;
+
+	SetMaterial(m_pMaterial);
 }

@@ -35,17 +35,31 @@ namespace leap::graphics
 		DirectXEngine& operator=(const DirectXEngine& other) = delete;
 		DirectXEngine& operator=(DirectXEngine&& other) = delete;
 
+		// Internal functions
 		virtual void Initialize() override;
 		virtual void Draw() override;
+
+		// Renderer settings
+		virtual void SetAntiAliasing(AntiAliasing antiAliasing) override;
+
+		// Graphics space objects
 		virtual void SetActiveCamera(Camera* pCamera) override { m_pCamera = pCamera; }
 		virtual Camera* GetCamera() const override { return m_pCamera; }
-		virtual IMeshRenderer* CreateMeshRenderer();
-		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
-		virtual ITexture* CreateTexture(const std::string& path) override;
 		virtual void SetDirectionLight(const glm::vec3& direction) override;
 
+		// Meshes
+		virtual IMeshRenderer* CreateMeshRenderer();
+		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
+
+		// Materials & Textures
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
+		virtual ITexture* CreateTexture(const std::string& path) override;
 	private:
+		void Release();
+		void ReloadDirectXEngine();
+
+		AntiAliasing m_AntiAliasing{ AntiAliasing::NONE };
+
 		GLFWwindow* m_pWindow;
 		ID3D11Device* m_pDevice{ nullptr };
 		ID3D11DeviceContext* m_pDeviceContext{ nullptr };
