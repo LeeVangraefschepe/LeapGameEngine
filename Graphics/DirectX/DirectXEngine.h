@@ -58,7 +58,7 @@ namespace leap::graphics
 		void Release();
 		void ReloadDirectXEngine();
 
-		AntiAliasing m_AntiAliasing{ AntiAliasing::NONE };
+		AntiAliasing m_AntiAliasing{ AntiAliasing::X16 };
 
 		GLFWwindow* m_pWindow;
 		ID3D11Device* m_pDevice{ nullptr };

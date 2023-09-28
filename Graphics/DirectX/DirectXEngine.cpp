@@ -171,6 +171,15 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
 	if (FAILED(result)) return;
 
+
+	UINT supportedLevels{};
+	result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
+	while (FAILED(result) || supportedLevels == 0)
+	{
+		m_AntiAliasing = static_cast<AntiAliasing>(static_cast<UINT>(m_AntiAliasing) / 2);
+		result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
+	}
+
 	/// Create swapchain
 
 	// Get the window size to use for the swap chain
@@ -222,7 +231,7 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		break;
 	}
-	case AntiAliasing::X2:
+	default:
 	{
 		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 		break;

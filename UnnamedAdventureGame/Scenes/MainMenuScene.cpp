@@ -82,10 +82,24 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
-				static bool antiAliasing{ false };
+				static unsigned int antiAliasing{};
 				leap::graphics::IRenderer& renderer{ leap::ServiceLocator::GetRenderer() };
-				antiAliasing = !antiAliasing;
-				renderer.SetAntiAliasing(antiAliasing ? leap::graphics::AntiAliasing::X2 : leap::graphics::AntiAliasing::NONE);
+				++antiAliasing %= 4;
+				switch (antiAliasing)
+				{
+				case 0:
+					renderer.SetAntiAliasing(leap::graphics::AntiAliasing::NONE);
+					break;
+				case 1:
+					renderer.SetAntiAliasing(leap::graphics::AntiAliasing::X2);
+					break;
+				case 2:
+					renderer.SetAntiAliasing(leap::graphics::AntiAliasing::X4);
+					break;
+				case 3:
+					renderer.SetAntiAliasing(leap::graphics::AntiAliasing::X8);
+					break;
+				}
 			}),
 		leap::input::InputManager::InputType::EventPress,
 		leap::input::InputManager::KeyboardInput::KeyL
