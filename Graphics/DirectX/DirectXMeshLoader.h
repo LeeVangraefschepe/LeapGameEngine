@@ -2,14 +2,19 @@
 
 #include "Singleton.h"
 
+#include "../Data/Vertex.h"
+
 #include <unordered_map>
 #include <string>
+#include <vector>
 
 struct ID3D11Buffer;
 struct ID3D11Device;
 
 namespace leap::graphics
 {
+	struct CustomMesh;
+
 	class DirectXMeshLoader final : public Singleton<DirectXMeshLoader>
 	{
 	public:
@@ -19,8 +24,9 @@ namespace leap::graphics
 			ID3D11Buffer* indexBuffer{};
 			unsigned int nrIndices{};
 		};
-		
+
 		const DirectXMeshDefinition& LoadMesh(const std::string& dataPath, ID3D11Device* pDevice);
+		const DirectXMeshDefinition& LoadMesh(const CustomMesh& mesh, ID3D11Device* pDevice);
 
 		void Reload(ID3D11Device* pDevice);
 
@@ -28,9 +34,11 @@ namespace leap::graphics
 		DirectXMeshLoader() = default;
 		~DirectXMeshLoader();
 
-		DirectXMeshDefinition CreateMesh(const std::string& dataPath, ID3D11Device* pDevice);
+		DirectXMeshDefinition CreateMesh(const std::string& dataPath, ID3D11Device* pDevice) const;
+		DirectXMeshDefinition CreateMesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> indices, ID3D11Device* pDevice) const;
 
 		std::unordered_map<std::string, DirectXMeshDefinition> m_Meshes{};
+		std::vector<DirectXMeshDefinition> m_CustomMeshes{};
 
 		friend Singleton<DirectXMeshLoader>;
 	};

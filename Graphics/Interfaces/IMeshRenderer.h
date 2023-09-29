@@ -7,6 +7,7 @@
 namespace leap::graphics
 {
 	class IMaterial;
+	struct CustomMesh;
 
 	class IMeshRenderer 
 	{
@@ -18,5 +19,6 @@ namespace leap::graphics
 		virtual void SetMaterial(IMaterial* pMaterial) = 0;
 		virtual void SetTransform(const glm::mat4x4& transform) = 0;
 		virtual void LoadMesh(const std::string& filePath) = 0;
+		virtual void LoadMesh(const CustomMesh& mesh) = 0;
 	};
 }

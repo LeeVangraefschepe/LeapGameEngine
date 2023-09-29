@@ -5,6 +5,8 @@
 #include <Interfaces/IRenderer.h>
 #include <Interfaces/IMaterial.h>
 
+#include <Data/CustomMesh.h>
+
 #include "../Transform/Transform.h"
 
 leap::MeshRendererComponent::MeshRendererComponent()
@@ -15,6 +17,11 @@ leap::MeshRendererComponent::MeshRendererComponent()
 void leap::MeshRendererComponent::LoadMesh(const std::string& filePath)
 {
 	m_pRenderer->LoadMesh(filePath);
+}
+
+void leap::MeshRendererComponent::LoadMesh(const graphics::CustomMesh& mesh)
+{
+	m_pRenderer->LoadMesh(mesh);
 }
 
 void leap::MeshRendererComponent::SetMaterial(graphics::IMaterial* pMaterial)

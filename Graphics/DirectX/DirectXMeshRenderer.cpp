@@ -79,6 +79,15 @@ void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
 	m_NrIndices = mesh.nrIndices;
 }
 
+void leap::graphics::DirectXMeshRenderer::LoadMesh(const CustomMesh& mesh)
+{
+	const DirectXMeshLoader::DirectXMeshDefinition& directXMesh{ DirectXMeshLoader::GetInstance().LoadMesh(mesh, m_pDevice) };
+
+	m_pVertexBuffer = directXMesh.vertexBuffer;
+	m_pIndexBuffer = directXMesh.indexBuffer;
+	m_NrIndices = directXMesh.nrIndices;
+}
+
 void leap::graphics::DirectXMeshRenderer::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 {
 	LoadMesh(m_FilePath);

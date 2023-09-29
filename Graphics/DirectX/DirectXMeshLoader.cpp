@@ -1,8 +1,8 @@
 #include "DirectXMeshLoader.h"
 
-#include "../Data/Vertex.h"
-
 #include "../Utils.h"
+#include "../Data/CustomMesh.h"
+
 #include <d3dx11effect.h>
 
 const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::DirectXMeshLoader::LoadMesh(const std::string& dataPath, ID3D11Device* pDevice)
@@ -17,6 +17,15 @@ const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::
 	m_Meshes[dataPath] = mesh;
 
 	return m_Meshes[dataPath];
+}
+
+const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::DirectXMeshLoader::LoadMesh(const CustomMesh& mesh, ID3D11Device* pDevice)
+{
+	DirectXMeshDefinition directXMesh{ CreateMesh(mesh.vertices, mesh.indices, pDevice) };
+
+	m_CustomMeshes.push_back(directXMesh);
+
+	return m_CustomMeshes[m_CustomMeshes.size() - 1];
 }
 
 void leap::graphics::DirectXMeshLoader::Reload(ID3D11Device* pDevice)
@@ -37,16 +46,26 @@ leap::graphics::DirectXMeshLoader::~DirectXMeshLoader()
 		if (mesh.second.vertexBuffer) mesh.second.vertexBuffer->Release();
 		if (mesh.second.indexBuffer) mesh.second.indexBuffer->Release();
 	}
+	for (auto& mesh : m_CustomMeshes)
+	{
+		if (mesh.vertexBuffer) mesh.vertexBuffer->Release();
+		if (mesh.indexBuffer) mesh.indexBuffer->Release();
+	}
 }
 
-leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectXMeshLoader::CreateMesh(const std::string& dataPath, ID3D11Device* pDevice)
+leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectXMeshLoader::CreateMesh(const std::string& dataPath, ID3D11Device* pDevice) const
 {
-	DirectXMeshDefinition mesh{};
-
 	std::vector<Vertex> vertices{};
 	std::vector<unsigned int> indices{};
 
 	Utils::ParseObj(dataPath, vertices, indices);
+
+	return CreateMesh(vertices, indices, pDevice);
+}
+
+leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectXMeshLoader::CreateMesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> indices, ID3D11Device* pDevice) const
+{
+	DirectXMeshDefinition mesh{};
 
 	mesh.nrIndices = static_cast<unsigned int>(indices.size());
 

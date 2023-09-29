@@ -25,6 +25,8 @@
 #include "Components/RenderComponents/DirectionalLightComponent.h"
 #include <Shaders/PosNormTex3D.h>
 
+#include <Data/CustomMesh.h>
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -43,24 +45,34 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pOtherCamera->GetData()->SetColor(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 	pCameraObj2->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 
-	constexpr int nrMeshesPerRow{ 1 };
-
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNormTex3D::GetShader(), "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
-	for (int x = 0; x < nrMeshesPerRow; ++x)
+	const auto pNormalMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "Normals") };
+
+	auto shadedMesh{ scene.CreateGameObject("Mesh") };
+	leap::MeshRendererComponent* pShadedMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
+	pShadedMeshRenderer->LoadMesh("Data/plane.obj");
+	pShadedMeshRenderer->SetMaterial(pTexturedMaterial);
+	shadedMesh->GetTransform()->Scale(10.0f);
+	shadedMesh->GetTransform()->SetLocalPosition(0, -1.0f, 0);
+
+	auto customMesh{ scene.CreateGameObject("Custom mesh") };
+	leap::MeshRendererComponent* pCustomMeshRenderer{ customMesh->AddComponent<leap::MeshRendererComponent>() };
+
+	leap::graphics::CustomMesh customMeshData{};
+	customMeshData.vertices =
 	{
-		for (int y = 0; y < nrMeshesPerRow; ++y)
-		{
-			auto shadedMesh{ scene.CreateGameObject("Mesh") };
-			leap::MeshRendererComponent* pMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
-			pMeshRenderer->LoadMesh("Data/plane.obj");
-			pMeshRenderer->SetMaterial(pTexturedMaterial);
-			//shadedMesh->AddComponent<Transformator>();
-			shadedMesh->GetTransform()->Scale(10.0f);
-			shadedMesh->GetTransform()->SetLocalPosition(x * 3.0f, -1.0f, y * 3.0f);
-		}
-	}
+		leap::graphics::Vertex{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+		leap::graphics::Vertex{ { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
+		leap::graphics::Vertex{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } }
+	};
+	customMeshData.indices =
+	{
+		0,1,2
+	};
+	pCustomMeshRenderer->LoadMesh(customMeshData);
+	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
 
 	leap::input::InputManager::GetInstance().AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]() 

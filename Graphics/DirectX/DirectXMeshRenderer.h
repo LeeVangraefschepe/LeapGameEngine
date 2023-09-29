@@ -36,6 +36,7 @@ namespace leap::graphics
 		virtual void SetMaterial(IMaterial* pMaterial) override;
 		virtual void SetTransform(const glm::mat4x4& transform) override;
 		virtual void LoadMesh(const std::string& filePath) override;
+		virtual void LoadMesh(const CustomMesh& mesh) override;
 
 		void Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
 

@@ -8,6 +8,7 @@ namespace leap
 	namespace graphics
 	{
 		class IMaterial;
+		struct CustomMesh;
 	}
 
 	class MeshRendererComponent final : public Component
@@ -22,6 +23,7 @@ namespace leap
 		MeshRendererComponent& operator=(MeshRendererComponent&& other) = delete;
 
 		void LoadMesh(const std::string& filePath);
+		void LoadMesh(const graphics::CustomMesh& mesh);
 		void SetMaterial(graphics::IMaterial* pMaterial);
 
 	protected:
