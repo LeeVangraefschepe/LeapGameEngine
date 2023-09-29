@@ -9,6 +9,9 @@ struct ID3D11RenderTargetView;
 
 #include "../Interfaces/IRenderer.h"
 
+#include "../Data/RenderData.h"
+
+#include "DirectXRenderTarget.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXMaterial.h"
 
@@ -64,10 +67,7 @@ namespace leap::graphics
 		ID3D11Device* m_pDevice{ nullptr };
 		ID3D11DeviceContext* m_pDeviceContext{ nullptr };
 		IDXGISwapChain* m_pSwapChain{ nullptr };
-		ID3D11Texture2D* m_pDepthStencilBuffer{ nullptr };
-		ID3D11DepthStencilView* m_pDepthStencilView{ nullptr };
-		ID3D11Resource* m_pRenderTargetBuffer{ nullptr };
-		ID3D11RenderTargetView* m_pRenderTargetView{ nullptr };
+		DirectXRenderTarget m_RenderTarget{};
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};

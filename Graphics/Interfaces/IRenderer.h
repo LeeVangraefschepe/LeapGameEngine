@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ShaderDelete.h"
+#include "../Data/RenderData.h"
 
 #include <string>
 #include <memory>
@@ -14,15 +15,6 @@ namespace leap::graphics
 	class IMaterial;
 	class ITexture;
 	struct Shader;
-
-	enum class AntiAliasing : char
-	{
-		NONE = 1,
-		X2 = 2,
-		X4 = 4,
-		X8 = 8,
-		X16 = 16
-	};
 
 	class IRenderer
 	{

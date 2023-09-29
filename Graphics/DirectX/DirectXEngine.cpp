@@ -94,26 +94,6 @@ void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction
 
 void leap::graphics::DirectXEngine::Release()
 {
-	if (m_pRenderTargetView)
-	{
-		m_pRenderTargetView->Release();
-		m_pRenderTargetView = nullptr;
-	}
-	if (m_pRenderTargetBuffer)
-	{
-		m_pRenderTargetBuffer->Release();
-		m_pRenderTargetBuffer = nullptr;
-	}
-	if (m_pDepthStencilView)
-	{
-		m_pDepthStencilView->Release();
-		m_pDepthStencilView = nullptr;
-	}
-	if (m_pDepthStencilBuffer)
-	{
-		m_pDepthStencilBuffer->Release();
-		m_pDepthStencilBuffer = nullptr;
-	}
 	if (m_pSwapChain)
 	{
 		m_pSwapChain->Release();
@@ -167,11 +147,7 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		pFactory->Release();
 	}
 
-	IDXGIFactory1* pDxgiFactory{ nullptr };
-	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
-	if (FAILED(result)) return;
-
-
+	// Check if the anti aliasing level is supported
 	UINT supportedLevels{};
 	result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
 	while (FAILED(result) || supportedLevels == 0)
@@ -180,12 +156,11 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
 	}
 
-	/// Create swapchain
-
 	// Get the window size to use for the swap chain
 	int width, height;
 	glfwGetWindowSize(m_pWindow, &width, &height);
 
+	// Create swapchain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferDesc.Width = width;
 	swapChainDesc.BufferDesc.Height = height;
@@ -203,59 +178,31 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	swapChainDesc.Flags = 0;
 	swapChainDesc.OutputWindow = glfwGetWin32Window(m_pWindow);
 
+	IDXGIFactory1* pDxgiFactory{ nullptr };
+	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
+	if (FAILED(result)) return;
+
 	result = pDxgiFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain);
 	if (FAILED(result)) return;
 
-	/// Create Depthstencil & Depthstencil view
-	//Depth
-	D3D11_TEXTURE2D_DESC depthStencilDesc{};
-	depthStencilDesc.Width = width;
-	depthStencilDesc.Height = height;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilDesc.SampleDesc.Count = static_cast<UINT>(m_AntiAliasing);
-	depthStencilDesc.SampleDesc.Quality = 0;
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = 0;
-	depthStencilDesc.MiscFlags = 0;
-
-	//View
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc{};
-	depthStencilViewDesc.Format = depthStencilDesc.Format;
-	switch (m_AntiAliasing)
-	{
-	case AntiAliasing::NONE:
-	{
-		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		break;
-	}
-	default:
-	{
-		depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
-		break;
-	}
-	}
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	result = m_pDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthStencilBuffer);
+	// Create render target
+	ID3D11Texture2D* pRenderTarget{};
+	result = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pRenderTarget));
 	if (FAILED(result)) return;
 
-	result = m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, &depthStencilViewDesc, &m_pDepthStencilView);
-	if (FAILED(result)) return;
+	DirectXRenderTarget::RTDesc renderTargetDesc{};
+	renderTargetDesc.width = width;
+	renderTargetDesc.height = height;
+	renderTargetDesc.pOptionalColorBuffer = pRenderTarget;
+	renderTargetDesc.hasDepthTexture = true;
+	renderTargetDesc.hasColorTexture = true;
+	renderTargetDesc.antiAliasing = m_AntiAliasing;
 
-	/// Create RenderTarget and RenderTargetView
-	//Render target
-	result = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pRenderTargetBuffer));
-	if (FAILED(result)) return;
-
-	//View
-	result = m_pDevice->CreateRenderTargetView(m_pRenderTargetBuffer, nullptr, &m_pRenderTargetView);
-	if (FAILED(result)) return;
+	m_RenderTarget.Create(m_pDevice, renderTargetDesc);
 
 	/// Bind views
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+	ID3D11RenderTargetView* pRenderTargetView{ m_RenderTarget.GetColorView() };
+	m_pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, m_RenderTarget.GetDepthView());
 
 	/// Set viewport
 	D3D11_VIEWPORT viewport{};
@@ -267,6 +214,7 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	viewport.MaxDepth = 1;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
 
+	// Reload existing textures, materials & meshes using new video settings
 	for (const auto& texturePair : m_pTextures)
 	{
 		texturePair.second->Reload(m_pDevice, texturePair.first);
@@ -291,8 +239,8 @@ void leap::graphics::DirectXEngine::Draw()
 	if (!m_pCamera) return;
 
 	const glm::vec4& clearColor = m_pCamera->GetColor();
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_pDeviceContext->ClearRenderTargetView(m_RenderTarget.GetColorView(), &clearColor.r);
+	m_pDeviceContext->ClearDepthStencilView(m_RenderTarget.GetDepthView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	DirectXMaterial::SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
 
