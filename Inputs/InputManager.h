@@ -15,6 +15,7 @@ namespace leap
 
 namespace leap::input
 {
+    class Mouse;
 	class InputManager final : public Singleton<InputManager>
 	{
 	public:
@@ -24,19 +25,6 @@ namespace leap::input
             EventRelease,
             EventPress,
             EventRepeat
-        };
-        enum class MouseInput
-        {
-            LeftButton,
-            RightButton,
-            MiddleButton,
-        };
-        enum class WheelInput
-        {
-            UpWheel,
-            DownWheel,
-            LeftWheel,
-            RightWheel
         };
         enum class KeyboardInput {
             KeySpace = 32,
@@ -165,10 +153,8 @@ namespace leap::input
         void SetPressedBuffers(int keyboard);
         bool ProcessInput();
         void AddCommand(std::shared_ptr<Command> command, InputType type, KeyboardInput key);
-        void AddCommand(std::shared_ptr<Command> command, InputType type, MouseInput key);
-        void AddCommand(std::shared_ptr<Command> command, WheelInput key);
-        glm::ivec2 GetCursorPosition() const;
-        glm::ivec2 GetCursorDelta() const { return m_MouseDelta; }
+
+        Mouse* GetMouse() const { return m_pMouse.get(); }
 
         void RemoveCommand(const std::shared_ptr<Command>& command);
 
@@ -176,29 +162,18 @@ namespace leap::input
         InputManager(InputManager&& other) = delete;
         InputManager& operator=(const InputManager& other) = delete;
         InputManager& operator=(InputManager&& other) = delete;
+        virtual ~InputManager();
 	private:
         InputManager();
         friend Singleton;
 
         static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
-        static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
-        static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
-        void ProcessMousePos();
 
         GLFWwindow* m_pWindow {nullptr};
+        std::unique_ptr<Mouse> m_pMouse;
 
         using KeyBinding = std::map<KeyboardInput, std::vector<std::shared_ptr<Command>>>;
         std::map<InputType, KeyBinding> m_keyboardCommands{};
         std::vector<KeyboardInput> m_pressedKeys{};
-
-        using MouseBinding = std::map<MouseInput, std::vector<std::shared_ptr<Command>>>;
-        std::map<InputType, MouseBinding> m_mouseCommands{};
-        std::vector<MouseInput> m_pressedButtons{};
-
-        using WheelBinding = std::map<WheelInput, std::vector<std::shared_ptr<Command>>>;
-        WheelBinding m_wheelCommands{};
-
-        glm::ivec2 m_MouseDelta{};
-        glm::ivec2 m_PrevMousePos{-1,-1};
 	};
 }

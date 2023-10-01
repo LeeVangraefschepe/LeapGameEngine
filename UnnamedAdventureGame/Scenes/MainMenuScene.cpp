@@ -27,6 +27,8 @@
 
 #include <Data/CustomMesh.h>
 
+#include "Mouse.h"
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -149,10 +151,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 		leap::input::InputManager::InputType::EventRepeat,
 		leap::input::InputManager::KeyboardInput::KeyS
 	);
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetMouse()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
-				auto mouseDelta = static_cast<glm::vec2>(leap::input::InputManager::GetInstance().GetCursorDelta());
+				auto mouseDelta = static_cast<glm::vec2>(leap::input::InputManager::GetInstance().GetMouse()->GetDelta());
 				const auto deltaTime = leap::GameContext::GetInstance().GetTimer()->GetDeltaTime();
 				constexpr float mouseSpeed = 15.f;
 
@@ -160,6 +162,6 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 				pCameraObj->GetTransform()->Rotate(mouseDelta.y * deltaTime * mouseSpeed, 0.0f, 0.0f);
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
-		leap::input::InputManager::MouseInput::LeftButton
+		leap::input::Mouse::Button::LeftButton
 	);
 }
