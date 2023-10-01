@@ -10,10 +10,12 @@ struct ID3D11RenderTargetView;
 #include "../Interfaces/IRenderer.h"
 
 #include "../Data/RenderData.h"
+#include "../DirectionalLight.h"
 
 #include "DirectXRenderTarget.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXMaterial.h"
+#include "DirectXShadowRenderer.h"
 
 #include <vector>
 #include <memory>
@@ -44,11 +46,12 @@ namespace leap::graphics
 
 		// Renderer settings
 		virtual void SetAntiAliasing(AntiAliasing antiAliasing) override;
+		virtual void SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane) override;
 
 		// Graphics space objects
 		virtual void SetActiveCamera(Camera* pCamera) override { m_pCamera = pCamera; }
 		virtual Camera* GetCamera() const override { return m_pCamera; }
-		virtual void SetDirectionLight(const glm::vec3& direction) override;
+		virtual void SetDirectionLight(const glm::mat3x3& transform) override;
 
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer();
@@ -68,6 +71,7 @@ namespace leap::graphics
 		ID3D11DeviceContext* m_pDeviceContext{ nullptr };
 		IDXGISwapChain* m_pSwapChain{ nullptr };
 		DirectXRenderTarget m_RenderTarget{};
+		DirectXShadowRenderer m_ShadowRenderer{};
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
@@ -75,5 +79,6 @@ namespace leap::graphics
 
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};
+		DirectionalLight m_DirectionalLight{};
 	};
 }

@@ -19,6 +19,7 @@
 #include "DirectXShaderReader.h"
 #include "DirectXTexture.h"
 #include "DirectXMeshLoader.h"
+#include "DirectXMaterial.h"
 
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
@@ -44,6 +45,12 @@ void leap::graphics::DirectXEngine::SetAntiAliasing(AntiAliasing antiAliasing)
 	if(m_IsInitialized) ReloadDirectXEngine();
 }
 
+void leap::graphics::DirectXEngine::SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane)
+{
+	m_DirectionalLight.SetShadowMapData(static_cast<float>(shadowMapWidth) / shadowMapHeight, orthoSize, nearPlane, farPlane);
+	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, { shadowMapWidth, shadowMapHeight });
+}
+
 leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
 {
 	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(m_pDevice, m_pDeviceContext));
@@ -66,6 +73,8 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::un
 	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
 	auto pMaterialRaw{ pMaterial.get() };
 
+	pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
+
 	m_pMaterials[name] = std::move(pMaterial);
 	return pMaterialRaw;
 }
@@ -84,11 +93,16 @@ leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std
 	return pTextureRaw;
 }
 
-void leap::graphics::DirectXEngine::SetDirectionLight(const glm::vec3& direction)
+void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
 {
+	glm::mat4x3 lightTransform { transform };
+	lightTransform[3] = glm::vec3{ m_pCamera->GetInverseViewMatrix()[3] } - transform[2] * 25.0f;
+
+	m_DirectionalLight.SetTransform(lightTransform);
+
 	for (const auto& pMaterial : m_pMaterials)
 	{
-		pMaterial.second->SetFloat3("gLightDirection", direction);
+		pMaterial.second->SetFloat3("gLightDirection", transform[2]);
 	}
 }
 
@@ -194,15 +208,12 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	renderTargetDesc.width = width;
 	renderTargetDesc.height = height;
 	renderTargetDesc.pOptionalColorBuffer = pRenderTarget;
+	renderTargetDesc.depthFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	renderTargetDesc.hasDepthTexture = true;
 	renderTargetDesc.hasColorTexture = true;
 	renderTargetDesc.antiAliasing = m_AntiAliasing;
 
-	m_RenderTarget.Create(m_pDevice, renderTargetDesc);
-
-	/// Bind views
-	ID3D11RenderTargetView* pRenderTargetView{ m_RenderTarget.GetColorView() };
-	m_pDeviceContext->OMSetRenderTargets(1, &pRenderTargetView, m_RenderTarget.GetDepthView());
+	m_RenderTarget.Create(m_pDevice, m_pDeviceContext, renderTargetDesc);
 
 	/// Set viewport
 	D3D11_VIEWPORT viewport{};
@@ -231,6 +242,8 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	{
 		pRenderer->Reload(m_pDevice, m_pDeviceContext);
 	}
+
+	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, { 3840, 2160 });
 }
 
 void leap::graphics::DirectXEngine::Draw()
@@ -238,16 +251,45 @@ void leap::graphics::DirectXEngine::Draw()
 	if (!m_IsInitialized) return;
 	if (!m_pCamera) return;
 
-	const glm::vec4& clearColor = m_pCamera->GetColor();
-	m_pDeviceContext->ClearRenderTargetView(m_RenderTarget.GetColorView(), &clearColor.r);
-	m_pDeviceContext->ClearDepthStencilView(m_RenderTarget.GetDepthView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	// Shadow pass
+	// Unbind SRV
+	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
+	//m_pDeviceContext->PSSetShaderResources(1, 1, pSRV);
+	m_pDeviceContext->PSSetShaderResources(0, 2, pSRV);
 
+	// Set render target
+	m_ShadowRenderer.SetupTarget();
+
+	// Set the light view projection matrix
+	m_ShadowRenderer.SetLightMatrix(m_DirectionalLight.GetViewProjection());
+
+	// Render the shadow pass
+	m_ShadowRenderer.Draw(m_pRenderers);
+
+	// Camera pass
+	// Set render target
+	m_RenderTarget.Apply();
+
+	// Clear target views
+	const glm::vec4& clearColor = m_pCamera->GetColor();
+	m_RenderTarget.Clear(clearColor);
+
+	// Set camera matrix
 	DirectXMaterial::SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
 
+	// Apply the shadow map to each material
+	for (const auto& pMaterial : m_pMaterials)
+	{
+		pMaterial.second->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
+	}
+
+	// Render each mesh
 	for (const auto& pRenderer : m_pRenderers)
 	{
 		pRenderer->Draw();
 	}
 
+
+	// Swap render buffers
 	m_pSwapChain->Present(0, 0);
 }

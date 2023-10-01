@@ -23,11 +23,14 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 	// Save the worldviewprojection and world variable of the effect as a member variable
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
 	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
+
+	m_pInputLayout = LoadInputLayout(pDevice);
 }
 
 leap::graphics::DirectXMaterial::~DirectXMaterial()
 {
 	if (m_pEffect) m_pEffect->Release();
+	if (m_pInputLayout) m_pInputLayout->Release();
 }
 
 ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device* pDevice) const
@@ -73,52 +76,63 @@ void leap::graphics::DirectXMaterial::SetWorldMatrix(const glm::mat4x4& worldMat
 void leap::graphics::DirectXMaterial::SetFloat(const std::string& varName, float data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if(var) var->AsScalar()->SetFloat(data);
+	if(var->IsValid()) var->AsScalar()->SetFloat(data);
 }
 
 void leap::graphics::DirectXMaterial::SetFloat2(const std::string& varName, const glm::vec2& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+	if (var->IsValid()) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
 }
 
 void leap::graphics::DirectXMaterial::SetFloat3(const std::string& varName, const glm::vec3& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+	if (var->IsValid()) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
 }
 
 void leap::graphics::DirectXMaterial::SetFloat4(const std::string& varName, const glm::vec4& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+	if (var->IsValid()) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
 }
 
 void leap::graphics::DirectXMaterial::SetMat3x3(const std::string& varName, const glm::mat3x3& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
+	if (var->IsValid()) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
 }
 
 void leap::graphics::DirectXMaterial::SetMat4x4(const std::string& varName, const glm::mat4x4& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
+	if (var->IsValid()) var->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&data));
 }
 
 void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ITexture* pTexture)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var)
+	if (var->IsValid())
 	{
 		m_pTextures[varName] = static_cast<DirectXTexture*>(pTexture);
 		var->AsShaderResource()->SetResource(static_cast<DirectXTexture*>(pTexture)->GetResource());
 	}
 }
 
+void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ID3D11ShaderResourceView* pSRV)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var->IsValid())
+	{
+		var->AsShaderResource()->SetResource(pSRV);
+	}
+}
+
 void leap::graphics::DirectXMaterial::Reload(ID3D11Device* pDevice)
 {
 	if (m_pEffect) m_pEffect->Release();
+	if (m_pInputLayout) m_pInputLayout->Release();
+
 	m_pEffect = LoadEffect(pDevice, m_AssetFile);
 
 	// Save the technique of the effect as a member variable
@@ -133,6 +147,8 @@ void leap::graphics::DirectXMaterial::Reload(ID3D11Device* pDevice)
 	{
 		SetTexture(texturePair.first, texturePair.second);
 	}
+
+	m_pInputLayout = LoadInputLayout(pDevice);
 }
 
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)

@@ -15,21 +15,27 @@ leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(ID3D11Device* pDevice, 
 
 leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer()
 {
-	if (m_pInputLayout) m_pInputLayout->Release();
 }
 
 void leap::graphics::DirectXMeshRenderer::Draw()
 {
-	if (m_pMaterial == nullptr) return;
+	Draw(m_pMaterial);
+}
+
+void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
+{
+	if (pMaterial == nullptr) return;
+
+	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
 
 	// Apply the world transformation
-	m_pMaterial->SetWorldMatrix(m_Transform);
+	pDXMaterial->SetWorldMatrix(m_Transform);
 
 	// Set primitive topology
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set input layout
-	m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+	m_pDeviceContext->IASetInputLayout(pDXMaterial->GetInputLayout());
 
 	// Set vertex buffer
 	constexpr UINT stride{ sizeof(Vertex) };
@@ -41,10 +47,10 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
-	m_pMaterial->GetTechnique()->GetDesc(&techniqueDesc);
+	pDXMaterial->GetTechnique()->GetDesc(&techniqueDesc);
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
-		m_pMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
+		pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
 		m_pDeviceContext->DrawIndexed(m_NrIndices, 0, 0);
 	}
 }
@@ -57,10 +63,6 @@ leap::graphics::IMaterial* leap::graphics::DirectXMeshRenderer::GetMaterial()
 void leap::graphics::DirectXMeshRenderer::SetMaterial(IMaterial* pMaterial)
 {
 	m_pMaterial = static_cast<DirectXMaterial*>(pMaterial);
-
-	// Reload the input layout
-	if (m_pInputLayout) m_pInputLayout->Release();
-	m_pInputLayout = m_pMaterial->LoadInputLayout(m_pDevice);
 }
 
 void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transform)

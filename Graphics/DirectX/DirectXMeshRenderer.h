@@ -32,6 +32,7 @@ namespace leap::graphics
 		DirectXMeshRenderer& operator=(DirectXMeshRenderer&& other) = delete;
 
 		virtual void Draw() override;
+		virtual void Draw(IMaterial* pMaterial) override;
 		virtual IMaterial* GetMaterial() override;
 		virtual void SetMaterial(IMaterial* pMaterial) override;
 		virtual void SetTransform(const glm::mat4x4& transform) override;
@@ -50,7 +51,6 @@ namespace leap::graphics
 
 		glm::mat4x4 m_Transform{};
 
-		ID3D11InputLayout* m_pInputLayout{};
 		ID3D11Buffer* m_pVertexBuffer{};
 		unsigned int m_NrIndices{};
 		ID3D11Buffer* m_pIndexBuffer{};

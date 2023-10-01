@@ -12,9 +12,8 @@ leap::CameraComponent::CameraComponent()
 {
 	int width{}, height{};
 	glfwGetWindowSize(GameContext::GetInstance().GetWindow(), &width, &height);
-	float ratio = width / static_cast<float>(height);
-	const float fov = 90.f;
-	m_pCamera = std::make_unique<graphics::Camera>(ratio, fov);
+	constexpr float fov = 90.f;
+	m_pCamera = std::make_unique<graphics::Camera>(static_cast<float>(width), static_cast<float>(height), fov);
 }
 
 leap::CameraComponent::~CameraComponent()

@@ -50,6 +50,7 @@ void leap::Transform::SetWorldRotation(const glm::quat& rotation)
 
 	// Apply the inverse transformation to the desired world position
 	m_LocalRotation = invParentWorldRotation * rotation;
+	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);

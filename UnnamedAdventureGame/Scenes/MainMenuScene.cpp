@@ -34,8 +34,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
-	pDirLight->GetTransform()->SetWorldRotation(-0.577f, -0.577f, 0.577f);
-	pDirLight->AddComponent<Transformator>();
+	pDirLight->GetTransform()->SetWorldRotation(60.0f, 0.0f, 0.0f);
 	
 	leap::GameObject* pCameraYawObj{ scene.CreateGameObject("Main Camera Yaw") };
 	leap::GameObject* pCameraObj{ pCameraYawObj->CreateChild("Main Camera") };
@@ -76,6 +75,14 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	};
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
+
+	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
+	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };
+	pBunnyMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
+	pBunnyMeshRenderer->SetMaterial(pNormalMaterial);
+	bunnyMesh->GetTransform()->Scale(10.0f);
+	bunnyMesh->GetTransform()->Translate(-5.0f, 0.0f, 0.0f);
+	bunnyMesh->AddComponent<Transformator>();
 
 	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]() 

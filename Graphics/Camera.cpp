@@ -1,9 +1,9 @@
 #include "Camera.h"
 
-leap::graphics::Camera::Camera(float aspectRatio, float fovAngle):
-m_AspectRatio(aspectRatio)
+leap::graphics::Camera::Camera(float width, float height, float fovAngle)
+	: m_Size{ width, height }
+	, m_Fov{ glm::radians(fovAngle) }
 {
-	m_Fov = tanf((glm::radians(fovAngle) / 2));
 	CalculateProjectionMatrix();
 	CalculateViewMatrix();
 }
@@ -17,7 +17,6 @@ const glm::mat4x4& leap::graphics::Camera::GetInverseViewMatrix()
 void leap::graphics::Camera::SetTransform(const glm::mat4x3& transform)
 {
 	m_Transform = transform;
-
 	m_IsDirty = true;
 }
 
@@ -49,11 +48,5 @@ void leap::graphics::Camera::CalculateViewMatrix()
 
 void leap::graphics::Camera::CalculateProjectionMatrix()
 {
-	m_ProjectionMatrix = glm::mat4x4
-	{
-		{ 1.f / (m_AspectRatio * m_Fov), 0, 0, 0 },
-		{ 0, 1.f / m_Fov, 0, 0 },
-		{ 0, 0, m_FarC / (m_FarC - m_NearC), 1 },
-		{ 0, 0, -(m_FarC * m_NearC) / (m_FarC - m_NearC), 0 }
-	};
+	m_ProjectionMatrix = glm::perspectiveFovLH(m_Fov, m_Size.x, m_Size.y, m_NearC, m_FarC);
 }

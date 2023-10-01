@@ -10,7 +10,7 @@ namespace leap::graphics
 	class Camera
 	{
 	public:
-		Camera(float aspectRatio, float fovAngle = 90.f);
+		Camera(float width, float height, float fovAngle = 90.f);
 		~Camera() = default;
 		Camera(const Camera& other) = delete;
 		Camera(Camera&& other) = delete;
@@ -33,7 +33,7 @@ namespace leap::graphics
 		bool m_IsDirty{};
 
 		glm::mat4x4 m_ProjectionMatrix{};
-		float m_AspectRatio;
+		glm::vec2 m_Size{ 1280.0f, 720.0f };
 		float m_Fov;
 		float m_NearC = 0.1f;
 		float m_FarC = 100.f;

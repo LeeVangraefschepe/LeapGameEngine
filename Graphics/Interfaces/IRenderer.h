@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <vec3.hpp>
+#include <mat3x3.hpp>
 
 namespace leap::graphics
 {
@@ -27,11 +28,12 @@ namespace leap::graphics
 
 		// Renderer settings
 		virtual void SetAntiAliasing(AntiAliasing antiAliasing) = 0;
+		virtual void SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane) = 0;
 
 		// Graphics space objects
 		virtual void SetActiveCamera(Camera* pCamera) = 0;
 		virtual Camera* GetCamera() const = 0;
-		virtual void SetDirectionLight(const glm::vec3& direction) = 0;
+		virtual void SetDirectionLight(const glm::mat3x3& direction) = 0;
 
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() = 0;
@@ -53,11 +55,12 @@ namespace leap::graphics
 
 		// Renderer settings
 		virtual void SetAntiAliasing(AntiAliasing) override {};
+		virtual void SetShadowMapData(unsigned int, unsigned int, float, float, float) override {}
 
 		// Graphics space objects
 		virtual void SetActiveCamera(Camera*) override {}
 		virtual Camera* GetCamera() const override { return nullptr; }
-		virtual void SetDirectionLight(const glm::vec3&) override {};
+		virtual void SetDirectionLight(const glm::mat3x3&) override {};
 
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() override  { return nullptr; }

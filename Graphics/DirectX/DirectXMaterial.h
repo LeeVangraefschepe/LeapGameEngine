@@ -13,6 +13,7 @@ struct ID3D11Device;
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
 struct ID3DX11EffectMatrixVariable;
+struct ID3D11ShaderResourceView;
 
 namespace leap::graphics
 {
@@ -29,8 +30,9 @@ namespace leap::graphics
 		DirectXMaterial& operator=(const DirectXMaterial& other) = delete;
 		DirectXMaterial& operator=(DirectXMaterial&& other) = delete;
 
-		ID3D11InputLayout* LoadInputLayout(ID3D11Device* pDevice) const;
 		ID3DX11EffectTechnique* GetTechnique() const;
+
+		ID3D11InputLayout* GetInputLayout() const { return m_pInputLayout; }
 
 		static void SetViewProjectionMatrix(const glm::mat4x4& viewProjMatrix);
 		void SetWorldMatrix(const glm::mat4x4& worldMatrix);
@@ -42,16 +44,20 @@ namespace leap::graphics
 		virtual void SetMat3x3(const std::string& varName, const glm::mat3x3& data) override;
 		virtual void SetMat4x4(const std::string& varName, const glm::mat4x4& data) override;
 		virtual void SetTexture(const std::string& varName, ITexture* pTexture) override;
+		void SetTexture(const std::string& varName, ID3D11ShaderResourceView* pSRV);
 
 		void Reload(ID3D11Device* pDevice);
 
 	private:
+		ID3D11InputLayout* LoadInputLayout(ID3D11Device* pDevice) const;
 		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::string& assetFile);
 
 		static glm::mat4x4 m_ViewProjMatrix;
 
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
 		ID3DX11EffectMatrixVariable* m_pMatWorldVariable{};
+
+		ID3D11InputLayout* m_pInputLayout{};
 
 		std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> m_VertexDataFunction{};
 		ID3DX11Effect* m_pEffect{};

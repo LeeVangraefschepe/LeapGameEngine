@@ -7,5 +7,10 @@
 
 void leap::DirectionalLightComponent::LateUpdate()
 {
-	ServiceLocator::GetRenderer().SetDirectionLight(GetTransform()->GetForward());
+	ServiceLocator::GetRenderer().SetDirectionLight(
+		{
+			GetTransform()->GetRight(),
+			GetTransform()->GetUp(),
+			GetTransform()->GetForward()
+		});
 }
