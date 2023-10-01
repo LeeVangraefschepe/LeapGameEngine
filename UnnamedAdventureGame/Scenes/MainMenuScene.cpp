@@ -28,6 +28,7 @@
 #include <Data/CustomMesh.h>
 
 #include "Mouse.h"
+#include "Keyboard.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -76,7 +77,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
 
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]() 
 			{ 
 				leap::graphics::IRenderer& renderer{ leap::ServiceLocator::GetRenderer() };
@@ -90,10 +91,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 				}
 			}),
 		leap::input::InputManager::InputType::EventPress, 
-		leap::input::InputManager::KeyboardInput::KeyB
+		leap::input::Keyboard::Key::KeyB
 	);
 
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
 				static unsigned int antiAliasing{};
@@ -116,40 +117,40 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 				}
 			}),
 		leap::input::InputManager::InputType::EventPress,
-		leap::input::InputManager::KeyboardInput::KeyL
+		leap::input::Keyboard::Key::KeyL
 	);
 
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
 				pCameraYawObj->GetTransform()->Translate(-pCameraObj->GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
-		leap::input::InputManager::KeyboardInput::KeyA
+		leap::input::Keyboard::Key::KeyA
 	);
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
 				pCameraYawObj->GetTransform()->Translate(pCameraObj->GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
-		leap::input::InputManager::KeyboardInput::KeyD
+		leap::input::Keyboard::Key::KeyD
 	);
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
 				pCameraYawObj->GetTransform()->Translate(pCameraObj->GetTransform()->GetForward() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
-		leap::input::InputManager::KeyboardInput::KeyW
+		leap::input::Keyboard::Key::KeyW
 	);
-	leap::input::InputManager::GetInstance().AddCommand(
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
 				pCameraYawObj->GetTransform()->Translate(-pCameraObj->GetTransform()->GetForward() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 			}),
 		leap::input::InputManager::InputType::EventRepeat,
-		leap::input::InputManager::KeyboardInput::KeyS
+		leap::input::Keyboard::Key::KeyS
 	);
 	leap::input::InputManager::GetInstance().GetMouse()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()

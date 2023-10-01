@@ -3,13 +3,16 @@
 #include <ranges>
 #include <Command.h>
 
-leap::input::Mouse::Mouse(GLFWwindow* window): m_pWindow(window)
+leap::input::Mouse::Mouse(GLFWwindow* window, int buttonBuffer): m_pWindow(window)
 {
-	constexpr unsigned mouseBuffer = 10;
-	m_pressedButtons.resize(mouseBuffer, static_cast<Button>(-1));
-
+	SetButtonBuffer(buttonBuffer);
 	glfwSetMouseButtonCallback(m_pWindow, &ProcessMouse);
 	glfwSetScrollCallback(m_pWindow, &ProcessWheel);
+}
+
+void leap::input::Mouse::SetButtonBuffer(int size)
+{
+	m_pressedButtons.resize(size, static_cast<Button>(-1));
 }
 
 void leap::input::Mouse::AddCommand(std::shared_ptr<Command> command, InputManager::InputType type, Button button)

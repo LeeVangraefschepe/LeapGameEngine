@@ -32,7 +32,7 @@ namespace leap::input
 			RightWheel
 		};
 
-		Mouse(GLFWwindow* window);
+		Mouse(GLFWwindow* window, int buttonBuffer);
 		Mouse(const Mouse& other) = delete;
 		Mouse(Mouse&& other) = delete;
 		Mouse& operator=(const Mouse& other) = delete;
@@ -41,6 +41,8 @@ namespace leap::input
 		void AddCommand(std::shared_ptr<Command> command, InputManager::InputType type, Button button);
 		void AddCommand(std::shared_ptr<Command> command, Wheel key);
 		void RemoveCommand(const std::shared_ptr<Command>& command);
+
+		void SetButtonBuffer(int size);
 
 		const glm::ivec2& GetDelta() const { return m_MouseDelta; }
 		const glm::ivec2& GetPos() const { return m_PrevMousePos; }
@@ -51,7 +53,6 @@ namespace leap::input
 		void Update();
 		void HandleMousePos();
 		void HandleCommands();
-		InputManager* m_pInput;
 
 		static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
 		static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
