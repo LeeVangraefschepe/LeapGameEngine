@@ -17,6 +17,7 @@ namespace leap::graphics
 		Camera& operator=(const Camera& other) = delete;
 		Camera& operator=(Camera&& other) = delete;
 
+		void SetAspectRatio(const glm::ivec2& size);
 		void SetColor(const glm::vec4& color) { m_Color = color; }
 		void SetTransform(const glm::mat4x3& transform);
 

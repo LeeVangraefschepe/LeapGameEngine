@@ -56,7 +56,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     auto& gameContext = GameContext::GetInstance();
     auto& audio = ServiceLocator::GetAudio();
 
-    gameContext.SetWindow(m_pWindow);
+    gameContext.CreateWindowWrapper(m_pWindow);
 
     ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
     ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);

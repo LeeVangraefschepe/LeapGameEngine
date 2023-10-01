@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../Component.h"
-
+#include "Observer.h"
 #include <memory>
+
+#include "vec2.hpp"
 
 namespace leap
 {
@@ -11,11 +13,13 @@ namespace leap
 		class Camera;
 	}
 
-	class CameraComponent final : public Component
+	class CameraComponent final : public Component, Observer<glm::ivec2>
 	{
 	public:
 		CameraComponent();
 		virtual ~CameraComponent();
+
+		void Notify(const glm::ivec2& data) override;
 
 		CameraComponent(const CameraComponent& other) = delete;
 		CameraComponent(CameraComponent&& other) = delete;

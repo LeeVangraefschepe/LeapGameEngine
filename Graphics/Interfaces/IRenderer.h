@@ -28,6 +28,7 @@ namespace leap::graphics
 
 		// Renderer settings
 		virtual void SetAntiAliasing(AntiAliasing antiAliasing) = 0;
+		virtual void SetWindowSize(const glm::ivec2& size) = 0;
 		virtual void SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane) = 0;
 
 		// Graphics space objects
@@ -54,7 +55,8 @@ namespace leap::graphics
 		virtual void Draw() override {}
 
 		// Renderer settings
-		virtual void SetAntiAliasing(AntiAliasing) override {};
+		virtual void SetAntiAliasing(AntiAliasing) override {}
+		virtual void SetWindowSize(const glm::ivec2&) {}
 		virtual void SetShadowMapData(unsigned int, unsigned int, float, float, float) override {}
 
 		// Graphics space objects

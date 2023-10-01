@@ -45,6 +45,11 @@ void leap::graphics::DirectXEngine::SetAntiAliasing(AntiAliasing antiAliasing)
 	if(m_IsInitialized) ReloadDirectXEngine();
 }
 
+void leap::graphics::DirectXEngine::SetWindowSize(const glm::ivec2&)
+{
+	if (m_IsInitialized) ReloadDirectXEngine();
+}
+
 void leap::graphics::DirectXEngine::SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane)
 {
 	m_DirectionalLight.SetShadowMapData(static_cast<float>(shadowMapWidth) / shadowMapHeight, orthoSize, nearPlane, farPlane);

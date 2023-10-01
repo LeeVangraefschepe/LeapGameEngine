@@ -14,6 +14,12 @@ const glm::mat4x4& leap::graphics::Camera::GetInverseViewMatrix()
 	return m_InverseViewMatrix;
 }
 
+void leap::graphics::Camera::SetAspectRatio(const glm::ivec2& size)
+{
+	m_Size = size;
+	CalculateProjectionMatrix();
+}
+
 void leap::graphics::Camera::SetTransform(const glm::mat4x3& transform)
 {
 	m_Transform = transform;
