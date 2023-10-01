@@ -182,8 +182,8 @@ namespace leap::input
 
         static void ProcessKey(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
-        static void ProcessMousePos(GLFWwindow* window, double xpos, double ypos);
         static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
+        void ProcessMousePos();
 
         GLFWwindow* m_pWindow {nullptr};
 

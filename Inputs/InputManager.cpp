@@ -10,7 +10,6 @@ void leap::input::InputManager::SetWindow(GLFWwindow* window)
 	glfwSetKeyCallback(m_pWindow, &ProcessKey);
 	glfwSetMouseButtonCallback(m_pWindow, &ProcessMouse);
 	glfwSetScrollCallback(m_pWindow, &ProcessWheel);
-	glfwSetCursorPosCallback(m_pWindow, &ProcessMousePos);
 }
 
 void leap::input::InputManager::SetPressedBuffers(int keyboard)
@@ -42,6 +41,7 @@ bool leap::input::InputManager::ProcessInput()
 			command->Execute();
 		}
 	}
+	ProcessMousePos();
 
 	return true;
 }
@@ -187,15 +187,6 @@ void leap::input::InputManager::ProcessMouse(GLFWwindow*, int button, int action
 	}
 }
 
-void leap::input::InputManager::ProcessMousePos(GLFWwindow*, double xpos, double ypos)
-{
-	auto& input = GetInstance();
-
-	const glm::ivec2 mousePos{ xpos, ypos };
-	input.m_MouseDelta = mousePos - input.m_PrevMousePos;
-	input.m_PrevMousePos = mousePos;
-}
-
 void leap::input::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double yoffset)
 {
 	auto& input = GetInstance();
@@ -223,4 +214,14 @@ void leap::input::InputManager::ProcessWheel(GLFWwindow*, double xoffset, double
 			command->Execute();
 		}
 	}
+}
+
+void leap::input::InputManager::ProcessMousePos()
+{
+	glm::dvec2 mousePosRaw{};
+	glfwGetCursorPos(m_pWindow, &mousePosRaw.x, &mousePosRaw.y);
+
+	const glm::ivec2 mousepos{ mousePosRaw };
+	m_MouseDelta = mousepos - m_PrevMousePos;
+	m_PrevMousePos = mousepos;
 }
