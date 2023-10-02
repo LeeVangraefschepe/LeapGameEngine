@@ -24,7 +24,8 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 
 void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 {
-	if (pMaterial == nullptr) return;
+	if (!pMaterial) return;
+	if (!m_pVertexBuffer || !m_pIndexBuffer) return;
 
 	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
 

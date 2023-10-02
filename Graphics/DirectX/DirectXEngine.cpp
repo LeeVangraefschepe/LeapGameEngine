@@ -90,6 +90,11 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::un
 
 leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const std::string& original, const std::string& clone)
 {
+	if (auto it{ m_pMaterials.find(clone) }; it != end(m_pMaterials))
+	{
+		return it->second.get();
+	}
+
 	if (auto it{ m_pMaterials.find(original) }; it != end(m_pMaterials))
 	{
 		std::unique_ptr<DirectXMaterial> pMaterial{ it->second->Clone(m_pDevice) };

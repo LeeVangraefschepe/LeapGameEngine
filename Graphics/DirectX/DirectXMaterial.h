@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <memory>
 
 #include <d3dx11effect.h>
 
@@ -38,6 +39,7 @@ namespace leap::graphics
 		static void SetViewProjectionMatrix(const glm::mat4x4& viewProjMatrix);
 		void SetWorldMatrix(const glm::mat4x4& worldMatrix);
 
+		virtual void SetBool(const std::string& varName, bool data) override;
 		virtual void SetFloat(const std::string& varName, float data) override;
 		virtual void SetFloat2(const std::string& varName, const glm::vec2& data) override;
 		virtual void SetFloat3(const std::string& varName, const glm::vec3& data) override;

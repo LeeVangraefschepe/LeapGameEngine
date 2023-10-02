@@ -73,6 +73,12 @@ void leap::graphics::DirectXMaterial::SetWorldMatrix(const glm::mat4x4& worldMat
 	if(m_pMatWorldVariable) m_pMatWorldVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
 }
 
+void leap::graphics::DirectXMaterial::SetBool(const std::string& varName, bool data)
+{
+	auto var = m_pEffect->GetVariableByName(varName.c_str());
+	if (var->IsValid()) var->AsScalar()->SetBool(data);
+}
+
 void leap::graphics::DirectXMaterial::SetFloat(const std::string& varName, float data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());

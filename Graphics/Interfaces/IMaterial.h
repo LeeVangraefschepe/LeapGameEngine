@@ -14,6 +14,7 @@ namespace leap::graphics
 	public:
 		virtual ~IMaterial() = default;
 
+		virtual void SetBool(const std::string& varName, bool data) = 0;
 		virtual void SetFloat(const std::string& varName, float data) = 0;
 		virtual void SetFloat2(const std::string& varName, const glm::vec2& data) = 0;
 		virtual void SetFloat3(const std::string& varName, const glm::vec3& data) = 0;
