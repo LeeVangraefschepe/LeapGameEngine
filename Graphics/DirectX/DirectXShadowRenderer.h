@@ -28,6 +28,7 @@ namespace leap::graphics
 		void SetupTarget() const;
 		void SetLightMatrix(const glm::mat4x4& lightMatrix) const;
 		void Draw(const std::vector<std::unique_ptr<DirectXMeshRenderer>>& pRenderers) const;
+		const glm::uvec2& GetShadowMapSize() const { return m_Size; }
 
 		ID3D11ShaderResourceView* GetShadowMap() const;
 
@@ -37,5 +38,6 @@ namespace leap::graphics
 		std::unique_ptr<DirectXMaterial> m_pMaterial{};
 
 		DirectXRenderTarget m_ShadowTarget{};
+		glm::uvec2 m_Size{ 3840, 2160 };
 	};
 }

@@ -49,6 +49,7 @@ namespace leap::graphics
 
 		ID3D11ShaderResourceView* GetDepthSRV() const { return m_pDepthShaderResourceView; }
 		ID3D11ShaderResourceView* GetColorSRV() const { return m_pRenderTargetShaderResourceView; }
+		const glm::uvec2& GetSize() const { return m_Size; }
 	private:
 		void Release();
 		void CreateColor(ID3D11Device* pDevice, const RTDesc& desc);

@@ -1,4 +1,5 @@
 #include "DirectXShadowRenderer.h"
+#include "DirectXShadowRenderer.h"
 
 #include "DirectXMaterial.h"
 #include "DirectXMeshRenderer.h"
@@ -13,6 +14,8 @@ leap::graphics::DirectXShadowRenderer::~DirectXShadowRenderer()
 
 void leap::graphics::DirectXShadowRenderer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const glm::uvec2& shadowMapSize)
 {
+	m_Size = shadowMapSize;
+
 	m_pDeviceContext = pDeviceContext;
 
 	DirectXRenderTarget::RTDesc shadowRenderTargetDesc{};

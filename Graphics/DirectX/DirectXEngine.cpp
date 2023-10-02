@@ -230,6 +230,9 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	viewport.MaxDepth = 1;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
 
+	// Create a new shadow renderer using new video settings
+	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, m_ShadowRenderer.GetShadowMapSize());
+
 	// Reload existing textures, materials & meshes using new video settings
 	for (const auto& texturePair : m_pTextures)
 	{
@@ -239,6 +242,9 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	for (const auto& materialPair : m_pMaterials)
 	{
 		materialPair.second->Reload(m_pDevice);
+
+		// Reconnect the shadowmap to the material
+		materialPair.second->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
 	}
 
 	DirectXMeshLoader::GetInstance().Reload(m_pDevice);
@@ -247,8 +253,6 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	{
 		pRenderer->Reload(m_pDevice, m_pDeviceContext);
 	}
-
-	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, { 3840, 2160 });
 }
 
 void leap::graphics::DirectXEngine::Draw()
