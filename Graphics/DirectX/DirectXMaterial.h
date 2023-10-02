@@ -22,6 +22,7 @@ namespace leap::graphics
 	class DirectXMaterial final : public IMaterial
 	{
 	public:
+		DirectXMaterial() = default;
 		DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction);
 		virtual ~DirectXMaterial();
 
@@ -47,6 +48,7 @@ namespace leap::graphics
 		void SetTexture(const std::string& varName, ID3D11ShaderResourceView* pSRV);
 
 		void Reload(ID3D11Device* pDevice);
+		std::unique_ptr<DirectXMaterial> Clone(ID3D11Device* pDevice);
 
 	private:
 		ID3D11InputLayout* LoadInputLayout(ID3D11Device* pDevice) const;

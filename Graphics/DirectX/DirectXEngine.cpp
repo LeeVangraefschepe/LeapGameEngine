@@ -21,6 +21,8 @@
 #include "DirectXMeshLoader.h"
 #include "DirectXMaterial.h"
 
+#include "../Shaders/PosNormTex3D.h"
+
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 
@@ -34,6 +36,8 @@ leap::graphics::DirectXEngine::~DirectXEngine()
 void leap::graphics::DirectXEngine::Initialize()
 {
 	ReloadDirectXEngine();
+
+	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default");
 
 	m_IsInitialized = true;
 }
@@ -69,12 +73,12 @@ void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRende
 
 leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
 {
-	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
 	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
 	{
 		return it->second.get();
 	}
 
+	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
 	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
 	auto pMaterialRaw{ pMaterial.get() };
 
@@ -82,6 +86,22 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::un
 
 	m_pMaterials[name] = std::move(pMaterial);
 	return pMaterialRaw;
+}
+
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const std::string& original, const std::string& clone)
+{
+	if (auto it{ m_pMaterials.find(original) }; it != end(m_pMaterials))
+	{
+		std::unique_ptr<DirectXMaterial> pMaterial{ it->second->Clone(m_pDevice) };
+		auto pMaterialRaw{ pMaterial.get() };
+
+		pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
+
+		m_pMaterials[clone] = std::move(pMaterial);
+		return pMaterialRaw;
+	}
+
+	return nullptr;
 }
 
 leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path)

@@ -151,6 +151,18 @@ void leap::graphics::DirectXMaterial::Reload(ID3D11Device* pDevice)
 	m_pInputLayout = LoadInputLayout(pDevice);
 }
 
+std::unique_ptr<leap::graphics::DirectXMaterial> leap::graphics::DirectXMaterial::Clone(ID3D11Device* pDevice)
+{
+	auto pMaterial{ std::make_unique<DirectXMaterial>(pDevice, m_AssetFile, m_VertexDataFunction) };
+
+	for (const auto& texturePair : m_pTextures)
+	{
+		pMaterial->SetTexture(texturePair.first, texturePair.second);
+	}
+
+	return std::move(pMaterial);
+}
+
 ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice, const std::string& assetFile)
 {
 	HRESULT result;

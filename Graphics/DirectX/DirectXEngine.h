@@ -60,6 +60,7 @@ namespace leap::graphics
 
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
+		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) override;
 		virtual ITexture* CreateTexture(const std::string& path) override;
 	private:
 		void Release();
