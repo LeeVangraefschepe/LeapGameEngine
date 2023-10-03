@@ -104,6 +104,15 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]()
 			{
+				leap::GameContext::GetInstance().GetWindow()->SetFullScreen(!leap::GameContext::GetInstance().GetWindow()->IsFullScreen());
+			}),
+		leap::input::InputManager::InputType::EventPress,
+		leap::input::Keyboard::Key::KeyF11
+	);
+
+	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
+		std::make_shared<leap::LambdaCommand>([=]()
+			{
 				static unsigned int antiAliasing{};
 				leap::graphics::IRenderer& renderer{ leap::ServiceLocator::GetRenderer() };
 				++antiAliasing %= 4;
