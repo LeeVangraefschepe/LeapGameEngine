@@ -1,7 +1,6 @@
 #include "Window.h"
 #include "GameContext.h"
 #include "glfw3.h"
-#include <iostream>
 #include "../ServiceLocator/ServiceLocator.h"
 #include "Interfaces/IRenderer.h"
 
