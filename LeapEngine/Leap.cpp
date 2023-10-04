@@ -2,9 +2,10 @@
 
 #include <chrono>
 #include "InputManager.h"
-#include "Renderer.h"
+#include "Interfaces/IRenderer.h"
 #include "ServiceLocator/ServiceLocator.h"
 #include "Systems/FmodAudioSystem.h"
+#include "DirectX/DirectXEngine.h"
 
 #include "vec3.hpp"
 
@@ -14,7 +15,7 @@
 #include "GameContext/GameContext.h"
 #include "SceneGraph/SceneManager.h"
 
-leap::LeapEngine::LeapEngine()
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
     std::cout << "Engine created\n";
 
@@ -24,7 +25,7 @@ leap::LeapEngine::LeapEngine()
 
     /* Create a windowed mode window and its OpenGL context */
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    m_pWindow = glfwCreateWindow(1280, 720, "Leap Engine", nullptr, nullptr);
+    m_pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (!m_pWindow)
     {
         glfwTerminate();
@@ -42,21 +43,26 @@ leap::LeapEngine::LeapEngine()
     input::InputManager::GetInstance().SetWindow(m_pWindow);
 }
 
-leap::LeapEngine::~LeapEngine()
-{}
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title, const std::string& iconPath) : LeapEngine(width, height, title)
+{
+    iconPath;
+}
 
 void leap::LeapEngine::Run(int desiredFPS)
 {
-	  std::cout << "Engine startup\n";
-
-    m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
-    m_pRenderer->Initialize();
-
-    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+	std::cout << "Engine startup\n";
 
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
     auto& audio = ServiceLocator::GetAudio();
+
+    gameContext.CreateWindowWrapper(m_pWindow);
+
+    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+    ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
+
+    m_pRenderer = &ServiceLocator::GetRenderer();
+    m_pRenderer->Initialize();
 
     auto& sceneManager = SceneManager::GetInstance();
     const auto timer = gameContext.GetTimer();

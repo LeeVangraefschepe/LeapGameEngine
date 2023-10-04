@@ -50,8 +50,10 @@ void leap::Transform::SetWorldRotation(const glm::quat& rotation)
 
 	// Apply the inverse transformation to the desired world position
 	m_LocalRotation = invParentWorldRotation * rotation;
+	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::SetWorldScale(const glm::vec3& scale)
@@ -110,6 +112,7 @@ void leap::Transform::SetLocalRotation(const glm::vec3& rotation, bool degrees)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::SetLocalRotation(float x, float y, float z, bool degrees)
@@ -123,6 +126,7 @@ void leap::Transform::SetLocalRotation(const glm::quat& rotation)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::SetLocalScale(const glm::vec3& scale)
@@ -176,6 +180,7 @@ void leap::Transform::Rotate(const glm::vec3& rotationDelta, bool degrees)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::Rotate(float xDelta, float yDelta, float zDelta, bool degrees)
@@ -189,6 +194,7 @@ void leap::Transform::Rotate(const glm::quat& rotationDelta)
 	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
+	SetDirty(DirtyFlags::DirectionVectors);
 }
 
 void leap::Transform::Scale(const glm::vec3& scaleDelta)
@@ -278,7 +284,54 @@ const glm::vec3& leap::Transform::GetLocalScale() const
 	return m_LocalScale;
 }
 
+glm::mat4x4 leap::Transform::GetWorldTransform()
+{
+	glm::mat4x4 worldTransform{ 1.0f };
+
+	worldTransform = glm::translate(worldTransform, GetWorldPosition());
+	
+	glm::mat4x4 rotationMatrix{ glm::mat4_cast(GetWorldRotation()) };
+	worldTransform = worldTransform * rotationMatrix;
+
+	worldTransform = glm::scale(worldTransform, GetWorldScale());
+
+	return worldTransform;
+}
+
+glm::mat4x4 leap::Transform::GetLocalTransform() const
+{
+	glm::mat4x4 worldTransform{};
+
+	glm::translate(worldTransform, m_LocalPosition);
+
+	glm::mat4x4 rotationMatrix{ glm::mat4_cast(m_LocalRotation) };
+	worldTransform = worldTransform * rotationMatrix;
+
+	worldTransform = glm::scale(worldTransform, m_LocalScale);
+
+	return worldTransform;
+}
+
+const glm::vec3& leap::Transform::GetForward()
+{
+	if (IsDirty(DirtyFlags::DirectionVectors)) UpdateDirectionVectors();
+
+	return m_Forward;
+}
+const glm::vec3& leap::Transform::GetUp()
+{
+	if (IsDirty(DirtyFlags::DirectionVectors)) UpdateDirectionVectors();
+
+	return m_Up;
+}
+const glm::vec3& leap::Transform::GetRight()
+{
+	if (IsDirty(DirtyFlags::DirectionVectors)) UpdateDirectionVectors();
+
+	return m_Right;
+}
 #pragma endregion
+
 void leap::Transform::UpdateTranslation()
 {
 	GameObject* pParentObj{ GetGameObject()->GetParent() };
@@ -313,7 +366,7 @@ void leap::Transform::UpdateRotation()
 	const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
 
 	// Calculate world rotation
-	m_WorldRotation = m_LocalRotation * parentWorldRotation;
+	m_WorldRotation = parentWorldRotation * m_LocalRotation;
 	m_WorldRotationEuler = glm::eulerAngles(m_WorldRotation);
 
 	// Disable the rotation dirty flag
@@ -339,6 +392,17 @@ void leap::Transform::UpdateScale()
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Scale);
 }
 
+void leap::Transform::UpdateDirectionVectors()
+{
+	// Calculate direction vectors
+	m_Forward = GetWorldRotation() * glm::vec3{ 0.0f, 0.0f, 1.0f };
+	m_Right = glm::normalize(glm::cross(glm::vec3{ 0.0f, 1.0f, 0.0f }, m_Forward));
+	m_Up = glm::cross(m_Forward, m_Right);
+
+	// Disable the direction dirty flag
+	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::DirectionVectors);
+}
+
 bool leap::Transform::IsDirty(DirtyFlags flag) const
 {
 	return static_cast<bool>(m_IsDirty & static_cast<unsigned int>(flag));
@@ -347,6 +411,14 @@ bool leap::Transform::IsDirty(DirtyFlags flag) const
 void leap::Transform::SetDirty(DirtyFlags flag)
 {
 	m_IsDirty |= static_cast<unsigned int>(flag);
+
+	for (int i = 0; i < GetGameObject()->GetChildCount(); ++i)
+	{
+		Transform* pChild{ GetGameObject()->GetChild(i)->GetTransform() };
+		pChild->SetDirty(DirtyFlags::Rotation);
+		pChild->SetDirty(DirtyFlags::Scale);
+		pChild->SetDirty(DirtyFlags::Translation);
+	}
 }
 
 void leap::Transform::KeepWorldTransform(GameObject* pParent)

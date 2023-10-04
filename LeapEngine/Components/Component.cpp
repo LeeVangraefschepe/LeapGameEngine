@@ -2,6 +2,11 @@
 
 #include "../SceneGraph/GameObject.h"
 
+leap::Transform* leap::Component::GetTransform() const
+{
+	return m_pOwner->GetTransform();
+}
+
 void leap::Component::Destroy()
 {
 	m_StateFlags |= static_cast<unsigned char>(StateFlags::IsMarkedAsDead);

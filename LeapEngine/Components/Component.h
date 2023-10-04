@@ -3,6 +3,7 @@
 namespace leap
 {
 	class GameObject;
+	class Transform;
 
 	class Component
 	{
@@ -16,6 +17,7 @@ namespace leap
 		Component& operator=(Component&& other) = delete;
 
 		GameObject* GetGameObject() const { return m_pOwner; }
+		Transform* GetTransform() const;
 
 		void Destroy();
 		bool IsMarkedAsDead() const;

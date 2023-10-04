@@ -8,7 +8,7 @@
 namespace leap
 {
 	template <class T>
-	class Subject final
+	class Subject
 	{
 	public:
 		Subject() = default;
