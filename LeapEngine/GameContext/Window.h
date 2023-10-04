@@ -27,7 +27,7 @@ namespace leap
 		GLFWwindow* m_pWindow;
 
 		static void window_size_callback(GLFWwindow* window, int width, int height);
-		glm::ivec2 m_pWindowSize{};
+		glm::ivec2 m_WindowSize{};
 		bool m_WindowSizeDirty{};
 
 		bool m_FullScreen{};
