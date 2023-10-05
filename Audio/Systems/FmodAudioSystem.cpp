@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 namespace leap::audio
 {
@@ -19,19 +20,21 @@ namespace leap::audio
             FMOD_RESULT result{ FMOD::System_Create(&m_pSystem) };
             if (result != FMOD_OK)
             {
-                std::cout << "FMOD error! " << result << " " << FMOD_ErrorString(result) << "\n";
-                return;
+                std::stringstream errorMsg{};
+                errorMsg << "FMODAudioSystem Error: " << FMOD_ErrorString(result);
+                throw std::runtime_error{ errorMsg.str() };
             }
 
             // Initialize FMOD
             result = m_pSystem->init(maxChannels, FMOD_INIT_NORMAL, nullptr);
             if (result != FMOD_OK)
             {
-                std::cout << "FMOD error! " << result << " " << FMOD_ErrorString(result) << "\n";
-                return;
+                std::stringstream errorMsg{};
+                errorMsg << "FMODAudioSystem Error: " << FMOD_ErrorString(result);
+                throw std::runtime_error{ errorMsg.str() };
             }
 
-            std::cout << "FMOD is initialized\n";
+            std::cout << "FMODAudioSystem Log: FMOD is initialized\n";
         }
 
         ~FmodAudioSystemPimpl()
@@ -545,22 +548,22 @@ namespace leap::audio
 
 leap::audio::FmodAudioSystem::FmodAudioSystem()
 {
+    std::cout << "FMODAudioSystem Log: Created FMOD system\n";
     m_pImpl = std::make_unique<FmodAudioSystemPimpl>(m_MaxChannels);
 }
 
 leap::audio::FmodAudioSystem::~FmodAudioSystem()
 {
+    std::cout << "FMODAudioSystem Log: Destroyed FMOD system\n";
 }
 
 int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath, bool is3DSound)
 {
-    // Delegate the load sound to the pImpl
     return m_pImpl->LoadSound(filePath, is3DSound);
 }
 
 int leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath, bool is3DSound)
 {
-    // Delegate the load sound to the pImpl
     return m_pImpl->LoadSoundAsync(filePath, is3DSound);
 }
 
@@ -571,13 +574,11 @@ bool leap::audio::FmodAudioSystem::IsValidSound(int id)
 
 int leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume)
 {
-    // Delegate the play sound to the pImpl
     return m_pImpl->PlaySound2D(id, volume);
 }
 
 int leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData)
 {
-    // Delegate the play sound to the pImpl
     return m_pImpl->PlaySound3D(id, soundData);
 }
 
@@ -588,7 +589,6 @@ bool leap::audio::FmodAudioSystem::IsPlaying(int channel)
 
 void leap::audio::FmodAudioSystem::SetVolume2D(int channel, float volume)
 {
-    // Delegate the SetVolume to the pImpl
     m_pImpl->SetVolume2D(channel, volume);
 }
 
@@ -644,6 +644,5 @@ void leap::audio::FmodAudioSystem::UnmuteAll()
 
 void leap::audio::FmodAudioSystem::Update()
 {
-    // Delegate the update to the pImpl
     m_pImpl->Update();
 }

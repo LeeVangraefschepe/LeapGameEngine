@@ -5,7 +5,6 @@
 #include <d3dcompiler.h>
 
 #include <sstream>
-#include <iostream>
 #include <vector>
 #include "DirectXTexture.h"
 
@@ -18,7 +17,7 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 {
 	// Save the technique of the effect as a member variable
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
-	if (!m_pTechnique->IsValid()) return;
+	if (!m_pTechnique->IsValid()) throw std::runtime_error{ "DirectXEngine Error: Failed to load .fx file while creating a material" };
 
 	// Save the worldviewprojection and world variable of the effect as a member variable
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
@@ -51,7 +50,7 @@ ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device
 			passDesc.IAInputSignatureSize,
 			&pInputLayout
 		) };
-	if (FAILED(result)) return nullptr;
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to load input layout while creating a material" };
 
 	return pInputLayout;
 }
@@ -206,6 +205,7 @@ ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice
 			const char* pErrors{ static_cast<char*>(pErrorBlob->GetBufferPointer()) };
 
 			std::stringstream ss;
+			ss << "DirectXEngine Error : ";
 			for (unsigned int i{}; i < pErrorBlob->GetBufferSize(); ++i)
 			{
 				ss << pErrors[i];
@@ -215,14 +215,13 @@ ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice
 			pErrorBlob->Release();
 			pErrorBlob = nullptr;
 
-			std::cout << ss.str() << "\n";
+			throw std::runtime_error{ ss.str() };
 		}
 		else
 		{
 			std::stringstream ss;
-			ss << "EffectLoader: Failed to CreateEffectFromFile!\nPath: " << assetFile;
-			std::cout << ss.str() << "\n";
-			return nullptr;
+			ss << "DirectXEngine Error : EffectLoader failed to load effect file from path: " << assetFile;
+			throw std::runtime_error{ ss.str() };
 		}
 	}
 

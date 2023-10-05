@@ -62,7 +62,7 @@ leap::GameObject* leap::GameObject::GetChild(int index) const
 	// Make sure the index is not out of range
 	if (index < 0 || index >= static_cast<int>(m_pChildren.size()))
 	{
-		throw std::runtime_error("GameObject Error: GetChild index out of bounds");
+		throw std::runtime_error("LeapEngine Error: GameObject::GetChild index out of bounds");
 	}
 
 	return m_pChildren[index].get();

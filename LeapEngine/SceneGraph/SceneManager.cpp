@@ -34,8 +34,8 @@ void leap::SceneManager::LoadScene(const std::string& name)
 	}
 
 	std::stringstream ss{};
-	ss << "No scene found with name: " << name;
-	throw std::exception{ss.str().c_str()};
+	ss << "LeapEngine Error: LoadScene failed to find a scene with name: " << name;
+	throw std::runtime_error{ ss.str() };
 }
 
 void leap::SceneManager::OnFrameStart()
@@ -78,9 +78,9 @@ void leap::SceneManager::LoadInternalScene()
 {
 	if (static_cast<unsigned>(m_LoadScene) >= m_Scenes.size())
 	{
-		throw std::runtime_error("Tried to load scene that isn't known to the scenemanager");
-		return;
+		throw std::runtime_error("LeapEngine Error: SceneManager is loading a scene that doesn't exist");
 	}
+
 	const auto& sceneData = m_Scenes[m_LoadScene];
 	m_LoadScene = -1;
 	m_Scene = std::make_unique<Scene>(sceneData.name.c_str());
