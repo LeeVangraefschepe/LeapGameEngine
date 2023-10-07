@@ -26,6 +26,10 @@
 
 #include "../Shaders/PosNormTex3D.h"
 
+#include "../ImGui/imgui.h"
+#include "../ImGui/imgui_impl_glfw.h"
+#include "imgui_impl_dx11.h"
+
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 	std::cout << "DirectXRenderer Log: Created DirectX engine\n";
@@ -160,6 +164,9 @@ void leap::graphics::DirectXEngine::Release()
 	{
 		m_pDevice->Release();
 		m_pDevice = nullptr;
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 }
 
@@ -286,6 +293,12 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	}
 
 	std::cout << "DirectXRenderer Log: Successfully reloaded DirectX engine\n";
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOther(m_pWindow, true);
+	ImGui_ImplDX11_Init(m_pDevice, m_pDeviceContext);
+	ImGui::StyleColorsDark();
 }
 
 void leap::graphics::DirectXEngine::Draw()
@@ -331,7 +344,17 @@ void leap::graphics::DirectXEngine::Draw()
 		pRenderer->Draw();
 	}
 
+	// Imgui render
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
 	// Swap render buffers
 	m_pSwapChain->Present(0, 0);
+}
+
+void leap::graphics::DirectXEngine::GuiDraw()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 }

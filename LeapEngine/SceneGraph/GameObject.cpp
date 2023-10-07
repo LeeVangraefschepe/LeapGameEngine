@@ -364,18 +364,6 @@ void leap::GameObject::LateUpdate() const
 	}
 }
 
-void leap::GameObject::Render() const
-{
-	// Delegate Render method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->Render();
-
-	// Delegate Render method to the children
-	for (const auto& pChild : m_pChildren)
-	{
-		if (pChild) pChild->Render();
-	}
-}
-
 void leap::GameObject::OnGUI() const
 {
 	// Delegate OnGUI method to the components

@@ -27,7 +27,6 @@ namespace leap
 		void FixedUpdate() const;
 		void Update() const;
 		void LateUpdate() const;
-		void Render() const;
 		void OnGUI() const;
 		void OnFrameEnd() const;
 
