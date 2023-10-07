@@ -16,6 +16,9 @@
 #include <d3dcompiler.h>
 #include <d3dx11effect.h>
 
+#include <stdexcept>
+#include <iostream>
+
 #include "DirectXShaderReader.h"
 #include "DirectXTexture.h"
 #include "DirectXMeshLoader.h"
@@ -25,21 +28,24 @@
 
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
-
+	std::cout << "DirectXRenderer Log: Created DirectX engine\n";
 }
 
 leap::graphics::DirectXEngine::~DirectXEngine()
 {
 	Release();
+	std::cout << "DirectXRenderer Log: Destroyed DirectX engine\n";
 }
 
 void leap::graphics::DirectXEngine::Initialize()
 {
 	ReloadDirectXEngine();
 
+	std::cout << "DirectXRenderer Log: Creating default material with ID \"Default\"\n";
 	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default");
 
 	m_IsInitialized = true;
+	std::cout << "DirectXRenderer Log: Successfully initialized DirectX engine\n";
 }
 
 void leap::graphics::DirectXEngine::SetAntiAliasing(AntiAliasing antiAliasing)
@@ -183,7 +189,7 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		{
 			result = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, &featureLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 
-			if (FAILED(result)) return;
+			if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create DirectX device" };
 
 			pAdapter->Release();
 		}
@@ -204,6 +210,10 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	int width, height;
 	glfwGetWindowSize(m_pWindow, &width, &height);
 
+	IDXGIFactory1* pDxgiFactory{ nullptr };
+	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create DirectX factory" };
+
 	// Create swapchain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
 	swapChainDesc.BufferDesc.Width = width;
@@ -222,17 +232,13 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	swapChainDesc.Flags = 0;
 	swapChainDesc.OutputWindow = glfwGetWin32Window(m_pWindow);
 
-	IDXGIFactory1* pDxgiFactory{ nullptr };
-	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
-	if (FAILED(result)) return;
-
 	result = pDxgiFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain);
-	if (FAILED(result)) return;
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create DirectX swap chain" };
 
 	// Create render target
 	ID3D11Texture2D* pRenderTarget{};
 	result = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pRenderTarget));
-	if (FAILED(result)) return;
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to retrieve render target buffer from the swap chain" };
 
 	DirectXRenderTarget::RTDesc renderTargetDesc{};
 	renderTargetDesc.width = width;
@@ -278,6 +284,8 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	{
 		pRenderer->Reload(m_pDevice, m_pDeviceContext);
 	}
+
+	std::cout << "DirectXRenderer Log: Successfully reloaded DirectX engine\n";
 }
 
 void leap::graphics::DirectXEngine::Draw()

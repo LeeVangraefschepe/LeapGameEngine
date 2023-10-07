@@ -5,7 +5,6 @@
 #include <wincodec.h>
 
 #include <sstream>
-#include <iostream>
 
 leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, const std::string& path)
 {
@@ -20,7 +19,8 @@ leap::graphics::DirectXTexture::~DirectXTexture()
 
 glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/)
 {
-	return {};
+	// TODO: Implement this function
+	throw std::runtime_error("DirectXEngine Error: GetPixel is not implemented");
 }
 
 void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, const std::string& path)
@@ -36,14 +36,14 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	// Create a WIC factory
 	IWICImagingFactory* pWICFactory{};
 	HRESULT result{ CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pWICFactory)) };
-	if (FAILED(result)) throw std::runtime_error{ "Failed to create WIC factory when creating a texture" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create WIC factory when creating a texture" };
 
 	// Load the image using WIC
 	std::wstringstream wss{};
 	wss << path.c_str();
 	IWICBitmapDecoder* pWICDecoder;
 	result = pWICFactory->CreateDecoderFromFilename(wss.str().c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pWICDecoder);
-	if (FAILED(result)) throw std::runtime_error{ "Failed to load image using the WIC factory" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to load image using the WIC factory" };
 
 	// Get the WIC frame from the image
 	IWICBitmapFrameDecode* pWICFrame{};
@@ -70,7 +70,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	{
 		// Get a DXGI compatible WIC format from the current image format
 		WICPixelFormatGUID compatibleWICFormat = ConvertWICToWIC(wicFormat);
-		if (compatibleWICFormat == GUID_WICPixelFormatDontCare) throw std::runtime_error{ "Image format is not supported by the engine" };
+		if (compatibleWICFormat == GUID_WICPixelFormatDontCare) throw std::runtime_error{ "DirectXEngine Error: Image format is not supported by the engine" };
 
 		// Convert the converted WIC fromat to a DXGI format
 		dxgiFormat = ConvertWICToDXGI(compatibleWICFormat);
@@ -78,26 +78,26 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 		// Create the format converter
 		IWICFormatConverter* pWICConverter{};
 		result = pWICFactory->CreateFormatConverter(&pWICConverter);
-		if (FAILED(result)) throw std::runtime_error{ "Failed to create a WIC format converter" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create a WIC format converter" };
 
 		// Make sure we can convert to the dxgi compatible format
 		BOOL canConvert{};
 		result = pWICConverter->CanConvert(wicFormat, compatibleWICFormat, &canConvert);
-		if (FAILED(result) || !canConvert) throw std::runtime_error{ "The engine is not able to convert image to supported image format. Image format is not supported by the engine" };
+		if (FAILED(result) || !canConvert) throw std::runtime_error{ "DirectXEngine Error: The engine is not able to convert image to supported image format. Image format is not supported by the engine" };
 
 		// Do the conversion (wicConverter will contain the converted image)
 		result = pWICConverter->Initialize(pWICFrame, compatibleWICFormat, WICBitmapDitherTypeErrorDiffusion, 0, 0, WICBitmapPaletteTypeCustom);
-		if (FAILED(result)) throw std::runtime_error{ "Failed to convert image to supported image format. The given image formate is not supported by the engine" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to convert image to supported image format. The given image formate is not supported by the engine" };
 
 		// The wic converter contains the converted image, copy data from converter to pixel array
 		result = pWICConverter->CopyPixels(0, stride, bufferSize, pPixelData);
-		if (FAILED(result)) throw std::runtime_error{ "Failed to copy pixeldata to bitmap" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to copy pixeldata to bitmap" };
 	}
 	else
 	{
 		// If the format was a dxgi supported format, just copy data from the wic frame to pixel array
 		result = pWICFrame->CopyPixels(nullptr, stride, bufferSize, pPixelData);
-		if (FAILED(result)) throw std::runtime_error{ "Failed to copy pixeldata to bitmap" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to copy pixeldata to bitmap" };
 	}
 
 	// Create a texture from the pixel data
@@ -120,7 +120,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	initData.SysMemSlicePitch = static_cast<UINT>(wicHeight * stride);
 
 	result = pDevice->CreateTexture2D(&desc, &initData, &m_pResource);
-	if (FAILED(result)) throw std::runtime_error{ "Failed to create directX texture using the WIC frame" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create directX texture using the WIC frame" };
 
 	// Create shader resource view
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -129,7 +129,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	srvDesc.Texture2D.MipLevels = 1;
 
 	pDevice->CreateShaderResourceView(m_pResource, &srvDesc, &m_pSRV);
-	if (FAILED(result)) throw std::runtime_error{ "Failed to create shader resource view with the given texture" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create shader resource view with the given texture" };
 
 	// Clean up resources
 	delete[] pPixelData;

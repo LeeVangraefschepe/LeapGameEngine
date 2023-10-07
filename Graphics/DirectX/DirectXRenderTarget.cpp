@@ -92,10 +92,10 @@ void leap::graphics::DirectXRenderTarget::CreateDepth(ID3D11Device* pDevice, con
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	HRESULT result{ pDevice->CreateTexture2D(&depthStencilDesc, nullptr, &m_pDepthTexture) };
-	if (FAILED(result)) throw std::runtime_error{ "Failed to create depth texture for a render target" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create depth texture for a render target" };
 
 	result = pDevice->CreateDepthStencilView(m_pDepthTexture, &depthStencilViewDesc, &m_pDepthStencilView);
-	if (FAILED(result)) throw std::runtime_error{ "Failed to create depth stencil view for a render target" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create depth stencil view for a render target" };
 
 	if (desc.isDepthSRV)
 	{
@@ -108,7 +108,7 @@ void leap::graphics::DirectXRenderTarget::CreateDepth(ID3D11Device* pDevice, con
 		depthSrvDesc.Texture2D.MostDetailedMip = 0;
 
 		result = pDevice->CreateShaderResourceView(m_pDepthTexture, &depthSrvDesc, &m_pDepthShaderResourceView);
-		if (FAILED(result)) throw std::runtime_error{ "Failed to create depth shader resource view for a render target" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create depth shader resource view for a render target" };
 	}
 }
 
@@ -125,7 +125,7 @@ DXGI_FORMAT leap::graphics::DirectXRenderTarget::GetDepthResourceFormat(DXGI_FOR
 	case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
 		return DXGI_FORMAT::DXGI_FORMAT_R32G8X24_TYPELESS;
 	default:
-		throw std::runtime_error("This DXGI format is not supported for depth");
+		throw std::runtime_error("DirectXEngine Error: This DXGI format is not supported for depth");
 	}
 }
 
@@ -142,7 +142,7 @@ DXGI_FORMAT leap::graphics::DirectXRenderTarget::GetDepthShaderResourceViewForma
 	case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
 		return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
 	default:
-		throw std::runtime_error("This DXGI format is not supported for depth SRV");
+		throw std::runtime_error("DirectXEngine Error: This DXGI format is not supported for depth SRV");
 	}
 }
 
@@ -180,15 +180,15 @@ void leap::graphics::DirectXRenderTarget::CreateColor(ID3D11Device* pDevice, con
 		colorTextureDesc.MiscFlags = 0;
 
 		const HRESULT result{ pDevice->CreateTexture2D(&colorTextureDesc, nullptr, &m_pRenderTarget) };
-		if (FAILED(result)) throw std::runtime_error{ "Failed to create color texture for a render target" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create color texture for a render target" };
 	}
 
 	HRESULT result{ pDevice->CreateRenderTargetView(m_pRenderTarget, nullptr, &m_pRenderTargetView) };
-	if (FAILED(result)) throw std::runtime_error{ "Failed to create render target view for a render target" };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create render target view for a render target" };
 
 	if (desc.isColorSRV)
 	{
 		result = pDevice->CreateShaderResourceView(m_pRenderTarget, nullptr, &m_pRenderTargetShaderResourceView);
-		if (FAILED(result)) throw std::runtime_error{ "Failed to create color shader resource view for a render target" };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create color shader resource view for a render target" };
 	}
 }

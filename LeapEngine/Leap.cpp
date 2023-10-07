@@ -17,11 +17,11 @@
 
 leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
-    std::cout << "Engine created\n";
+    std::cout << "LeapEngine Log: Engine created\n";
 
     /* Initialize the library */
     if (!glfwInit())
-        return;
+        throw std::runtime_error("LeapEngine Error: GLFW initialisation error");
 
     /* Create a windowed mode window and its OpenGL context */
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -29,41 +29,46 @@ leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
     if (!m_pWindow)
     {
         glfwTerminate();
-        throw std::runtime_error("Failed to create window");
-    }
-
-    if (!glfwInit())
-    {
-        throw std::runtime_error("Failed to initialize glfw");
+        throw std::runtime_error("LeapEngine Error: Failed to create window");
     }
 
     /* Make the window's context current */
     glfwMakeContextCurrent(m_pWindow);
 
-    input::InputManager::GetInstance().SetWindow(m_pWindow);
+    std::cout << "LeapEngine Log: Window created successfully\n";
 }
 
-leap::LeapEngine::LeapEngine(int width, int height, const std::string& title, const std::string& iconPath) : LeapEngine(width, height, title)
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title, const std::string&) : LeapEngine(width, height, title)
 {
-    iconPath;
+}
+
+leap::LeapEngine::~LeapEngine()
+{
+    std::cout << "LeapEngine Log: Engine destroyed\n";
 }
 
 void leap::LeapEngine::Run(int desiredFPS)
 {
-	std::cout << "Engine startup\n";
-
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
     auto& audio = ServiceLocator::GetAudio();
 
+    std::cout << "LeapEngine Log: Linking window to the Input library\n";
+    input::InputManager::GetInstance().SetWindow(m_pWindow);
+
+    std::cout << "LeapEngine Log: Linking window to the game context\n";
     gameContext.CreateWindowWrapper(m_pWindow);
 
+    std::cout << "LeapEngine Log: Registering default audio system (FMOD)\n";
     ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+
+    std::cout << "LeapEngine Log: Registering default renderer (DirectX)\n";
     ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
 
     m_pRenderer = &ServiceLocator::GetRenderer();
     m_pRenderer->Initialize();
 
+    std::cout << "LeapEngine Log: Loading default scene\n";
     auto& sceneManager = SceneManager::GetInstance();
     const auto timer = gameContext.GetTimer();
     sceneManager.LoadScene(0);
@@ -112,5 +117,6 @@ void leap::LeapEngine::Run(int desiredFPS)
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
     }
 
+    std::cout << "LeapEngine Log: Destroying window\n";
     glfwTerminate();
 }
