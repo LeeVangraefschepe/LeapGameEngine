@@ -80,7 +80,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     {
         const auto currentTime = std::chrono::high_resolution_clock::now();
 
-        //Update gamecontext (Timer class)
+        // Update gamecontext (Timer & window)
         gameContext.Update();
         fixedTotalTime += timer->GetDeltaTime();
 
@@ -102,12 +102,13 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         sceneManager.LateUpdate();
 
-        //Render here
-        glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
+        // Render here
         sceneManager.Render();
-        m_pRenderer->Draw();
+
+        m_pRenderer->GuiDraw();
         sceneManager.OnGUI();
-        glClear(GL_COLOR_BUFFER_BIT);
+
+        m_pRenderer->Draw();
         glfwSwapBuffers(m_pWindow);
 
         sceneManager.OnFrameEnd();

@@ -43,6 +43,7 @@ namespace leap::graphics
 		// Internal functions
 		virtual void Initialize() override;
 		virtual void Draw() override;
+		virtual void GuiDraw() override;
 
 		// Renderer settings
 		virtual void SetAntiAliasing(AntiAliasing antiAliasing) override;

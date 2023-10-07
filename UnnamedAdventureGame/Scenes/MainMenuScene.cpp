@@ -17,6 +17,7 @@
 
 #include <Components/RenderComponents/MeshRenderer.h>
 #include "../Components/Transformator.h"
+#include "../Components/InfoUI.h"
 
 #include "Shaders/Pos3D.h"
 #include "Shaders/PosNorm3D.h"
@@ -29,6 +30,7 @@
 
 #include "Mouse.h"
 #include "Keyboard.h"
+
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -83,6 +85,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	bunnyMesh->GetTransform()->Scale(10.0f);
 	bunnyMesh->GetTransform()->Translate(-5.0f, 0.0f, 0.0f);
 	bunnyMesh->AddComponent<Transformator>();
+
+	const auto info{ scene.CreateGameObject("Info") };
+	info->AddComponent<InfoUI>();
 
 	leap::input::InputManager::GetInstance().GetKeyboard()->AddCommand(
 		std::make_shared<leap::LambdaCommand>([=]() 

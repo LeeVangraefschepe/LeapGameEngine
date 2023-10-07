@@ -24,6 +24,10 @@ namespace leap::graphics
 
 		// Internal functions
 		virtual void Initialize() = 0;
+		/**
+		 * Calls the next frame for ImGui (full render is done in draw) 
+		 */
+		virtual void GuiDraw() = 0;
 		virtual void Draw() = 0;
 
 		// Renderer settings
@@ -54,10 +58,11 @@ namespace leap::graphics
 		// Internal functions
 		virtual void Initialize() override {}
 		virtual void Draw() override {}
+		virtual void GuiDraw() override {}
 
 		// Renderer settings
 		virtual void SetAntiAliasing(AntiAliasing) override {}
-		virtual void SetWindowSize(const glm::ivec2&) {}
+		virtual void SetWindowSize(const glm::ivec2&) override {}
 		virtual void SetShadowMapData(unsigned int, unsigned int, float, float, float) override {}
 
 		// Graphics space objects
