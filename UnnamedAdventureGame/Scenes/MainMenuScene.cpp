@@ -31,6 +31,8 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 
+#include "Components/RenderComponents/SpriteRendererComponent.h"
+
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -77,6 +79,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	};
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
+
+	auto sprite{ scene.CreateGameObject("Sprite") };
+	leap::SpriteRendererComponent* pSpriteRenderer{ sprite->AddComponent<leap::SpriteRendererComponent>() };
+	pSpriteRenderer->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/logo.png"));
 
 	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };

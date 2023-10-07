@@ -15,7 +15,9 @@ struct ID3D11RenderTargetView;
 #include "DirectXRenderTarget.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXMaterial.h"
+
 #include "DirectXShadowRenderer.h"
+#include "DirectXSpriteRenderer.h"
 
 #include <vector>
 #include <memory>
@@ -59,6 +61,10 @@ namespace leap::graphics
 		virtual IMeshRenderer* CreateMeshRenderer();
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
 
+		// Sprites
+		virtual void AddSprite(Sprite* pSprite) override;
+		virtual void RemoveSprite(Sprite* pSprite) override;
+
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
 		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) override;
@@ -75,6 +81,7 @@ namespace leap::graphics
 		IDXGISwapChain* m_pSwapChain{ nullptr };
 		DirectXRenderTarget m_RenderTarget{};
 		DirectXShadowRenderer m_ShadowRenderer{};
+		DirectXSpriteRenderer m_SpriteRenderer{};
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
