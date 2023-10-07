@@ -63,7 +63,6 @@ namespace leap
 		void Update() const;
 		void FixedUpdate() const;
 		void LateUpdate() const;
-		void Render() const;
 		void OnGUI() const;
 		void OnDestroy() const;
 

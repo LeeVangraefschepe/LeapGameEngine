@@ -59,11 +59,6 @@ void leap::SceneManager::LateUpdate() const
 	m_Scene->LateUpdate();
 }
 
-void leap::SceneManager::Render() const
-{
-	m_Scene->Render();
-}
-
 void leap::SceneManager::OnGUI() const
 {
 	m_Scene->OnGUI();

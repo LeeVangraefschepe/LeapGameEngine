@@ -102,9 +102,6 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         sceneManager.LateUpdate();
 
-        // Render here
-        sceneManager.Render();
-
         m_pRenderer->GuiDraw();
         sceneManager.OnGUI();
 

@@ -33,7 +33,6 @@ namespace leap
 		virtual void Update() {}
 		virtual void FixedUpdate() {}
 		virtual void LateUpdate() {}
-		virtual void Render() {}
 		virtual void OnGUI() {}
 		virtual void OnDestroy() {}
 

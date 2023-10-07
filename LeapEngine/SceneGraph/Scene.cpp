@@ -48,11 +48,6 @@ void leap::Scene::LateUpdate() const
 	m_RootObject->LateUpdate();
 }
 
-void leap::Scene::Render() const
-{
-	m_RootObject->Render();
-}
-
 void leap::Scene::OnGUI() const
 {
 	m_RootObject->OnGUI();
