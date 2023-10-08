@@ -16,6 +16,7 @@ namespace unag
 		FreeCamMovement& operator=(const FreeCamMovement& other) = delete;
 		FreeCamMovement& operator=(FreeCamMovement&& other) = delete;
 	private:
+		virtual void Awake() override;
 		virtual void Start() override;
 		virtual void OnDestroy() override;
 
