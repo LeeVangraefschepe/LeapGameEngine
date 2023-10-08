@@ -30,6 +30,7 @@ namespace leap
 		graphics::Camera* GetData() const { return m_pCamera.get(); }
 
 	protected:
+		virtual void OnDestroy() override;
 		virtual void LateUpdate() override;
 
 	private:

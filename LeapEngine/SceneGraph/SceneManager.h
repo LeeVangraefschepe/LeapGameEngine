@@ -34,6 +34,7 @@ namespace leap
 		void OnFrameEnd() const;
 
 		void LoadInternalScene();
+		void UnloadScene();
 
 		struct SceneData final
 		{

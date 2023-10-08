@@ -81,3 +81,8 @@ void leap::SceneManager::LoadInternalScene()
 	m_Scene = std::make_unique<Scene>(sceneData.name.c_str());
 	sceneData.load(*m_Scene);
 }
+
+void leap::SceneManager::UnloadScene()
+{
+	m_Scene = nullptr;
+}

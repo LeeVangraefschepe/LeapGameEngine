@@ -115,6 +115,8 @@ void leap::LeapEngine::Run(int desiredFPS)
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
     }
 
+    sceneManager.UnloadScene();
+
     std::cout << "LeapEngine Log: Destroying window\n";
     glfwTerminate();
 }

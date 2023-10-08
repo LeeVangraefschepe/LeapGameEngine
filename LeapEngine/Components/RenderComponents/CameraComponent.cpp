@@ -12,7 +12,7 @@ leap::CameraComponent::CameraComponent()
 {
 	const auto window = GameContext::GetInstance().GetWindow();
 	window->AddListener(this);
-	const auto size = window->GetWindowSize();
+	const auto& size = window->GetWindowSize();
 	constexpr float fov = 90.f;
 	m_pCamera = std::make_unique<graphics::Camera>(static_cast<float>(size.x), static_cast<float>(size.y), fov);
 }
@@ -24,6 +24,11 @@ leap::CameraComponent::~CameraComponent()
 void leap::CameraComponent::Notify(const glm::ivec2& data)
 {
 	m_pCamera->SetAspectRatio(data);
+}
+
+void leap::CameraComponent::OnDestroy()
+{
+	GameContext::GetInstance().GetWindow()->RemoveListener(this);
 }
 
 void leap::CameraComponent::LateUpdate()

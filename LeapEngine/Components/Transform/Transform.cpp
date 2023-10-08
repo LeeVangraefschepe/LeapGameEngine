@@ -5,7 +5,7 @@
 #pragma region WorldTransform
 void leap::Transform::SetWorldPosition(const glm::vec3& position)
 {
-	Transform* pParent{ GetGameObject()->GetParent()->GetTransform()};
+	Transform* pParent{ GetGameObject()->GetParent()->GetTransform() };
 
 	// Retrieve the transformation of the parent
 	const glm::vec3& parentWorldPosition{ pParent->GetWorldPosition() };
@@ -40,7 +40,7 @@ void leap::Transform::SetWorldRotation(float x, float y, float z, bool degrees)
 
 void leap::Transform::SetWorldRotation(const glm::quat& rotation)
 {
-	Transform* pParent{ GetGameObject()->GetTransform() };
+	Transform* pParent{ GetGameObject()->GetParent()->GetTransform() };
 
 	// Retrieve the transformation of the parent
 	const glm::quat& parentWorldRotation{ pParent->GetWorldRotation() };
@@ -63,7 +63,7 @@ void leap::Transform::SetWorldScale(const glm::vec3& scale)
 
 void leap::Transform::SetWorldScale(float x, float y, float z)
 {
-	Transform* pParent{ GetGameObject()->GetTransform() };
+	Transform* pParent{ GetGameObject()->GetParent()->GetTransform() };
 
 	// Retrieve the transformation of the parent
 	const glm::vec3& parentWorldScale{ pParent->GetWorldScale() };
@@ -81,11 +81,7 @@ void leap::Transform::SetWorldScale(float x, float y, float z)
 
 void leap::Transform::SetWorldScale(float scale)
 {
-	m_LocalScale.x = scale;
-	m_LocalScale.y = scale;
-	m_LocalScale.z = scale;
-
-	SetDirty(DirtyFlags::Scale);
+	SetWorldScale(scale, scale, scale);
 }
 #pragma endregion
 
