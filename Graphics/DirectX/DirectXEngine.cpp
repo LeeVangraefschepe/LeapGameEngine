@@ -81,6 +81,16 @@ void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRende
 	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
 }
 
+void leap::graphics::DirectXEngine::AddSprite(Sprite* pSprite)
+{
+	m_SpriteRenderer.AddSprite(pSprite);
+}
+
+void leap::graphics::DirectXEngine::RemoveSprite(Sprite* pSprite)
+{
+	m_SpriteRenderer.RemoveSprite(pSprite);
+}
+
 leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
 {
 	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
@@ -292,6 +302,9 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		pRenderer->Reload(m_pDevice, m_pDeviceContext);
 	}
 
+	// Create a new sprite renderer using new video settings
+	m_SpriteRenderer.Create(m_pDevice, m_pDeviceContext, glm::vec2{ width, height });
+
 	std::cout << "DirectXRenderer Log: Successfully reloaded DirectX engine\n";
 
 	IMGUI_CHECKVERSION();
@@ -343,6 +356,9 @@ void leap::graphics::DirectXEngine::Draw()
 	{
 		pRenderer->Draw();
 	}
+
+	// Render sprites
+	m_SpriteRenderer.Draw();
 
 	// Imgui render
 	ImGui::Render();

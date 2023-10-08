@@ -18,6 +18,6 @@ add_library(LeapEngine
     "SceneGraph/Scene.cpp"
     "SceneGraph/SceneManager.h"
     "SceneGraph/SceneManager.cpp"
- "Components/RenderComponents/CameraComponent.h" "Components/RenderComponents/CameraComponent.cpp" "Components/RenderComponents/MeshRenderer.h" "Components/RenderComponents/MeshRenderer.cpp" "Components/RenderComponents/DirectionalLightComponent.cpp" "GameContext/Window.h" "GameContext/Window.cpp")
+ "Components/RenderComponents/CameraComponent.h" "Components/RenderComponents/CameraComponent.cpp" "Components/RenderComponents/MeshRenderer.h" "Components/RenderComponents/MeshRenderer.cpp" "Components/RenderComponents/DirectionalLightComponent.cpp" "GameContext/Window.h" "GameContext/Window.cpp" "Components/RenderComponents/SpriteRendererComponent.h" "Components/RenderComponents/SpriteRendererComponent.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

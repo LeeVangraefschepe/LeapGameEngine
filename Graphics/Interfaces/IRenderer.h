@@ -16,6 +16,7 @@ namespace leap::graphics
 	class IMaterial;
 	class ITexture;
 	struct Shader;
+	struct Sprite;
 
 	class IRenderer
 	{
@@ -43,6 +44,10 @@ namespace leap::graphics
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() = 0;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) = 0;
+
+		// Sprites
+		virtual void AddSprite(Sprite* pSprite) = 0;
+		virtual void RemoveSprite(Sprite* pSprite) = 0;
 
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) = 0;
@@ -73,6 +78,10 @@ namespace leap::graphics
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() override  { return nullptr; }
 		virtual void RemoveMeshRenderer(IMeshRenderer*) override {}
+
+		// Sprites
+		virtual void AddSprite(Sprite*) override {};
+		virtual void RemoveSprite(Sprite*) override {};
 
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&) override { return nullptr; };
