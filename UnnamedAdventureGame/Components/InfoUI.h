@@ -6,7 +6,7 @@ namespace unag
 	{
 	public:
 		InfoUI() = default;
-		~InfoUI() = default;
+		virtual ~InfoUI() = default;
 		InfoUI(const InfoUI& other) = delete;
 		InfoUI(InfoUI&& other) = delete;
 		InfoUI& operator=(const InfoUI& other) = delete;

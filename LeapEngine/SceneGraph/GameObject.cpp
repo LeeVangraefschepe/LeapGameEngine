@@ -37,6 +37,9 @@ void leap::GameObject::SetParent(GameObject* pParent)
 	// Add self to the new parent
 	pParent->m_pChildren.emplace_back(std::move(pSelf));
 
+	// Erase self from previous parent
+	pPrevParent->m_pChildren.erase(selfIt);
+
 	// Set the new parent of this gameobject
 	m_pParent = pParent;
 }

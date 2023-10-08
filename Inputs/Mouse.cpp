@@ -15,22 +15,22 @@ void leap::input::Mouse::SetButtonBuffer(int size)
 	m_pressedButtons.resize(size, static_cast<Button>(-1));
 }
 
-void leap::input::Mouse::AddCommand(std::shared_ptr<Command> command, InputManager::InputType type, Button button)
+void leap::input::Mouse::AddCommand(Command* command, InputManager::InputType type, Button button)
 {
 	if (!m_mouseCommands.contains(type))
 	{
 		m_mouseCommands.emplace(std::pair{ type, MouseBinding{} });
 	}
 
-	m_mouseCommands[type][button].emplace_back(std::move(command));
+	m_mouseCommands[type][button].emplace_back(command);
 }
 
-void leap::input::Mouse::AddCommand(std::shared_ptr<Command> command, Wheel key)
+void leap::input::Mouse::AddCommand(Command* command, Wheel key)
 {
-	m_wheelCommands[key].emplace_back(std::move(command));
+	m_wheelCommands[key].emplace_back(command);
 }
 
-void leap::input::Mouse::RemoveCommand(const std::shared_ptr<Command>& command)
+void leap::input::Mouse::RemoveCommand(Command* command)
 {
 	for (auto& binding : m_mouseCommands | std::views::values)
 	{
@@ -119,7 +119,7 @@ void leap::input::Mouse::ProcessWheel(GLFWwindow*, double xoffset, double yoffse
 {
 	const auto mouse = InputManager::GetInstance().GetMouse();
 	glm::ivec2 value{ xoffset, yoffset };
-	std::vector<std::shared_ptr<Command>>* commands;
+	std::vector<Command*>* commands;
 
 	if (value.x < 0) { commands = &mouse->m_wheelCommands[Wheel::LeftWheel]; }
 	else { commands = &mouse->m_wheelCommands[Wheel::RightWheel]; }
