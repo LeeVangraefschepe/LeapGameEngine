@@ -38,9 +38,9 @@ namespace leap::input
 		Mouse& operator=(const Mouse& other) = delete;
 		Mouse& operator=(Mouse&& other) = delete;
 
-		void AddCommand(std::shared_ptr<Command> command, InputManager::InputType type, Button button);
-		void AddCommand(std::shared_ptr<Command> command, Wheel key);
-		void RemoveCommand(const std::shared_ptr<Command>& command);
+		void AddCommand(Command* command, InputManager::InputType type, Button button);
+		void AddCommand(Command* command, Wheel key);
+		void RemoveCommand(Command* command);
 
 		void SetButtonBuffer(int size);
 
@@ -57,11 +57,11 @@ namespace leap::input
 		static void ProcessMouse(GLFWwindow* window, int button, int action, int mods);
 		static void ProcessWheel(GLFWwindow* window, double xoffset, double yoffset);
 
-		using MouseBinding = std::map<Button, std::vector<std::shared_ptr<Command>>>;
+		using MouseBinding = std::map<Button, std::vector<Command*>>;
 		std::map<InputManager::InputType, MouseBinding> m_mouseCommands{};
 		std::vector<Button> m_pressedButtons{};
 
-		using WheelBinding = std::map<Wheel, std::vector<std::shared_ptr<Command>>>;
+		using WheelBinding = std::map<Wheel, std::vector<Command*>>;
 		WheelBinding m_wheelCommands{};
 
 		GLFWwindow* m_pWindow;

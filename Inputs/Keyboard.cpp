@@ -14,7 +14,7 @@ void leap::input::Keyboard::SetKeyBuffer(int size)
 	m_pressedKeys.resize(size, static_cast<Key>(-1));
 }
 
-void leap::input::Keyboard::AddCommand(const std::shared_ptr<Command>& command, InputManager::InputType type, Key key)
+void leap::input::Keyboard::AddCommand(Command* command, InputManager::InputType type, Key key)
 {
 	if (!m_keyboardCommands.contains(type))
 	{
@@ -24,7 +24,7 @@ void leap::input::Keyboard::AddCommand(const std::shared_ptr<Command>& command, 
 	m_keyboardCommands[type][key].emplace_back(command);
 }
 
-void leap::input::Keyboard::RemoveCommand(const std::shared_ptr<leap::Command>& command)
+void leap::input::Keyboard::RemoveCommand(Command* command)
 {
 	for (auto& binding : m_keyboardCommands | std::views::values)
 	{
