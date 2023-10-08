@@ -16,9 +16,6 @@ endif()
 set(DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Data")
 set(DESTINATION_COPY "${CMAKE_BINARY_DIR}/UnnamedAdventureGame/Data")
 
-# OpenGL
-find_package(OpenGL REQUIRED)
-
 # GLFW include paths
 set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
 set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/glfw3.lib")
@@ -86,13 +83,13 @@ target_include_directories(
 	${EngineUtilsIncludeDir}
 	${VkBootstrapIncludeDir}
 )
-target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
+target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR})
 
 # Input Engine
 add_subdirectory(Inputs)
 message("Include dir: ${InputEngineIncludeDir}")
 target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
+target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR})
 
 # Audio Engine
 add_subdirectory(Audio)
@@ -125,8 +122,7 @@ target_link_libraries(
 	InputEngine
 	AudioEngine
 	NetworkingEngine
-	${GLFW_LIBRARY_DIR}
-	OpenGL::GL)
+	${GLFW_LIBRARY_DIR})
 
 # Game Project
 add_subdirectory(UnnamedAdventureGame)
