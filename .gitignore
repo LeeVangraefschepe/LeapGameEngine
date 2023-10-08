@@ -13,3 +13,4 @@ _deps
 out/
 3rdParty/Vulkan/Lib/shaderc_combinedd.lib
 3rdParty/Vulkan/Lib/SPIRV-Tools-optd.lib
+Folder.DotSettings.user
