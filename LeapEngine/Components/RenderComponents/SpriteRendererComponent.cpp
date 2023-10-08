@@ -45,6 +45,11 @@ void leap::SpriteRendererComponent::SetColor(float r, float g, float b, float a)
 	SetColor({ r,g,b,a });
 }
 
+const leap::graphics::ITexture* leap::SpriteRendererComponent::GetTexture() const 
+{
+	return m_Sprite.pTexture;
+}
+
 void leap::SpriteRendererComponent::OnDestroy()
 {
 	ServiceLocator::GetRenderer().RemoveSprite(&m_Sprite);

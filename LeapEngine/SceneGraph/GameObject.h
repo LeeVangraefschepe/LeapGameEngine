@@ -155,7 +155,7 @@ namespace leap
 	{
 		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
 
-		return std::find_if(begin(m_pComponents), end(m_pComponents), [](const auto& pComponent) { return dynamic_cast<T*>(pComponent.get()) != nullptr; })->get();
+		return static_cast<T*>(std::find_if(begin(m_pComponents), end(m_pComponents), [](const auto& pComponent) { return dynamic_cast<T*>(pComponent.get()) != nullptr; })->get());
 	}
 
 	template<class T>

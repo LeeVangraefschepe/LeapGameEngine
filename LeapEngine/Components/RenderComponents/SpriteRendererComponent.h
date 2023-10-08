@@ -29,6 +29,8 @@ namespace leap
 		void SetColor(float r, float g, float b);
 		void SetColor(float r, float g, float b, float a);
 
+		const graphics::ITexture* GetTexture() const;
+
 	protected:
 		virtual void OnDestroy() override;
 
