@@ -10,7 +10,7 @@
 
 namespace leap::graphics
 {
-	class Utils final
+	class MeshLoader final
 	{
 	public:
 		static bool ParseObj(const std::string& filePath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices)
