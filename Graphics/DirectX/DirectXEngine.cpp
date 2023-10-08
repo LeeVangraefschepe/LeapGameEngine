@@ -302,6 +302,9 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		pRenderer->Reload(m_pDevice, m_pDeviceContext);
 	}
 
+	// Create a new sprite renderer using new video settings
+	m_SpriteRenderer.Create(m_pDevice, m_pDeviceContext, glm::vec2{ width, height });
+
 	std::cout << "DirectXRenderer Log: Successfully reloaded DirectX engine\n";
 
 	IMGUI_CHECKVERSION();

@@ -24,7 +24,10 @@ namespace leap
 
 		void SetTexture(graphics::ITexture* pTexture);
 		void SetPivot(const glm::vec2& pivot);
+		void SetPivot(float x, float y);
 		void SetColor(const glm::vec4& color);
+		void SetColor(float r, float g, float b);
+		void SetColor(float r, float g, float b, float a);
 
 	protected:
 		virtual void OnDestroy() override;

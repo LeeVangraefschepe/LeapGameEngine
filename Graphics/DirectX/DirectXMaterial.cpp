@@ -20,8 +20,10 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 	if (!m_pTechnique->IsValid()) throw std::runtime_error{ "DirectXEngine Error: Failed to load .fx file while creating a material" };
 
 	// Save the worldviewprojection and world variable of the effect as a member variable
-	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
+	ID3DX11EffectVariable* pWorldViewProj{ m_pEffect->GetVariableByName("gWorldViewProj") };
+	if(pWorldViewProj) m_pMatWorldViewProjVariable = pWorldViewProj->AsMatrix();
+	ID3DX11EffectVariable* pWorld{ m_pEffect->GetVariableByName("gWorld") };
+	if(pWorld) m_pMatWorldVariable = pWorld->AsMatrix();
 
 	m_pInputLayout = LoadInputLayout(pDevice);
 }
