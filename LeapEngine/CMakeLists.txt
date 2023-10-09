@@ -25,9 +25,15 @@ add_library(LeapEngine
     "Components/RenderComponents/DirectionalLightComponent.cpp" 
     "GameContext/Window.h" 
     "GameContext/Window.cpp" 
-    "Components/RenderComponents/SpriteRendererComponent.h" 
-    "Components/RenderComponents/SpriteRendererComponent.cpp"
+    "Components/RenderComponents/UIComponents/Image.h" 
+    "Components/RenderComponents/UIComponents/Image.cpp"
     "Components/RenderComponents/UIComponents/CanvasComponent.h"
-    "Components/RenderComponents/UIComponents/CanvasComponent.cpp" "Components/RenderComponents/UIComponents/CanvasElement.h" "Components/RenderComponents/UIComponents/CanvasElement.cpp")
+    "Components/RenderComponents/UIComponents/CanvasComponent.cpp" 
+     
+    
+    
+    
+    "Components/RenderComponents/UIComponents/RectTransform.h"
+    "Components/RenderComponents/UIComponents/RectTransform.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

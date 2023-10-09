@@ -42,7 +42,10 @@ void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)
 		const float heightMultiplier{ static_cast<float>(m_ReferenceResolution.y) / m_ReferenceResolution.x };
 		const float height{ heightMultiplier * width };
 
-		GetTransform()->SetWorldScale(width, height, 1.0f);
+		m_CurrentScale.x = 1.0f;
+		m_CurrentScale.y = height / size.y;
+
+		OnResolutionChanged.Notify(m_CurrentScale);
 		break;
 	}
 	case MatchMode::MatchHeight:
@@ -51,7 +54,18 @@ void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)
 		const float widthMultiplier{ static_cast<float>(m_ReferenceResolution.x) / m_ReferenceResolution.y };
 		const float width{ widthMultiplier * height };
 
-		GetTransform()->SetWorldScale(width, height, 1.0f);
+		m_CurrentScale.x = width / size.x;
+		m_CurrentScale.y = 1.0f;
+
+		OnResolutionChanged.Notify(m_CurrentScale);
+		break;
+	}
+	case MatchMode::Stretch:
+	{
+		m_CurrentScale.x = 1.0f;
+		m_CurrentScale.y = 1.0f;
+
+		OnResolutionChanged.Notify(m_CurrentScale);
 		break;
 	}
 	}

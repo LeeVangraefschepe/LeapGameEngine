@@ -31,9 +31,9 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 
-#include "Components/RenderComponents/SpriteRendererComponent.h"
+#include "Components/RenderComponents/UIComponents/Image.h"
 #include "Components/RenderComponents/UIComponents/CanvasComponent.h"
-#include "Components/RenderComponents/UIComponents/CanvasElement.h"
+#include "Components/RenderComponents/UIComponents/RectTransform.h"
 
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
@@ -85,24 +85,32 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	auto canvas{ scene.CreateGameObject("Canvas") };
 	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
 	pCanvas->SetReferenceResolution({ 1920,1080 });
-	canvas->AddComponent<leap::SpriteRendererComponent>()->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchWidth);
+	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 
-	auto sprite2{ canvas->CreateChild("Sprite") };
-	leap::SpriteRendererComponent* pSpriteRenderer2{ sprite2->AddComponent<leap::SpriteRendererComponent>() };
-	pSpriteRenderer2->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 	const glm::vec2 screenSize{ leap::GameContext::GetInstance().GetWindow()->GetWindowSize() };
-	pSpriteRenderer2->GetTransform()->Translate(0.5f, 0.5f, 0.0f);
-	pSpriteRenderer2->SetPivot(1.0f, 1.0f);
-	sprite2->AddComponent<leap::CanvasElement>()->SetNativeSize();
 
-	auto sprite{ canvas->CreateChild("Sprite") };
-	leap::SpriteRendererComponent* pSpriteRenderer{ sprite->AddComponent<leap::SpriteRendererComponent>() };
-	pSpriteRenderer->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/logo.png"));
-	pSpriteRenderer->GetTransform()->Translate(0.5f, 0.5f, 0.0f);
-	pSpriteRenderer->SetColor(0.0f, 0.0f, 0.0f);
-	pSpriteRenderer->SetPivot(1.0f, 1.0f);
-	sprite->AddComponent<leap::CanvasElement>()->SetNativeSize();
+	auto fssprite{ canvas->CreateChild("Sprite") };
+	leap::RectTransform* pRT{ fssprite->AddComponent<leap::RectTransform>() };
+	leap::Image* pFS{ fssprite->AddComponent<leap::Image>() };
+	pFS->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pRT->SetSize(1920 / 2, 1080);
+	pRT->SetReferencePosition(480, 0);
+
+	auto sprite2{ fssprite->CreateChild("Sprite") };
+	leap::RectTransform* pRT2{ sprite2->AddComponent<leap::RectTransform>() };
+	leap::Image* pImage2{ sprite2->AddComponent<leap::Image>() };
+	pImage2->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pImage2->SetPivot(1.0f, 1.0f);
+	pImage2->SetNativeSize();
+	pRT2->SetLocalReferencePosition(-480, 0);
+
+	auto sprite{ sprite2->CreateChild("Sprite") };
+	leap::RectTransform* pRT3{ sprite->AddComponent<leap::RectTransform>() };
+	leap::Image* pImage{ sprite->AddComponent<leap::Image>() };
+	pImage->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pImage->SetPivot(0.0f, 0.0f);
+	pRT3->SetSize(100, 100);
+	pRT3->SetReferencePosition(0, 100);
 
 	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };

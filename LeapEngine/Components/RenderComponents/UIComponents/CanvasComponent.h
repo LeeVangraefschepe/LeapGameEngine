@@ -3,6 +3,7 @@
 #include "../../Component.h"
 
 #include <Observer.h>
+#include <Subject.h>
 
 #include <vec2.hpp>
 
@@ -14,7 +15,8 @@ namespace leap
 		enum class MatchMode
 		{
 			MatchWidth,
-			MatchHeight
+			MatchHeight,
+			Stretch
 		};
 
 		CanvasComponent() = default;
@@ -29,6 +31,9 @@ namespace leap
 		void SetMatchMode(MatchMode matchMode);
 
 		const glm::ivec2& GetReference() const { return m_ReferenceResolution; }
+		const glm::vec2& GetScale() const { return m_CurrentScale; }
+
+		Subject<glm::vec2> OnResolutionChanged{};
 
 	protected:
 		virtual void Awake() override;
@@ -41,5 +46,6 @@ namespace leap
 
 		MatchMode m_MatchMode{ MatchMode::MatchHeight };
 		glm::ivec2 m_ReferenceResolution{ 1920, 1080 };
+		glm::vec2 m_CurrentScale{ 1.0f, 1.0f };
 	};
 }
