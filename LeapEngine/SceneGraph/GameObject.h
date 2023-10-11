@@ -50,6 +50,8 @@ namespace leap
 		template <class T>
 		std::vector<T*> GetComponents() const;
 		template <class T>
+		T* GetComponentInParent() const;
+		template <class T>
 		void RemoveComponent();
 		template <class T>
 		void RemoveComponent(T* pComponent);
@@ -175,6 +177,20 @@ namespace leap
 		}
 
 		return pComponents;
+	}
+
+	template<class T>
+	inline T* GameObject::GetComponentInParent() const
+	{
+		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+
+		GameObject* pParent{ GetParent() };
+		if (pParent == nullptr) return nullptr;
+
+		T* pComponent{ pParent->GetComponent<T>() };
+		if (pComponent != nullptr) return pComponent;
+
+		return pParent->GetComponentInParent<T>();
 	}
 
 	template<class T>

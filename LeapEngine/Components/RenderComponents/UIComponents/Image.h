@@ -37,14 +37,14 @@ namespace leap
 		void SetNativeSize();
 
 		const graphics::ITexture* GetTexture() const;
+		const glm::vec2& GetPivot() const;
+		const glm::vec4& GetColor() const;
 
 	protected:
 
 	private:
 		graphics::Sprite m_Sprite{};
 		RectTransform* m_pRect{};
-
-		void InternalSetNativeSize();
 
 		bool m_SetNative{};
 	};

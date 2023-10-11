@@ -29,11 +29,12 @@ add_library(LeapEngine
     "Components/RenderComponents/UIComponents/Image.cpp"
     "Components/RenderComponents/UIComponents/CanvasComponent.h"
     "Components/RenderComponents/UIComponents/CanvasComponent.cpp" 
-     
-    
-    
-    
     "Components/RenderComponents/UIComponents/RectTransform.h"
-    "Components/RenderComponents/UIComponents/RectTransform.cpp")
+    "Components/RenderComponents/UIComponents/RectTransform.cpp"
+    "Components/RenderComponents/UIComponents/CanvasActions.h"
+    "Components/RenderComponents/UIComponents/CanvasActions.cpp" 
+    "Components/RenderComponents/UIComponents/Button.h" 
+    "Components/RenderComponents/UIComponents/Button.cpp" 
+    "Components/RenderComponents/UIComponents/ICanvasElement.h")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

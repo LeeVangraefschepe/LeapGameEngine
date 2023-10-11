@@ -15,7 +15,7 @@ namespace leap
 	{
 	public:
 		RectTransform() = default;
-		~RectTransform() = default;
+		virtual ~RectTransform() = default;
 
 		RectTransform(const RectTransform& other) = delete;
 		RectTransform(RectTransform&& other) = delete;

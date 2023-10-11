@@ -70,3 +70,13 @@ const leap::graphics::ITexture* leap::Image::GetTexture() const
 {
 	return m_Sprite.pTexture;
 }
+
+const glm::vec2& leap::Image::GetPivot() const
+{
+	return m_Sprite.vertex.pivot;
+}
+
+const glm::vec4& leap::Image::GetColor() const
+{
+	return m_Sprite.vertex.color;
+}
