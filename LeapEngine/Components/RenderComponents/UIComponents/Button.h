@@ -47,7 +47,8 @@ namespace leap
 		Image* m_pVisual{};
 		RectTransform* m_pTransform{};
 
-		bool m_IsHovering = false;
+		bool m_IsHovering{ false };
+		bool m_IsClicked{ false };
 
 		glm::vec4 m_OriginalColor{ 1.0f, 1.0f, 1.0f, 1.0f };
 		glm::vec4 m_HoverColor{ 0.8f, 0.8f, 0.8f, 1.0f };

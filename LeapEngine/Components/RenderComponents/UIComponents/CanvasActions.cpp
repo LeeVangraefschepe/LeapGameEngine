@@ -81,39 +81,16 @@ void leap::CanvasActions::OnClickStart()
 
 void leap::CanvasActions::OnClick()
 {
-	// If nothing is being clicked, stop here
 	if (m_pClickingElement == nullptr) return;
-
-	const glm::vec2 mousePos{ GetMousePosition() };
-
-	if (m_IsDirty) SortOnDepth();
-
-	// If the current element is still being clicked, send a click event
-	//	Otherwise, if the current element is not selected anymore, cancel the click
-	if (IsPosInElement(mousePos, m_pClickingElement))
-	{
-		m_pClickingElement->OnClick();
-		return;
-	}
-	else
-	{
-		m_pClickingElement = nullptr;
-	}
+	m_pClickingElement->OnClick();
 }
 
 void leap::CanvasActions::OnClickEnd()
 {
-	// If nothing is being clicked, stop here
 	if (m_pClickingElement == nullptr) return;
 
-	const glm::vec2 mousePos{ GetMousePosition() };
-
-	if (m_IsDirty) SortOnDepth();
-
-	// End the click
 	m_pClickingElement->OnClickEnd();
 	m_pClickingElement = nullptr;
-	return;
 }
 
 void leap::CanvasActions::OnMove()

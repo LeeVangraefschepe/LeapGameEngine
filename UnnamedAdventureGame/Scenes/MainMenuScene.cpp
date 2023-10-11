@@ -105,15 +105,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pImage->SetPivot(0.0f, 0.0f);
 	pRT3->SetSize(100, 100);
 	pRT3->SetReferencePosition(0, 100);
-	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click parent\n"; });
-
-	auto sprite3{ sprite->CreateChild("Sprite") };
-	leap::RectTransform* pRT4{ sprite3->AddComponent<leap::RectTransform>() };
-	leap::Image* pImage3{ sprite3->AddComponent<leap::Image>() };
-	pImage3->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/logo.png"));
-	pImage3->SetPivot(0.0f, 0.0f);
-	pRT4->SetSize(100, 100);
-	sprite3->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click child\n"; });
+	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click\n"; });
 
 	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };

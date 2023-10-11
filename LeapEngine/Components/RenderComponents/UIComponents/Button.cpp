@@ -77,11 +77,15 @@ void leap::Button::OnDestroy()
 
 void leap::Button::OnClickStart()
 {
+	m_IsClicked = true;
+
 	m_pVisual->SetColor(m_OriginalColor * m_ClickColor);
 }
 
 void leap::Button::OnClickEnd()
 {
+	m_IsClicked = false;
+
 	OnClicked.Notify(*this);
 
 	if (!m_pVisual) return;
@@ -105,5 +109,5 @@ void leap::Button::OnHoverExit()
 
 	if (!m_pVisual) return;
 
-	m_pVisual->SetColor(m_OriginalColor);
+	if(!m_IsClicked) m_pVisual->SetColor(m_OriginalColor);
 }
