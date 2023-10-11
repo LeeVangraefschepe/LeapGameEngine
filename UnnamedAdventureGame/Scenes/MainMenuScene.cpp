@@ -24,10 +24,15 @@
 
 #include <Data/CustomMesh.h>
 
-#include "Components/RenderComponents/SpriteRendererComponent.h"
+#include "Components/RenderComponents/UIComponents/Image.h"
 #include "../Components/FreeCamMovement.h"
 #include "../Components/WindowManager.h"
+#include "Components/RenderComponents/UIComponents/CanvasComponent.h"
+#include "Components/RenderComponents/UIComponents/RectTransform.h"
+#include "Components/RenderComponents/UIComponents/Button.h"
+#include "Components/RenderComponents/UIComponents/CanvasActions.h"
 
+#include <iostream>
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -70,19 +75,37 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
 
-	auto sprite{ scene.CreateGameObject("Sprite") };
-	leap::SpriteRendererComponent* pSpriteRenderer{ sprite->AddComponent<leap::SpriteRendererComponent>() };
-	pSpriteRenderer->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/logo.png"));
-	const glm::vec2 screenSize{ leap::GameContext::GetInstance().GetWindow()->GetWindowSize() };
-	pSpriteRenderer->GetTransform()->Translate(screenSize.x / 2.0f, screenSize.y / 2.0f, 1.0f);
-	pSpriteRenderer->SetColor(0.0f, 0.0f, 0.0f);
-	pSpriteRenderer->SetPivot(1.0f, 1.0f);
+	auto canvas{ scene.CreateGameObject("Canvas") };
+	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
+	pCanvas->SetReferenceResolution({ 1920,1080 });
+	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
+	canvas->AddComponent<leap::CanvasActions>();
 
-	auto sprite2{ scene.CreateGameObject("Sprite") };
-	leap::SpriteRendererComponent* pSpriteRenderer2{ sprite2->AddComponent<leap::SpriteRendererComponent>() };
-	pSpriteRenderer2->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-	pSpriteRenderer2->GetTransform()->Translate(screenSize.x / 2.0f, screenSize.y / 2.0f, 0.0f);
-	pSpriteRenderer2->SetPivot(1.0f, 1.0f);
+	const glm::vec2 screenSize{ leap::GameContext::GetInstance().GetWindow()->GetWindowSize() };
+
+	auto fssprite{ canvas->CreateChild("Sprite") };
+	leap::RectTransform* pRT{ fssprite->AddComponent<leap::RectTransform>() };
+	leap::Image* pFS{ fssprite->AddComponent<leap::Image>() };
+	pFS->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pRT->SetSize(1920.0f / 2, 1080);
+	pRT->SetReferencePosition(480, 0);
+
+	auto sprite2{ fssprite->CreateChild("Sprite") };
+	leap::RectTransform* pRT2{ sprite2->AddComponent<leap::RectTransform>() };
+	leap::Image* pImage2{ sprite2->AddComponent<leap::Image>() };
+	pImage2->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pImage2->SetPivot(1.0f, 1.0f);
+	pImage2->SetNativeSize();
+	pRT2->SetLocalReferencePosition(-480, 0);
+
+	auto sprite{ sprite2->CreateChild("Sprite") };
+	leap::RectTransform* pRT3{ sprite->AddComponent<leap::RectTransform>() };
+	leap::Image* pImage{ sprite->AddComponent<leap::Image>() };
+	pImage->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pImage->SetPivot(0.0f, 0.0f);
+	pRT3->SetSize(100, 100);
+	pRT3->SetReferencePosition(0, 100);
+	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click\n"; });
 
 	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };

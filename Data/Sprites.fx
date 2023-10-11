@@ -2,8 +2,6 @@ Texture2D gTexture;
 float4x4 gTransform;
 float2 gScreenSize;
 
-float2 gDefaultSize = float2(100.0f, 100.0f);
-
 SamplerState samPoint
 {
     Filter = MIN_MAG_MIP_POINT;
@@ -89,7 +87,7 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 	// LB----------RB
         
     float3 position = vertex[0].Position;
-    float2 size = vertex[0].Size * gDefaultSize;
+    float2 size = vertex[0].Size;
     float4 color = vertex[0].Color;
     float rotation = 0;
     float2 rotCosSin = float2(1, 0);

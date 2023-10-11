@@ -26,7 +26,8 @@ namespace leap::graphics
 		DirectXTexture& operator=(const DirectXTexture& other) = delete;
 		DirectXTexture& operator=(DirectXTexture&& other) = delete;
 
-		virtual glm::vec4 GetPixel(int x, int y) override;
+		virtual glm::vec4 GetPixel(int x, int y) const override;
+		virtual glm::ivec2 GetSize() const override;
 
 		ID3D11ShaderResourceView* GetResource() const { return m_pSRV; };
 

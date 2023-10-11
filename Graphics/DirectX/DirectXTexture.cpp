@@ -17,10 +17,17 @@ leap::graphics::DirectXTexture::~DirectXTexture()
 	if(m_pSRV) m_pSRV->Release();
 }
 
-glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/)
+glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/) const
 {
 	// TODO: Implement this function
 	throw std::runtime_error("DirectXEngine Error: GetPixel is not implemented");
+}
+
+glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
+{
+	D3D11_TEXTURE2D_DESC desc{};
+	m_pResource->GetDesc(&desc);
+	return { desc.Width, desc.Height };
 }
 
 void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, const std::string& path)
