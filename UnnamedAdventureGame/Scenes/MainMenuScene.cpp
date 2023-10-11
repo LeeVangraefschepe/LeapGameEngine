@@ -89,6 +89,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pFS->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 	pRT->SetSize(1920.0f / 2, 1080);
 	pRT->SetReferencePosition(480, 0);
+	pRT->SetDepth(2);
 
 	auto sprite2{ fssprite->CreateChild("Sprite") };
 	leap::RectTransform* pRT2{ sprite2->AddComponent<leap::RectTransform>() };
@@ -106,6 +107,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pRT3->SetSize(100, 100);
 	pRT3->SetReferencePosition(0, 100);
 	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click\n"; });
+	pRT3->SetDepth(5);
 
 	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };

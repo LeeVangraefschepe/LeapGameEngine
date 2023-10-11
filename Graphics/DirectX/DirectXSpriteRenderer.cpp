@@ -50,14 +50,12 @@ void leap::graphics::DirectXSpriteRenderer::Draw()
 	// Sort the sprites on z depth
 	std::stable_sort(begin(m_pSprites), end(m_pSprites), [](Sprite* pSprite1, Sprite* pSprite2)
 		{
-			return pSprite1->vertex.position.z > pSprite2->vertex.position.z;
+			return pSprite1->vertex.position.z < pSprite2->vertex.position.z;
 		});
 
 	// Draw sprites
-	for (auto it{ m_pSprites.rbegin() }; it < m_pSprites.rend(); ++it)
+	for (Sprite* pSprite : m_pSprites)
 	{
-		Sprite* pSprite{ *it };
-
 		if (pSprite->pTexture == nullptr) continue;
 
 		pSprite->OnDraw();
@@ -77,6 +75,11 @@ void leap::graphics::DirectXSpriteRenderer::DrawSprite(Sprite* pSprite) const
 	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
 	bd.MiscFlags = 0;
+
+	// Cache the depth value of this sprite
+	const float depth{ pSprite->vertex.position.z };
+	// Reset the z position to 0, to make sure the sprite is not rendered behind the near plane
+	pSprite->vertex.position.z = 0.0f;
 
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = &pSprite->vertex;
@@ -98,6 +101,9 @@ void leap::graphics::DirectXSpriteRenderer::DrawSprite(Sprite* pSprite) const
 		m_pMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
 		m_pDeviceContext->Draw(1, 0);
 	}
+
+	// Reset the z position to the previous depth value
+	pSprite->vertex.position.z = depth;
 
 	// Release vertex buffer
 	pVertexBuffer->Release();
