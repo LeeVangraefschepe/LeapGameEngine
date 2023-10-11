@@ -39,7 +39,7 @@ void leap::Button::SetClickColor(const glm::vec4& color)
 
 void leap::Button::SetImage(Image* pImage)
 {
-	m_pImage = pVisual;
+	m_pImage = pImage;
 }
 
 void leap::Button::Awake()
