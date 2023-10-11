@@ -30,10 +30,10 @@ namespace leap
 		size_t GetChildCount() const { return m_pChildren.size(); };
 
 		void SetName(const char* name) { m_Name = name; }
-		const std::string& GetName() const { return m_Name; };
+		const char* GetName() const { return m_Name; };
 
 		void SetTag(const char* tag) { m_Tag = tag; }
-		const std::string& GetTag() const { return m_Tag; }
+		const char* GetTag() const { return m_Tag; }
 
 		void SetActive(bool isActive);
 		bool IsActive() const;

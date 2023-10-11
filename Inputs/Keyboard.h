@@ -146,8 +146,8 @@ namespace leap::input
 
         void SetKeyBuffer(int size);
 
-        void AddCommand(const std::shared_ptr<Command>& command, InputManager::InputType type, Key key);
-        void RemoveCommand(const std::shared_ptr<Command>& command);
+        void AddCommand(Command* command, InputManager::InputType type, Key key);
+        void RemoveCommand(Command* command);
 
     private:
         friend class InputManager;
@@ -158,7 +158,7 @@ namespace leap::input
 
         GLFWwindow* m_pWindow;
 
-        using KeyBinding = std::map<Key, std::vector<std::shared_ptr<Command>>>;
+        using KeyBinding = std::map<Key, std::vector<Command*>>;
         std::map<InputManager::InputType, KeyBinding> m_keyboardCommands{};
         std::vector<Key> m_pressedKeys{};
     };
