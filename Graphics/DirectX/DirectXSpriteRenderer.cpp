@@ -48,14 +48,16 @@ void leap::graphics::DirectXSpriteRenderer::Draw()
 	m_pDeviceContext->IASetInputLayout(m_pMaterial->GetInputLayout());
 
 	// Sort the sprites on z depth
-	std::sort(begin(m_pSprites), end(m_pSprites), [](Sprite* pSprite1, Sprite* pSprite2)
+	std::stable_sort(begin(m_pSprites), end(m_pSprites), [](Sprite* pSprite1, Sprite* pSprite2)
 		{
-			return pSprite1->vertex.position.z < pSprite2->vertex.position.z;
+			return pSprite1->vertex.position.z > pSprite2->vertex.position.z;
 		});
 
 	// Draw sprites
-	for (Sprite* pSprite : m_pSprites)
+	for (auto it{ m_pSprites.rbegin() }; it < m_pSprites.rend(); ++it)
 	{
+		Sprite* pSprite{ *it };
+
 		if (pSprite->pTexture == nullptr) continue;
 
 		pSprite->OnDraw();

@@ -145,6 +145,8 @@ leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std
 
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
 {
+	if (!m_pCamera) return;
+
 	glm::mat4x3 lightTransform { transform };
 	lightTransform[3] = glm::vec3{ m_pCamera->GetInverseViewMatrix()[3] } - transform[2] * 25.0f;
 
@@ -317,8 +319,44 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 void leap::graphics::DirectXEngine::Draw()
 {
 	if (!m_IsInitialized) return;
-	if (!m_pCamera) return;
 
+	if (m_pCamera)
+	{
+		RenderCameraView();
+	}
+	else
+	{
+		SetupNonCameraView();
+	}
+
+	// Render sprites
+	m_SpriteRenderer.Draw();
+
+	// Imgui render
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	// Swap render buffers
+	m_pSwapChain->Present(0, 0);
+}
+
+void leap::graphics::DirectXEngine::SetupNonCameraView() const
+{
+	// Unbind SRV
+	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
+	//m_pDeviceContext->PSSetShaderResources(1, 1, pSRV);
+	m_pDeviceContext->PSSetShaderResources(0, 2, pSRV);
+
+	// Set render target
+	m_RenderTarget.Apply();
+
+	// Clear target views
+	constexpr glm::vec4 clearColor{};
+	m_RenderTarget.Clear(clearColor);
+}
+
+void leap::graphics::DirectXEngine::RenderCameraView() const
+{
 	// Shadow pass
 	// Unbind SRV
 	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
@@ -356,16 +394,6 @@ void leap::graphics::DirectXEngine::Draw()
 	{
 		pRenderer->Draw();
 	}
-
-	// Render sprites
-	m_SpriteRenderer.Draw();
-
-	// Imgui render
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-	// Swap render buffers
-	m_pSwapChain->Present(0, 0);
 }
 
 void leap::graphics::DirectXEngine::GuiDraw()

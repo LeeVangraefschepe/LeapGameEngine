@@ -40,11 +40,11 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
 	pDirLight->GetTransform()->SetWorldRotation(60.0f, 0.0f, 0.0f);
 
-	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
+	/*leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
 	pCameraObj->AddComponent<FreeCamMovement>();
-	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
+	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);*/
 
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));

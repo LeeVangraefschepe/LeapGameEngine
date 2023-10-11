@@ -72,6 +72,8 @@ namespace leap::graphics
 	private:
 		void Release();
 		void ReloadDirectXEngine();
+		void RenderCameraView() const;
+		void SetupNonCameraView() const;
 
 		AntiAliasing m_AntiAliasing{ AntiAliasing::X16 };
 
