@@ -32,7 +32,7 @@ namespace leap
 		void SetHoverColor(const glm::vec4& color);
 		void SetClickColor(const glm::vec4& color);
 
-		void SetVisuals(Image* pVisual);
+		void SetImage(Image* pImage);
 
 	protected:
 		virtual void Awake() override;
@@ -44,7 +44,7 @@ namespace leap
 		virtual void OnHoverExit() override;
 
 	private:
-		Image* m_pVisual{};
+		Image* m_pImage{};
 		RectTransform* m_pTransform{};
 
 		bool m_IsHovering{ false };

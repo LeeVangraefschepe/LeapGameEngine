@@ -18,13 +18,13 @@ glm::vec3 leap::Button::GetPosition()
 
 glm::vec2 leap::Button::GetPivot()
 {
-	if (!m_pVisual)
+	if (!m_pImage)
 	{
 		// If no visuals is found on this component, return a centered pivot
 		return { 0.5f, 0.5f };
 	}
 
-	return m_pVisual->GetPivot();
+	return m_pImage->GetPivot();
 }
 
 void leap::Button::SetHoverColor(const glm::vec4& color)
@@ -37,9 +37,9 @@ void leap::Button::SetClickColor(const glm::vec4& color)
 	m_ClickColor = color;
 }
 
-void leap::Button::SetVisuals(Image* pVisual)
+void leap::Button::SetImage(Image* pImage)
 {
-	m_pVisual = pVisual;
+	m_pImage = pVisual;
 }
 
 void leap::Button::Awake()
@@ -60,10 +60,10 @@ void leap::Button::Awake()
 
 	pCanvas->Add(this);
 
-	m_pVisual = GetGameObject()->GetComponent<Image>();
-	if (m_pVisual)
+	m_pImage = GetGameObject()->GetComponent<Image>();
+	if (m_pImage)
 	{
-		m_OriginalColor = m_pVisual->GetColor();
+		m_OriginalColor = m_pImage->GetColor();
 	}
 }
 
@@ -79,7 +79,7 @@ void leap::Button::OnClickStart()
 {
 	m_IsClicked = true;
 
-	m_pVisual->SetColor(m_OriginalColor * m_ClickColor);
+	m_pImage->SetColor(m_OriginalColor * m_ClickColor);
 }
 
 void leap::Button::OnClickEnd()
@@ -88,7 +88,7 @@ void leap::Button::OnClickEnd()
 
 	OnClicked.Notify(*this);
 
-	if (!m_pVisual) return;
+	if (!m_pImage) return;
 
 	if (m_IsHovering) OnHoverEnter();
 	else OnHoverExit();
@@ -98,16 +98,16 @@ void leap::Button::OnHoverEnter()
 {
 	m_IsHovering = true;
 
-	if (!m_pVisual) return;
+	if (!m_pImage) return;
 
-	m_pVisual->SetColor(m_OriginalColor * m_HoverColor);
+	m_pImage->SetColor(m_OriginalColor * m_HoverColor);
 }
 
 void leap::Button::OnHoverExit()
 {
 	m_IsHovering = false;
 
-	if (!m_pVisual) return;
+	if (!m_pImage) return;
 
-	if(!m_IsClicked) m_pVisual->SetColor(m_OriginalColor);
+	if(!m_IsClicked) m_pImage->SetColor(m_OriginalColor);
 }
