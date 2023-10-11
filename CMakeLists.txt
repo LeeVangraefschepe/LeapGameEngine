@@ -16,17 +16,10 @@ endif()
 set(DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Data")
 set(DESTINATION_COPY "${CMAKE_BINARY_DIR}/UnnamedAdventureGame/Data")
 
-# OpenGL
-find_package(OpenGL REQUIRED)
-
 # GLFW include paths
 set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
 set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/glfw3.lib")
 message("Include dir: ${GLFW_INCLUDE_DIR} with ${GLFW_LIBRARY_DIR}")
-
-# Vulkan include paths
-set(VULKAN_LIBRARY_DIR "${CMAKE_SOURCE_DIR}/3rdParty/Vulkan/Lib/vulkan-1.lib")
-set(VULKAN_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/3rdParty/Vulkan/Include")
 
 # FMOD
 set(FMOD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/include")
@@ -87,17 +80,16 @@ target_include_directories(
 	GraphicsEngine PUBLIC 
 	${GLFW_INCLUDE_DIR}
 	${GLMIncludeDir}
-	${VULKAN_INCLUDE_DIR}
 	${EngineUtilsIncludeDir}
 	${VkBootstrapIncludeDir}
 )
-target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} ${VULKAN_LIBRARY_DIR} OpenGL::GL)
+target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR})
 
 # Input Engine
 add_subdirectory(Inputs)
 message("Include dir: ${InputEngineIncludeDir}")
 target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} OpenGL::GL)
+target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR})
 
 # Audio Engine
 add_subdirectory(Audio)
@@ -130,8 +122,7 @@ target_link_libraries(
 	InputEngine
 	AudioEngine
 	NetworkingEngine
-	${GLFW_LIBRARY_DIR}
-	OpenGL::GL)
+	${GLFW_LIBRARY_DIR})
 
 # Game Project
 add_subdirectory(UnnamedAdventureGame)

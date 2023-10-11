@@ -1,6 +1,6 @@
 #include "DirectXMeshLoader.h"
 
-#include "../Utils.h"
+#include "../MeshLoader.h"
 #include "../Data/CustomMesh.h"
 
 #include <d3dx11effect.h>
@@ -58,7 +58,7 @@ leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectX
 	std::vector<Vertex> vertices{};
 	std::vector<unsigned int> indices{};
 
-	Utils::ParseObj(dataPath, vertices, indices);
+	MeshLoader::ParseObj(dataPath, vertices, indices);
 
 	return CreateMesh(vertices, indices, pDevice);
 }

@@ -5,7 +5,7 @@
 #include "DirectXMaterial.h"
 #include "DirectXMeshLoader.h"
 
-#include "../Utils.h"
+#include "../MeshLoader.h"
 
 leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 	: m_pDevice{ pDevice }
