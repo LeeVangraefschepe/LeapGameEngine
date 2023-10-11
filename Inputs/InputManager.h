@@ -34,8 +34,6 @@ namespace leap::input
         Mouse* GetMouse() const { return m_pMouse.get(); }
         Keyboard* GetKeyboard() const { return m_pKeyboard.get(); }
 
-        void RemoveCommand(const std::shared_ptr<Command>& command);
-
         InputManager(const InputManager& other) = delete;
         InputManager(InputManager&& other) = delete;
         InputManager& operator=(const InputManager& other) = delete;
