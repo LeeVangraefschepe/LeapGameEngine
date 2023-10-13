@@ -1,11 +1,10 @@
 #include "FmodAudioSystem.h"
 
 #include "../HelperObjects/ChannelData.h"
+#include "Debug.h"
 
 #include <fmod.hpp>
 #include <fmod_errors.h>
-
-#include <iostream>
 #include <vector>
 #include <sstream>
 
@@ -22,7 +21,8 @@ namespace leap::audio
             {
                 std::stringstream errorMsg{};
                 errorMsg << "FMODAudioSystem Error: " << FMOD_ErrorString(result);
-                throw std::runtime_error{ errorMsg.str() };
+
+                Debug::LogError(errorMsg.str());
             }
 
             // Initialize FMOD
@@ -31,10 +31,10 @@ namespace leap::audio
             {
                 std::stringstream errorMsg{};
                 errorMsg << "FMODAudioSystem Error: " << FMOD_ErrorString(result);
-                throw std::runtime_error{ errorMsg.str() };
+                Debug::LogError(errorMsg.str());
             }
 
-            std::cout << "FMODAudioSystem Log: FMOD is initialized\n";
+            Debug::Log("FMODAudioSystem Log: FMOD is initialized");
         }
 
         ~FmodAudioSystemPimpl()
@@ -63,7 +63,7 @@ namespace leap::audio
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                        Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
                     // Retrieve the playing state of this channel
                     pChannel->isPlaying(&isPlaying);
@@ -94,7 +94,7 @@ namespace leap::audio
 
             // Throw an error if the sound was not loaded correctly
             if (result != FMOD_OK || !sound.pSound)
-                throw std::runtime_error("FMODAudioSystem Error: No sound could be loaded with this filepath");
+                Debug::LogError("FMODAudioSystem Error: No sound could be loaded with this filepath");
 
             // Store the sound object
             m_Sounds.emplace_back(sound);
@@ -131,7 +131,7 @@ namespace leap::audio
         {
             // Throw an error if no sound exists for this id
             if (m_Sounds.size() <= id)
-                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
+                Debug::LogError("FMODAudioSystem Error: No sound found with this id");
 
             // Retrieve the sound state for this id
             FMOD_OPENSTATE soundState{};
@@ -139,7 +139,7 @@ namespace leap::audio
 
             // Throw an error if the sound was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: No sound could be found with this id");
+                Debug::LogError("FMODAudioSystem Error: No sound could be found with this id");
 
             return soundState == FMOD_OPENSTATE_READY;
         }
@@ -148,7 +148,7 @@ namespace leap::audio
         {
             // Throw an error if no sound exists for this id
             if (m_Sounds.size() <= id)
-                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
+                Debug::LogError("FMODAudioSystem Error: No sound found with this id");
 
             // Retrieve the sound with this id
             FMODSound& sound{ m_Sounds[id] };
@@ -159,7 +159,7 @@ namespace leap::audio
 
             // Throw an error if the sound was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
+                Debug::LogError("FMODAudioSystem Error: Failed to play a sound");
 
             // Apply the given volume
             pChannel->setVolume(volume);
@@ -183,21 +183,21 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Apply the given volume
             result = pChannel->setVolume(volume);
 
             // Throw an error if setting the volume failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
         }
 
         int PlaySound3D(int id, const SoundData3D& soundData)
         {
             // Throw an error if no sound exists for this id
             if (m_Sounds.size() <= id)
-                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
+                Debug::LogError("FMODAudioSystem Error: No sound found with this id");
 
             // Retrieve the sound with this id
             FMODSound& sound{ m_Sounds[id] };
@@ -208,14 +208,14 @@ namespace leap::audio
 
             // Throw an error if the sound was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
+                Debug::LogError("FMODAudioSystem Error: Failed to play a sound");
 
             // Set the roll off mode of this channel
             result = pChannel->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
 
             // Throw an error if settings the roll of mode failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
+                Debug::LogError("FMODAudioSystem Error: Failed to set roll off mode for this channel");
 
             // Retrieve the channel id
             int channel{};
@@ -239,7 +239,7 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Set the 3D attributes for this channel
             const FMOD_VECTOR position{ soundData.position.x, soundData.position.y, soundData.position.z };
@@ -247,14 +247,14 @@ namespace leap::audio
 
             // Throw an error if changing the 3D attributes failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
 
             // Set the min and max distance for this channel
             result = pChannel->set3DMinMaxDistance(soundData.minDistance, soundData.maxDistance);
 
             // Throw an error if changing the min/max attributes failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
         }
 
         void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up)
@@ -268,7 +268,7 @@ namespace leap::audio
 
             // Throw an error if changing the min/max attributes failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't set the attributes of the audio listener");
+                Debug::LogError("FMODAudioSystem Error: Can't set the attributes of the audio listener");
         }
 
         bool IsPlaying(int channel)
@@ -294,14 +294,14 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Pause this channel
             result = pChannel->setPaused(true);
 
             // Throw an error if changing the pause state failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
 
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
@@ -334,14 +334,14 @@ namespace leap::audio
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                        Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
                     // Pause this channel
                     result = pChannel->setPaused(true);
 
                     // Throw an error if changing the pause state failed
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                        Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
                 }
             }
         }
@@ -354,14 +354,14 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Pause this channel
             result = pChannel->setPaused(false);
 
             // Throw an error if changing the pause state failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
 
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
@@ -396,14 +396,14 @@ namespace leap::audio
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                        Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
                     // Pause this channel
                     result = pChannel->setPaused(false);
 
                     // Throw an error if changing the pause state failed
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
+                        Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
                 }
             }
         }
@@ -416,14 +416,14 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Mute this channel
             result = pChannel->setMute(true);
 
             // Throw an error if changing the mute state failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't mute this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't mute this channel");
 
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
@@ -456,14 +456,14 @@ namespace leap::audio
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                        Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
                     // Unmute this channel
                     result = pChannel->setMute(true);
 
                     // Throw an error if changing the mute state failed
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+                        Debug::LogError("FMODAudioSystem Error: Can't unmute this channel");
                 }
             }
         }
@@ -476,14 +476,14 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Unmute this channel
             result = pChannel->setMute(false);
 
             // Throw an error if changing the mute state failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't unmute this channel");
 
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
@@ -518,14 +518,14 @@ namespace leap::audio
 
                     // Throw an error if the channel was not found
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                        Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
                     // Unmute this channel
                     result = pChannel->setMute(false);
 
                     // Throw an error if changing the mute state failed
                     if (result != FMOD_OK)
-                        throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+                        Debug::LogError("FMODAudioSystem Error: Can't unmute this channel");
                 }
             }
         }
@@ -548,13 +548,13 @@ namespace leap::audio
 
 leap::audio::FmodAudioSystem::FmodAudioSystem()
 {
-    std::cout << "FMODAudioSystem Log: Created FMOD system\n";
+    Debug::Log("FMODAudioSystem Log: Created FMOD system");
     m_pImpl = std::make_unique<FmodAudioSystemPimpl>(m_MaxChannels);
 }
 
 leap::audio::FmodAudioSystem::~FmodAudioSystem()
 {
-    std::cout << "FMODAudioSystem Log: Destroyed FMOD system\n";
+    Debug::Log("FMODAudioSystem Log: Destroyed FMOD system");
 }
 
 int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath, bool is3DSound)

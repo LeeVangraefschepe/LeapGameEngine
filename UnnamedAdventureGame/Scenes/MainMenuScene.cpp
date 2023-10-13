@@ -32,7 +32,7 @@
 #include "Components/RenderComponents/UIComponents/Button.h"
 #include "Components/RenderComponents/UIComponents/CanvasActions.h"
 
-#include <iostream>
+#include "Debug.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -106,7 +106,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pImage->SetPivot(0.0f, 0.0f);
 	pRT3->SetSize(100, 100);
 	pRT3->SetReferencePosition(0, 100);
-	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click\n"; });
+	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { leap::Debug::Log("Button click"); });
 	pRT3->SetDepth(5);
 
 	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };

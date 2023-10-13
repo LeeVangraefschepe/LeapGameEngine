@@ -6,6 +6,8 @@
 
 #include <sstream>
 #include <vector>
+
+#include "Debug.h"
 #include "DirectXTexture.h"
 
 glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
@@ -17,7 +19,7 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 {
 	// Save the technique of the effect as a member variable
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
-	if (!m_pTechnique->IsValid()) throw std::runtime_error{ "DirectXEngine Error: Failed to load .fx file while creating a material" };
+	if (!m_pTechnique->IsValid()) Debug::Log("DirectXEngine Error: Failed to load .fx file while creating a material");
 
 	// Save the worldviewprojection and world variable of the effect as a member variable
 	ID3DX11EffectVariable* pWorldViewProj{ m_pEffect->GetVariableByName("gWorldViewProj") };
@@ -52,7 +54,7 @@ ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device
 			passDesc.IAInputSignatureSize,
 			&pInputLayout
 		) };
-	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to load input layout while creating a material" };
+	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to load input layout while creating a material");
 
 	return pInputLayout;
 }
@@ -217,13 +219,13 @@ ID3DX11Effect* leap::graphics::DirectXMaterial::LoadEffect(ID3D11Device* pDevice
 			pErrorBlob->Release();
 			pErrorBlob = nullptr;
 
-			throw std::runtime_error{ ss.str() };
+			Debug::LogError(ss.str());
 		}
 		else
 		{
 			std::stringstream ss;
 			ss << "DirectXEngine Error : EffectLoader failed to load effect file from path: " << assetFile;
-			throw std::runtime_error{ ss.str() };
+			Debug::LogError(ss.str());
 		}
 	}
 

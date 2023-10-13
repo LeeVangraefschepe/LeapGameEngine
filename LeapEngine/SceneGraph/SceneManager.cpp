@@ -1,8 +1,8 @@
 #include "SceneManager.h"
 
 #include <sstream>
-#include <stdexcept>
 
+#include "Debug.h"
 #include "Scene.h"
 
 leap::Scene* leap::SceneManager::GetActiveScene() const
@@ -35,7 +35,7 @@ void leap::SceneManager::LoadScene(const std::string& name)
 
 	std::stringstream ss{};
 	ss << "LeapEngine Error: LoadScene failed to find a scene with name: " << name;
-	throw std::runtime_error{ ss.str() };
+	Debug::LogError(ss.str());
 }
 
 void leap::SceneManager::OnFrameStart()
@@ -73,7 +73,8 @@ void leap::SceneManager::LoadInternalScene()
 {
 	if (static_cast<unsigned>(m_LoadScene) >= m_Scenes.size())
 	{
-		throw std::runtime_error("LeapEngine Error: SceneManager is loading a scene that doesn't exist");
+		Debug::LogError("LeapEngine Error: SceneManager is loading a scene that doesn't exist");
+		return;
 	}
 
 	const auto& sceneData = m_Scenes[m_LoadScene];
