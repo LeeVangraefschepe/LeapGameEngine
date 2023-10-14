@@ -1,14 +1,15 @@
 #pragma once
 
-#include "../Interfaces/AudioSystem.h"
+#include "../Interfaces/IAudioSystem.h"
 
 #include <memory>
 
 namespace leap::audio
 {
 	class FmodAudioSystemPimpl;
+	class FmodAudioClip;
 
-	class FmodAudioSystem final : public AudioSystem
+	class FmodAudioSystem final : public IAudioSystem
 	{
 	public:
 		FmodAudioSystem();
@@ -19,11 +20,11 @@ namespace leap::audio
 		FmodAudioSystem& operator=(const FmodAudioSystem& other) = delete;
 		FmodAudioSystem& operator=(FmodAudioSystem&& other) = delete;
 
-		virtual int LoadSound(const std::string& filePath, bool is3DSound = false) override;
-		virtual int LoadSoundAsync(const std::string& filePath, bool is3DSound = false) override;
+		virtual IAudioClip* LoadClip(const std::string& filePath, bool preLoad = true) override;
+		virtual int LoadSound(const std::string& filePath, bool is3dSound = false) override;
+		virtual int LoadSoundAsync(const std::string& filePath, bool is3dSound = false) override;
 		virtual bool IsValidSound(int id);
-		virtual int PlaySound2D(int id, float volume) override;
-		virtual int PlaySound3D(int id, const SoundData3D& soundData) override;
+		virtual int PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback) override;
 		virtual bool IsPlaying(int channel) override;
 		virtual void SetVolume2D(int channel, float volume) override;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) override;
@@ -36,10 +37,13 @@ namespace leap::audio
 		virtual void Unmute(int channel) override;
 		virtual void MuteAll() override;
 		virtual void UnmuteAll() override;
+		virtual void Stop(int channel) override;
 		virtual void Update() override;
 
 	private:
 		std::unique_ptr<FmodAudioSystemPimpl> m_pImpl{};
+
+		std::unordered_map<std::string, std::unique_ptr<FmodAudioClip>> m_Clips{};
 
 		const int m_MaxChannels{ 512 };
 	};

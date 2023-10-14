@@ -9,15 +9,17 @@
 
 namespace leap::audio
 {
-	class AudioSystem
+	class IAudioClip;
+
+	class IAudioSystem
 	{
 	public:
-		virtual ~AudioSystem() = default;
-		virtual int LoadSound(const std::string& filePath, bool is3DSound) = 0;
-		virtual int LoadSoundAsync(const std::string& filePath, bool is3DSound) = 0;
+		virtual ~IAudioSystem() = default;
+		virtual IAudioClip* LoadClip(const std::string& filePath, bool preLoad = true) = 0;
+		virtual int LoadSound(const std::string& filePath, bool is3dSound) = 0;
+		virtual int LoadSoundAsync(const std::string& filePath, bool is3dSound) = 0;
 		virtual bool IsValidSound(int id) = 0;
-		virtual int PlaySound2D(int id, float volume) = 0;
-		virtual int PlaySound3D(int id, const SoundData3D& soundData) = 0;
+		virtual int PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback) = 0;
 		virtual bool IsPlaying(int channel) = 0;
 		virtual void SetVolume2D(int channel, float volume) = 0;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) = 0;
@@ -30,19 +32,20 @@ namespace leap::audio
 		virtual void Unmute(int channel) = 0;
 		virtual void MuteAll() = 0;
 		virtual void UnmuteAll() = 0;
+		virtual void Stop(int channel) = 0;
 		virtual void Update() = 0;
 	};
 
-	class DefaultAudioSystem final : public AudioSystem
+	class DefaultAudioSystem final : public IAudioSystem
 	{
 	public:
 		DefaultAudioSystem() = default;
 		virtual ~DefaultAudioSystem() = default;
+		virtual IAudioClip* LoadClip(const std::string&, bool) { return nullptr; }
 		virtual int LoadSound(const std::string&, bool) { return -1; };
 		virtual int LoadSoundAsync(const std::string&, bool) { return -1; };
 		virtual bool IsValidSound(int) { return false; }
-		virtual int PlaySound2D(int, float) { return -1; }
-		virtual int PlaySound3D(int, const SoundData3D&) { return -1; }
+		virtual int PlaySound(IAudioClip*, bool, const std::function<void()>&) { return -1; }
 		virtual bool IsPlaying(int) { return false; }
 		virtual void SetVolume2D(int, float){};
 		virtual void UpdateSound3D(int, const SoundData3D&){};
@@ -55,6 +58,7 @@ namespace leap::audio
 		virtual void Unmute(int){};
 		virtual void MuteAll(){};
 		virtual void UnmuteAll(){};
+		virtual void Stop(int){};
 		virtual void Update(){};
 	};
 }

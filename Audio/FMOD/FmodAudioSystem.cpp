@@ -1,6 +1,7 @@
 #include "FmodAudioSystem.h"
 
 #include "../HelperObjects/ChannelData.h"
+#include "FmodAudioClip.h"
 
 #include <fmod.hpp>
 #include <fmod_errors.h>
@@ -144,6 +145,46 @@ namespace leap::audio
             return soundState == FMOD_OPENSTATE_READY;
         }
 
+        int PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback)
+        {
+            const int id{ is3dSound ? pClip->Get3DSound() : pClip->Get2DSound() };
+
+            // Throw an error if no sound exists for this id
+            if (m_Sounds.size() <= id)
+                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
+
+            // Retrieve the sound with this id
+            FMODSound& sound{ m_Sounds[id] };
+
+            // Play the sound
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
+
+            // Throw an error if the sound was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
+
+            if (is3dSound)
+            {
+                // Set the roll off mode of this channel
+                result = pChannel->setMode(FMOD_3D_LINEARROLLOFF);
+
+                // Throw an error if settings the roll of mode failed
+                if (result != FMOD_OK)
+                    throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
+            }
+
+            // Retrieve the channel id
+            int channel{};
+            pChannel->getIndex(&channel);
+
+            // Insert the new channel to the sound
+            sound.channels.emplace_back(ChannelData{ channel, false, false, stopCallback });
+
+            // Return the current playing channel
+            return channel;
+        }
+
         int PlaySound2D(int id, float volume)
         {
             // Throw an error if no sound exists for this id
@@ -243,7 +284,8 @@ namespace leap::audio
 
             // Set the 3D attributes for this channel
             const FMOD_VECTOR position{ soundData.position.x, soundData.position.y, soundData.position.z };
-            result = pChannel->set3DAttributes(&position, nullptr);
+            const FMOD_VECTOR velocity{};
+            result = pChannel->set3DAttributes(&position, &velocity);
 
             // Throw an error if changing the 3D attributes failed
             if (result != FMOD_OK)
@@ -530,6 +572,39 @@ namespace leap::audio
             }
         }
 
+        void Stop(int channel)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Stop this channel
+            result = pChannel->stop();
+
+            // Throw an error if stopping failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+
+            // Find the sound that is using this channel
+            auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
+                {
+                    return std::find_if(begin(sound.channels), end(sound.channels),[channel](const auto& channelData)
+                        {
+                            return channelData.channelId == channel;
+                        }) != end(sound.channels);
+                }) };
+
+            // Remove the channel from the sound that is playing
+            soundIt->channels.erase(std::remove_if(begin(soundIt->channels), end(soundIt->channels), [channel](const auto& channelData)
+                {
+                    return channelData.channelId == channel;
+                }));
+        }
+
     private:
         struct FMODSound
         {
@@ -557,14 +632,26 @@ leap::audio::FmodAudioSystem::~FmodAudioSystem()
     std::cout << "FMODAudioSystem Log: Destroyed FMOD system\n";
 }
 
-int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath, bool is3DSound)
+leap::audio::IAudioClip* leap::audio::FmodAudioSystem::LoadClip(const std::string& filePath, bool preLoad)
 {
-    return m_pImpl->LoadSound(filePath, is3DSound);
+    if (m_Clips.contains(filePath)) return m_Clips[filePath].get();
+
+    auto pClip{ std::make_unique<FmodAudioClip>(this, filePath, preLoad) };
+    auto pClipRaw{ pClip.get() };
+
+    m_Clips[filePath] = std::move(pClip);
+
+    return pClipRaw;
 }
 
-int leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath, bool is3DSound)
+int leap::audio::FmodAudioSystem::LoadSound(const std::string& filePath, bool is3dSound)
 {
-    return m_pImpl->LoadSoundAsync(filePath, is3DSound);
+    return m_pImpl->LoadSound(filePath, is3dSound);
+}
+
+int leap::audio::FmodAudioSystem::LoadSoundAsync(const std::string& filePath, bool is3dSound)
+{
+    return m_pImpl->LoadSoundAsync(filePath, is3dSound);
 }
 
 bool leap::audio::FmodAudioSystem::IsValidSound(int id)
@@ -572,14 +659,9 @@ bool leap::audio::FmodAudioSystem::IsValidSound(int id)
     return m_pImpl->IsValidSound(id);
 }
 
-int leap::audio::FmodAudioSystem::PlaySound2D(int id, float volume)
+int leap::audio::FmodAudioSystem::PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback)
 {
-    return m_pImpl->PlaySound2D(id, volume);
-}
-
-int leap::audio::FmodAudioSystem::PlaySound3D(int id, const SoundData3D& soundData)
-{
-    return m_pImpl->PlaySound3D(id, soundData);
+    return m_pImpl->PlaySound(pClip, is3dSound, stopCallback);
 }
 
 bool leap::audio::FmodAudioSystem::IsPlaying(int channel)
@@ -640,6 +722,11 @@ void leap::audio::FmodAudioSystem::MuteAll()
 void leap::audio::FmodAudioSystem::UnmuteAll()
 {
     m_pImpl->UnmuteAll();
+}
+
+void leap::audio::FmodAudioSystem::Stop(int channel)
+{
+    m_pImpl->Stop(channel);
 }
 
 void leap::audio::FmodAudioSystem::Update()
