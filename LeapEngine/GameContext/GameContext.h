@@ -1,7 +1,5 @@
 #pragma once
 #include "Singleton.h"
-#include "Timer.h"
-#include "Window.h"
 #include <memory>
 
 class GLFWwindow;
@@ -9,10 +7,14 @@ class GLFWwindow;
 namespace leap
 {
 	class LeapEngine;
+	class Timer;
+	class Window;
+	class ImGuiLogger;
+	class ConsoleLogger;
 	class GameContext final : public Singleton<GameContext>
 	{
 	public:
-		~GameContext();
+		virtual ~GameContext();
 		GameContext(const GameContext& other) = delete;
 		GameContext(GameContext&& other) = delete;
 		GameContext& operator=(const GameContext& other) = delete;
@@ -20,16 +22,21 @@ namespace leap
 
 		Timer* GetTimer() const { return m_pTimer.get(); }
 		Window* GetWindow() const { return m_pWindow.get(); }
+		ImGuiLogger* GetImGuiLogger() const { return m_pImguiLogger.get(); }
+		ConsoleLogger* GetConsoleLogger() const { return m_pConsoleLogger.get(); }
 
 	private:
 		friend Singleton;
 		friend LeapEngine;
-		GameContext() = default;
+		GameContext();
 
 		void Update();
+		void OnGUI();
 		void CreateWindowWrapper(GLFWwindow* window);
 
-		std::unique_ptr<Timer> m_pTimer = std::make_unique<Timer>();
+		std::unique_ptr<Timer> m_pTimer;
 		std::unique_ptr<Window> m_pWindow;
+		std::unique_ptr<ImGuiLogger> m_pImguiLogger;
+		std::unique_ptr<ConsoleLogger> m_pConsoleLogger;
 	};
 }

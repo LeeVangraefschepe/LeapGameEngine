@@ -10,6 +10,7 @@
 #include "Interfaces/IRenderer.h"
 
 #include "GameContext/GameContext.h"
+#include "GameContext/Window.h"
 
 #include <Components/RenderComponents/MeshRenderer.h>
 #include "../Components/Transformator.h"

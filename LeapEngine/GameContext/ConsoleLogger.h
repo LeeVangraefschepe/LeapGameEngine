@@ -1,44 +1,24 @@
 #pragma once
-#include <string>
-#include <source_location>
-#include "Subject.h"
-
+#include "Debug.h"
 namespace leap
 {
-	class Debug final
+	class ConsoleLogger final : Observer<Debug::LogInfo>
 	{
 	public:
-		Debug() = delete;
+		ConsoleLogger();
+		virtual ~ConsoleLogger();
+		ConsoleLogger(const ConsoleLogger& other) = delete;
+		ConsoleLogger(ConsoleLogger&& other) = delete;
+		ConsoleLogger& operator=(const ConsoleLogger& other) = delete;
+		ConsoleLogger& operator=(ConsoleLogger&& other) = delete;
 
-		enum class Type
-		{
-			Message,
-			Warning,
-			Error
-		};
-		struct LogInfo
-		{
-			const char* Message;
-			const char* Time;
-			Type Type;
-			std::source_location Location;
-		};
-
-		static void Log(const std::string& message, const std::source_location& location = std::source_location::current()) { Log(message.c_str(), location); }
-		static void LogWarning(const std::string& message, const std::source_location& location = std::source_location::current()) { LogWarning(message.c_str(), location); }
-		static void LogError(const std::string& message, const std::source_location& location = std::source_location::current()) { LogError(message.c_str(), location); }
-
-		static void Log(const char* message, const std::source_location& location = std::source_location::current());
-		static void LogWarning(const char* message, const std::source_location& location = std::source_location::current());
-		static void LogError(const char* message, const std::source_location& location = std::source_location::current());
-
-		static void SetThrowingOnError(bool enabled);
-
-		inline static Subject<LogInfo> OnEvent{};
+		void SetEnabled(bool enable);
 
 	private:
-		static std::string GetTime();
-		static inline bool m_IsThrowingOnError{true};
+		friend class GameContext;
+
+		void Notify(const Debug::LogInfo& data) override;
+		bool m_Enabled{ true };
 
 #pragma region Color codes
 		inline static const char* RESET = "\033[0m";         /* Default */

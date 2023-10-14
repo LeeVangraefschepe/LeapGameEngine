@@ -5,6 +5,7 @@
 #include "Keyboard.h"
 #include "Data/RenderData.h"
 #include "GameContext/GameContext.h"
+#include "GameContext/Window.h"
 #include "Interfaces/IRenderer.h"
 #include "ServiceLocator/ServiceLocator.h"
 

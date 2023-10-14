@@ -11,6 +11,7 @@
 #include <glfw3.h>
 
 #include "GameContext/GameContext.h"
+#include "GameContext/Timer.h"
 #include "SceneGraph/SceneManager.h"
 
 leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
@@ -102,6 +103,7 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         m_pRenderer->GuiDraw();
         sceneManager.OnGUI();
+        gameContext.OnGUI();
 
         m_pRenderer->Draw();
         glfwSwapBuffers(m_pWindow);

@@ -1,43 +1,27 @@
 #include "Debug.h"
-#include <iostream>
 #include <ctime>
 #include <stdexcept>
-#include <windows.h>
-
-bool leap::Debug::m_IsFileLogging { false };
-bool leap::Debug::m_IsThrowingOnError { true };
 
 void leap::Debug::Log(const char* message, const std::source_location& location)
 {
 	const auto time = GetTime();
-	std::cout << BOLDWHITE << time << ' ' << message << '\n';
-    PrintCallStack(location);
-    std::cout << RESET << '\n';
+    OnEvent.Notify(LogInfo{ message, GetTime().c_str(), Type::Message, location });
 }
 
 void leap::Debug::LogWarning(const char* message, const std::source_location& location)
 {
     const auto time = GetTime();
-    std::cout << BOLDYELLOW << time << ' ' << message << '\n';
-    PrintCallStack(location);
-    std::cout << RESET << '\n';
+    OnEvent.Notify(LogInfo{ message, GetTime().c_str(), Type::Warning, location });
 }
 
 void leap::Debug::LogError(const char* message, const std::source_location& location)
 {
     const auto time = GetTime();
-    std::cout << BOLDRED << time << ' ' << message << '\n';
-    PrintCallStack(location);
-    std::cout << RESET << '\n';
+    OnEvent.Notify(LogInfo{ message, GetTime().c_str(), Type::Error, location });
 
     if (!m_IsThrowingOnError) return;
 
     throw std::runtime_error{ message };
-}
-
-void leap::Debug::SetFileLogger(bool enabled)
-{
-	m_IsFileLogging = enabled;
 }
 
 void leap::Debug::SetThrowingOnError(bool enabled)
@@ -55,9 +39,4 @@ std::string leap::Debug::GetTime()
     strftime(timeString, sizeof(timeString), "[%H:%M:%S]", &timeinfo);
 
     return std::string{timeString};
-}
-
-void leap::Debug::PrintCallStack(const std::source_location& location)
-{
-    std::cout << "** " << location.file_name() << " line " << location.line() << ":" << location.column() << '\n';
 }
