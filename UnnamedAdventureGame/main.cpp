@@ -7,8 +7,8 @@
 
 int main()
 {
-	leap::GameContext::GetInstance().GetImGuiLogger()->SetEnabled(false);
-	leap::GameContext::GetInstance().GetConsoleLogger()->SetEnabled(true);
+	leap::GameContext::GetInstance().GetImGuiLogger()->SetEnabled(true);
+	leap::GameContext::GetInstance().GetConsoleLogger()->SetEnabled(false);
 
 	leap::LeapEngine engine{1280, 720, "Leap engine"};
 	leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);

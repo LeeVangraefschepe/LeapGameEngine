@@ -1,5 +1,6 @@
 #include "ImGuiLogger.h"
 #include "ImGui/imgui.h"
+#include <sstream>
 
 leap::ImGuiLogger::ImGuiLogger()
 {
@@ -73,10 +74,13 @@ void leap::ImGuiLogger::OnGUI()
         ImGui::EndTabBar();
     }
 
-
-    for (const auto& message : m_Logs[static_cast<int>(m_ActiveType)])
+    for (const auto& data : m_Logs[static_cast<int>(m_ActiveType)])
     {
-        ImGui::Text(message.Message);
+        std::stringstream ss{};
+        ss << data.Time << ' ' << data.Message << '\n';
+        ss << "** " << data.Location.file_name() << " line " << data.Location.line() << ":" << data.Location.column() << '\n';
+        ImGui::Text(ss.str().c_str());
+        ImGui::Spacing();
     }
 
     // End the main window
@@ -85,5 +89,10 @@ void leap::ImGuiLogger::OnGUI()
 
 void leap::ImGuiLogger::Notify(const Debug::LogInfo& message)
 {
-    m_Logs[static_cast<int>(message.Type)].push_back(message);
+    LogInfo log{};
+    log.Message = std::string{ message.Message };
+    log.Time = std::string{ message.Time };
+    log.Location = message.Location;
+
+    m_Logs[static_cast<int>(message.Type)].push_back(log);
 }
