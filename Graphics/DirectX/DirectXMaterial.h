@@ -7,14 +7,13 @@
 #include <functional>
 #include <memory>
 
-#include <d3dx11effect.h>
-
 struct ID3D11InputLayout;
 struct ID3D11Device;
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
 struct ID3DX11EffectMatrixVariable;
 struct ID3D11ShaderResourceView;
+struct D3D11_INPUT_ELEMENT_DESC;
 
 namespace leap::graphics
 {
