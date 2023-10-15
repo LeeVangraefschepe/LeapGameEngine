@@ -24,9 +24,10 @@ void leap::AudioSource::Play()
 	{
 		Update2DVolume();
 	}
+	UpdateLoopCount();
 }
 
-void leap::AudioSource::Stop()
+void leap::AudioSource::Stop() const
 {
 	ServiceLocator::GetAudio().Stop(m_Channel);
 }
@@ -38,16 +39,44 @@ void leap::AudioSource::Set3DSound(bool is3DSound)
 
 void leap::AudioSource::SetVolume(float volume)
 {
-	m_Volume = volume;
+	m_MaxVolume = volume;
 
-	if (m_Channel < 0) return;
-
-	Update2DVolume();
+	if (IsPlaying()) Update2DVolume();
 }
 
 void leap::AudioSource::SetPlayOnAwake(bool playOnAwake)
 {
 	m_PlayOnAwake = playOnAwake;
+}
+
+void leap::AudioSource::Set3DDistances(float min, float max)
+{
+	m_MinDistance = min;
+	m_MinDistance = max;
+}
+
+void leap::AudioSource::Set3DVolume(float min, float max)
+{
+	m_MinVolume = min;
+	m_MaxVolume = max;
+}
+
+void leap::AudioSource::Set3DData(float minDistance, float minVolume, float maxDistance, float maxVolume)
+{
+	Set3DDistances(minDistance, maxDistance);
+	Set3DVolume(minVolume, maxVolume);
+}
+
+void leap::AudioSource::SetLooping(bool shouldLoop)
+{
+	m_ShouldLoop = shouldLoop;
+
+	if (IsPlaying()) UpdateLoopCount();
+}
+
+bool leap::AudioSource::IsPlaying() const
+{
+	return m_Channel >= 0;
 }
 
 void leap::AudioSource::Awake()
@@ -57,23 +86,40 @@ void leap::AudioSource::Awake()
 
 void leap::AudioSource::Update()
 {
-	if (m_Channel < 0) return;
-	if (!m_Is3DSound) return;
+	// Only update if there is a 3D sound playing
+	if (!IsPlaying() || !m_Is3DSound) return;
 
 	Update3DSound();
 }
 
+void leap::AudioSource::OnDestroy()
+{
+	if (!IsPlaying()) return;
+
+	Stop();
+	m_Channel = -1;
+}
+
 void leap::AudioSource::Update2DVolume() const
 {
-	ServiceLocator::GetAudio().SetVolume2D(m_Channel, m_Volume);
+	ServiceLocator::GetAudio().SetVolume2D(m_Channel, m_MaxVolume);
 }
 
 void leap::AudioSource::Update3DSound() const
 {
 	audio::SoundData3D data
 	{
-		GetTransform()->GetWorldPosition()
+		GetTransform()->GetWorldPosition(),
+		m_MinDistance,
+		m_MaxDistance,
+		m_MinVolume,
+		m_MaxVolume
 	};
 
 	ServiceLocator::GetAudio().UpdateSound3D(m_Channel, data);
+}
+
+void leap::AudioSource::UpdateLoopCount() const
+{
+	ServiceLocator::GetAudio().SetLooping(m_Channel, m_ShouldLoop);
 }

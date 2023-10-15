@@ -24,6 +24,7 @@ namespace leap::audio
 		virtual void SetVolume2D(int channel, float volume) = 0;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) = 0;
 		virtual void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up) = 0;
+		virtual void SetLooping(int channel, bool shouldLoop) = 0;
 		virtual void Pause(int channel) = 0;
 		virtual void Resume(int channel) = 0;
 		virtual void PauseAll() = 0;
@@ -50,6 +51,7 @@ namespace leap::audio
 		virtual void SetVolume2D(int, float){};
 		virtual void UpdateSound3D(int, const SoundData3D&){};
 		virtual void UpdateListener3D(const glm::vec3&, const glm::vec3&, const glm::vec3&, const glm::vec3&){};
+		virtual void SetLooping(int, bool){};
 		virtual void Pause(int){};
 		virtual void Resume(int){};
 		virtual void PauseAll(){};

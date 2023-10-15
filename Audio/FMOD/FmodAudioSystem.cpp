@@ -88,7 +88,7 @@ namespace leap::audio
             FMODSound sound{ filePath, static_cast<int>(m_Sounds.size()) };
 
             // Choose the correct sound mode
-            const FMOD_MODE soundMode{ static_cast<FMOD_MODE>(is3DSound ? FMOD_3D : FMOD_DEFAULT) };
+            const FMOD_MODE soundMode{ static_cast<FMOD_MODE>((is3DSound ? FMOD_3D : FMOD_DEFAULT) | FMOD_LOOP_NORMAL) };
             
             // Create the FMOD sound in sync
             const FMOD_RESULT result{ m_pSystem->createSound(filePath.c_str(), soundMode, nullptr, &sound.pSound) };
@@ -113,7 +113,7 @@ namespace leap::audio
             FMODSound sound{ filePath, static_cast<int>(m_Sounds.size()) };
 
             // Choose the correct sound mode
-            const FMOD_MODE soundMode{ static_cast<FMOD_MODE>(is3DSound ? FMOD_3D : FMOD_DEFAULT) };
+            const FMOD_MODE soundMode{ static_cast<FMOD_MODE>((is3DSound ? FMOD_3D : FMOD_DEFAULT) | FMOD_LOOP_NORMAL) };
 
             // Create the FMOD sound in sync
             m_pSystem->createSound(filePath.c_str(), FMOD_NONBLOCKING | soundMode, nullptr, &sound.pSound);
@@ -326,6 +326,24 @@ namespace leap::audio
 
             // If a sound is found, this channel is playing
             return soundIt != end(m_Sounds);
+        }
+
+        void SetLooping(int channel, bool shouldLoop)
+        {
+            // Retrieve the current channel
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->getChannel(channel, &pChannel) };
+
+            // Throw an error if the channel was not found
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+
+            // Set the loop count for this channel (-1 is infinite looping, 0 is one shot)
+            result = pChannel->setLoopCount(shouldLoop ? -1 : 0);
+
+            // Throw an error if changing the loop count failed
+            if (result != FMOD_OK)
+                throw std::runtime_error("FMODAudioSystem Error: Can't change the loop count on this channel");
         }
 
         void Pause(int channel)
@@ -687,6 +705,11 @@ void leap::audio::FmodAudioSystem::UpdateListener3D(const glm::vec3& position, c
 void leap::audio::FmodAudioSystem::Pause(int channel)
 {
     m_pImpl->Pause(channel);
+}
+
+void leap::audio::FmodAudioSystem::SetLooping(int channel, bool shouldLoop)
+{
+    m_pImpl->SetLooping(channel, shouldLoop);
 }
 
 void leap::audio::FmodAudioSystem::Resume(int channel)

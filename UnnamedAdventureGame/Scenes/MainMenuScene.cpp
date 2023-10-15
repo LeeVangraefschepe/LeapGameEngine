@@ -101,6 +101,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pAudio->SetClip(pClip);
 	pAudio->Set3DSound(true);
 	pAudio->SetPlayOnAwake(true);
+	pAudio->SetLooping(true);
 
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
