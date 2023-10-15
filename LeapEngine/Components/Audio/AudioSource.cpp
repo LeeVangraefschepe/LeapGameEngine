@@ -13,6 +13,11 @@ void leap::AudioSource::SetClip(audio::IAudioClip* pClip)
 
 void leap::AudioSource::Play()
 {
+	if (IsPlaying())
+	{
+		Stop();
+	}
+
 	if (!m_pClip) return;
 
 	ServiceLocator::GetAudio().PlaySound(&m_Channel, m_pClip, m_Is3DSound, 
@@ -28,12 +33,44 @@ void leap::AudioSource::Play()
 				Update2DVolume();
 			}
 			UpdateLoopCount();
+			UpdatePauseState();
+			UpdateMuteState();
 		});
 }
 
-void leap::AudioSource::Stop() const
+void leap::AudioSource::Stop()
 {
+	if (!IsPlaying()) return;
 	ServiceLocator::GetAudio().Stop(m_Channel);
+	m_Channel = -1;
+}
+
+void leap::AudioSource::Pause()
+{
+	m_IsPaused = true;
+
+	if(IsPlaying()) UpdatePauseState();
+}
+
+void leap::AudioSource::Resume()
+{
+	m_IsPaused = false;
+
+	if (IsPlaying()) UpdatePauseState();
+}
+
+void leap::AudioSource::Mute() 
+{
+	m_IsMuted = true;
+
+	if (IsPlaying()) UpdateMuteState();
+}
+
+void leap::AudioSource::Unmute()
+{
+	m_IsMuted = false;
+
+	if (IsPlaying()) UpdateMuteState();
 }
 
 void leap::AudioSource::Set3DSound(bool is3DSound)
@@ -126,4 +163,28 @@ void leap::AudioSource::Update3DSound() const
 void leap::AudioSource::UpdateLoopCount() const
 {
 	ServiceLocator::GetAudio().SetLooping(m_Channel, m_ShouldLoop);
+}
+
+void leap::AudioSource::UpdatePauseState() const
+{
+	if (m_IsPaused)
+	{
+		ServiceLocator::GetAudio().Pause(m_Channel);
+	}
+	else
+	{
+		ServiceLocator::GetAudio().Resume(m_Channel);
+	}
+}
+
+void leap::AudioSource::UpdateMuteState() const
+{
+	if (m_IsMuted)
+	{
+		ServiceLocator::GetAudio().Mute(m_Channel);
+	}
+	else
+	{
+		ServiceLocator::GetAudio().Unmute(m_Channel);
+	}
 }

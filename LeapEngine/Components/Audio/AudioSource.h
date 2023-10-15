@@ -23,7 +23,11 @@ namespace leap
 		AudioSource& operator=(AudioSource&& other) = delete;
 
 		void Play();
-		void Stop() const;
+		void Stop();
+		void Pause();
+		void Resume();
+		void Mute();
+		void Unmute();
 
 		void SetClip(audio::IAudioClip* clipPath);
 		void Set3DSound(bool is3DSound);
@@ -45,6 +49,8 @@ namespace leap
 		void Update2DVolume() const;
 		void Update3DSound() const;
 		void UpdateLoopCount() const;
+		void UpdatePauseState() const;
+		void UpdateMuteState() const;
 
 		// General audio data
 		audio::IAudioClip* m_pClip{};
@@ -61,5 +67,7 @@ namespace leap
 
 		// Runtime data
 		int m_Channel{ -1 };
+		bool m_IsPaused{};
+		bool m_IsMuted{};
 	};
 }

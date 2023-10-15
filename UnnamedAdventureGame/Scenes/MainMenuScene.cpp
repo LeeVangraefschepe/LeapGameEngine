@@ -39,6 +39,7 @@
 #include <Components/Audio/AudioListener.h>
 
 #include <iostream>
+#include "../Components/AudioTester.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -105,6 +106,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pAudio->Set3DSound(true);
 	pAudio->SetPlayOnAwake(true);
 	pAudio->SetLooping(true);
+	bunnyMesh->AddComponent<AudioTester>();
 
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();

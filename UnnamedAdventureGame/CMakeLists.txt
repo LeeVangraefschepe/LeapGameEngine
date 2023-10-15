@@ -1,6 +1,6 @@
 # Game cmake
 
-add_executable(UnnamedAdventureGame main.cpp "Scenes/MainMenuScene.cpp" "Components/Transformator.h" "Components/Transformator.cpp" "Components/InfoUI.cpp" "Components/InfoUI.h" "Components/FreeCamMovement.h" "Components/FreeCamMovement.cpp" "Components/WindowManager.cpp" "Components/WindowManager.h")
+add_executable(UnnamedAdventureGame main.cpp "Scenes/MainMenuScene.cpp" "Components/Transformator.h" "Components/Transformator.cpp" "Components/InfoUI.cpp" "Components/InfoUI.h" "Components/FreeCamMovement.h" "Components/FreeCamMovement.cpp" "Components/WindowManager.cpp" "Components/WindowManager.h" "Components/AudioTester.h" "Components/AudioTester.cpp")
 
 # Copies used for .exe
 add_custom_command(TARGET UnnamedAdventureGame PRE_LINK
