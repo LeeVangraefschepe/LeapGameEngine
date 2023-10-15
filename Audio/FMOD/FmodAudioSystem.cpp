@@ -46,6 +46,10 @@ namespace leap::audio
 
         void Update()
         {
+            // Try to play queued sounds and remove them from the queue if they succeed
+            const auto removeIt{ std::remove_if(begin(m_SoundsToPlay), end(m_SoundsToPlay), [&](const QueuedSound& soundToPlay) { return TryPlaySound(soundToPlay); }) };
+            if(removeIt != end(m_SoundsToPlay)) m_SoundsToPlay.erase(removeIt);
+
             // Update the internal audio system
             m_pSystem->update();
 
@@ -145,7 +149,7 @@ namespace leap::audio
             return soundState == FMOD_OPENSTATE_READY;
         }
 
-        int PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback)
+        void PlaySound(int* pChannelIdx, IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback, const std::function<void()>& startCallback)
         {
             const int id{ is3dSound ? pClip->Get3DSound() : pClip->Get2DSound() };
 
@@ -153,36 +157,10 @@ namespace leap::audio
             if (m_Sounds.size() <= id)
                 throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
 
-            // Retrieve the sound with this id
-            FMODSound& sound{ m_Sounds[id] };
+            const QueuedSound queuedSound{ id, is3dSound, stopCallback, startCallback, pChannelIdx };
+            const bool isPlaying{ TryPlaySound(queuedSound) };
 
-            // Play the sound
-            FMOD::Channel* pChannel{};
-            FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
-
-            // Throw an error if the sound was not found
-            if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
-
-            if (is3dSound)
-            {
-                // Set the roll off mode of this channel
-                result = pChannel->setMode(FMOD_3D_LINEARROLLOFF);
-
-                // Throw an error if settings the roll of mode failed
-                if (result != FMOD_OK)
-                    throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
-            }
-
-            // Retrieve the channel id
-            int channel{};
-            pChannel->getIndex(&channel);
-
-            // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, false, stopCallback });
-
-            // Return the current playing channel
-            return channel;
+            if (!isPlaying) m_SoundsToPlay.emplace_back(queuedSound);
         }
 
         int PlaySound2D(int id, float volume)
@@ -624,7 +602,7 @@ namespace leap::audio
         }
 
     private:
-        struct FMODSound
+        struct FMODSound final
         {
             FMODSound(const std::string& _name, int _id) : name{ _name }, id{ _id } {}
 
@@ -634,8 +612,64 @@ namespace leap::audio
             std::vector<ChannelData> channels{};
         };
 
+        struct QueuedSound final
+        {
+            int id{};
+            bool is3dSound{};
+            std::function<void()> stopCallback{};
+            std::function<void()> startCallback{};
+            int* pChannelIdx{};
+        };
+
+        bool TryPlaySound(const QueuedSound& queuedSound)
+        {
+            // Retrieve the sound with this id
+            FMODSound& sound{ m_Sounds[queuedSound.id] };
+
+            // Play the sound
+            FMOD::Channel* pChannel{};
+            FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
+
+            // Throw an error if the sound was not found
+            if (result != FMOD_OK)
+            {
+                if (result == FMOD_ERR_NOTREADY)
+                {
+                    *queuedSound.pChannelIdx = -1;
+                    return false;
+                }
+                else
+                    throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
+            }
+
+            if (queuedSound.is3dSound)
+            {
+                // Set the roll off mode of this channel
+                result = pChannel->setMode(FMOD_3D_LINEARROLLOFF);
+
+                // Throw an error if settings the roll of mode failed
+                if (result != FMOD_OK)
+                    throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
+            }
+
+            // Retrieve the channel id
+            int channel{};
+            pChannel->getIndex(&channel);
+
+            // Insert the new channel to the sound
+            sound.channels.emplace_back(ChannelData{ channel, false, false, queuedSound.stopCallback });
+
+            // Set the current playing channel
+            *queuedSound.pChannelIdx = channel;
+
+            queuedSound.startCallback();
+
+            return true;
+        }
+
         FMOD::System* m_pSystem{};
         std::vector<FMODSound> m_Sounds{};
+        std::vector<QueuedSound> m_SoundsToPlay{};
     };
 }
 
@@ -677,9 +711,9 @@ bool leap::audio::FmodAudioSystem::IsValidSound(int id)
     return m_pImpl->IsValidSound(id);
 }
 
-int leap::audio::FmodAudioSystem::PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback)
+void leap::audio::FmodAudioSystem::PlaySound(int* pChannelIdx, IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback, const std::function<void()>& startCallback)
 {
-    return m_pImpl->PlaySound(pClip, is3dSound, stopCallback);
+    m_pImpl->PlaySound(pChannelIdx, pClip, is3dSound, stopCallback, startCallback);
 }
 
 bool leap::audio::FmodAudioSystem::IsPlaying(int channel)

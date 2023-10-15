@@ -24,7 +24,7 @@ namespace leap::audio
 		virtual int LoadSound(const std::string& filePath, bool is3dSound = false) override;
 		virtual int LoadSoundAsync(const std::string& filePath, bool is3dSound = false) override;
 		virtual bool IsValidSound(int id);
-		virtual int PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback) override;
+		virtual void PlaySound(int* pChannelIdx, IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback, const std::function<void()>& startCallback) override;
 		virtual bool IsPlaying(int channel) override;
 		virtual void SetVolume2D(int channel, float volume) override;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) override;

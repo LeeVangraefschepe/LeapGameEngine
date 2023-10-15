@@ -15,16 +15,20 @@ void leap::AudioSource::Play()
 {
 	if (!m_pClip) return;
 
-	m_Channel = ServiceLocator::GetAudio().PlaySound(m_pClip, m_Is3DSound, [this]() { m_Channel = -1; });
-	if (m_Is3DSound)
-	{
-		Update3DSound();
-	}
-	else
-	{
-		Update2DVolume();
-	}
-	UpdateLoopCount();
+	ServiceLocator::GetAudio().PlaySound(&m_Channel, m_pClip, m_Is3DSound, 
+		[this]() { m_Channel = -1; },
+		[this]()
+		{
+			if (m_Is3DSound)
+			{
+				Update3DSound();
+			}
+			else
+			{
+				Update2DVolume();
+			}
+			UpdateLoopCount();
+		});
 }
 
 void leap::AudioSource::Stop() const

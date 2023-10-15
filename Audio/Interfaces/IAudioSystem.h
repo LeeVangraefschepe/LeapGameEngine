@@ -19,7 +19,7 @@ namespace leap::audio
 		virtual int LoadSound(const std::string& filePath, bool is3dSound) = 0;
 		virtual int LoadSoundAsync(const std::string& filePath, bool is3dSound) = 0;
 		virtual bool IsValidSound(int id) = 0;
-		virtual int PlaySound(IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback) = 0;
+		virtual void PlaySound(int* pChannelIdx, IAudioClip* pClip, bool is3dSound, const std::function<void()>& stopCallback, const std::function<void()>& startCallback) = 0;
 		virtual bool IsPlaying(int channel) = 0;
 		virtual void SetVolume2D(int channel, float volume) = 0;
 		virtual void UpdateSound3D(int channel, const SoundData3D& soundData) = 0;
@@ -46,7 +46,7 @@ namespace leap::audio
 		virtual int LoadSound(const std::string&, bool) { return -1; };
 		virtual int LoadSoundAsync(const std::string&, bool) { return -1; };
 		virtual bool IsValidSound(int) { return false; }
-		virtual int PlaySound(IAudioClip*, bool, const std::function<void()>&) { return -1; }
+		virtual void PlaySound(int*, IAudioClip*, bool, const std::function<void()>&, const std::function<void()>&){}
 		virtual bool IsPlaying(int) { return false; }
 		virtual void SetVolume2D(int, float){};
 		virtual void UpdateSound3D(int, const SoundData3D&){};

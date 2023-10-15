@@ -18,7 +18,7 @@ namespace leap::audio
 		virtual int Get2DSound() override;
 
 	private:
-		void LoadSound(bool is3dSound, bool async);
+		void LoadSound(bool is3dSound);
 
 		std::string m_Path{};
 

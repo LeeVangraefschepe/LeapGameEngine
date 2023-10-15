@@ -9,36 +9,28 @@ leap::audio::FmodAudioClip::FmodAudioClip(FmodAudioSystem* pSystem, const std::s
 	if (preLoad)
 	{
 		// Load both the 3D and 2D sound
-		LoadSound(true, true);
-		LoadSound(false, true);
+		LoadSound(true);
+		LoadSound(false);
 	}
 }
 
 int leap::audio::FmodAudioClip::Get3DSound()
 {
-	if (m_Index3dSound < 0) LoadSound(true, false);
+	if (m_Index3dSound < 0) LoadSound(true);
 
 	return m_Index3dSound;
 }
 
 int leap::audio::FmodAudioClip::Get2DSound()
 {
-	if (m_Index2dSound < 0) LoadSound(false, false);
+	if (m_Index2dSound < 0) LoadSound(false);
 
 	return m_Index2dSound;
 }
 
-void leap::audio::FmodAudioClip::LoadSound(bool is3dSound, bool async)
+void leap::audio::FmodAudioClip::LoadSound(bool is3dSound)
 {
-	int sound{ -1 };
-	if (async)
-	{
-		sound = m_pSystem->LoadSoundAsync(m_Path, is3dSound);
-	}
-	else
-	{
-		sound = m_pSystem->LoadSound(m_Path, is3dSound);
-	}
+	const int sound{ m_pSystem->LoadSoundAsync(m_Path, is3dSound) };
 
 	if (is3dSound)
 	{

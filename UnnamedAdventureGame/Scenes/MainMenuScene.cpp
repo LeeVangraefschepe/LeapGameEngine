@@ -88,14 +88,17 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 	canvas->AddComponent<leap::CanvasActions>();
 
-	leap::audio::IAudioClip* pClip{ leap::ServiceLocator::GetAudio().LoadClip("Data/sound.mp3", false) };
+	leap::audio::IAudioClip* pClip{ leap::ServiceLocator::GetAudio().LoadClip("Data/sound.mp3", true) };
 
-	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
+	auto rotator{ scene.CreateGameObject("rotator") };
+	rotator->AddComponent<Transformator>();
+
+	auto bunnyMesh{ rotator->CreateChild("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };
 	pBunnyMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
 	pBunnyMeshRenderer->SetMaterial(pNormalMaterial);
 	bunnyMesh->GetTransform()->Scale(10.0f);
-	bunnyMesh->GetTransform()->Translate(-5.0f, 0.0f, 0.0f);
+	bunnyMesh->GetTransform()->Translate(-10.0f, 0.0f, 0.0f);
 	bunnyMesh->AddComponent<Transformator>();
 	leap::AudioSource* pAudio{ bunnyMesh->AddComponent<leap::AudioSource>() };
 	pAudio->SetClip(pClip);
