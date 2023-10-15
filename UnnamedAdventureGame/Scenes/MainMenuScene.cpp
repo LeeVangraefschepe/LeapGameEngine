@@ -32,7 +32,14 @@
 #include "Components/RenderComponents/UIComponents/Button.h"
 #include "Components/RenderComponents/UIComponents/CanvasActions.h"
 
+#include <Interfaces/IAudioSystem.h>
+#include <Interfaces/IAudioClip.h>
+
+#include <Components/Audio/AudioSource.h>
+#include <Components/Audio/AudioListener.h>
+
 #include <iostream>
+#include "../Components/AudioTester.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -40,11 +47,12 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pDirLight->AddComponent<leap::DirectionalLightComponent>();
 	pDirLight->GetTransform()->SetWorldRotation(60.0f, 0.0f, 0.0f);
 
-	/*leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
+	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
 	pCameraObj->AddComponent<FreeCamMovement>();
-	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);*/
+	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
+	pCameraObj->AddComponent<leap::AudioListener>();
 
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
@@ -81,41 +89,24 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 	canvas->AddComponent<leap::CanvasActions>();
 
-	const glm::vec2 screenSize{ leap::GameContext::GetInstance().GetWindow()->GetWindowSize() };
+	leap::audio::IAudioClip* pClip{ leap::ServiceLocator::GetAudio().LoadClip("Data/sound.mp3", true) };
 
-	auto fssprite{ canvas->CreateChild("Sprite") };
-	leap::RectTransform* pRT{ fssprite->AddComponent<leap::RectTransform>() };
-	leap::Image* pFS{ fssprite->AddComponent<leap::Image>() };
-	pFS->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-	pRT->SetSize(1920.0f / 2, 1080);
-	pRT->SetReferencePosition(480, 0);
-	pRT->SetDepth(2);
+	auto rotator{ scene.CreateGameObject("rotator") };
+	rotator->AddComponent<Transformator>();
 
-	auto sprite2{ fssprite->CreateChild("Sprite") };
-	leap::RectTransform* pRT2{ sprite2->AddComponent<leap::RectTransform>() };
-	leap::Image* pImage2{ sprite2->AddComponent<leap::Image>() };
-	pImage2->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-	pImage2->SetPivot(1.0f, 1.0f);
-	pImage2->SetNativeSize();
-	pRT2->SetLocalReferencePosition(-480, 0);
-
-	auto sprite{ sprite2->CreateChild("Sprite") };
-	leap::RectTransform* pRT3{ sprite->AddComponent<leap::RectTransform>() };
-	leap::Image* pImage{ sprite->AddComponent<leap::Image>() };
-	pImage->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-	pImage->SetPivot(0.0f, 0.0f);
-	pRT3->SetSize(100, 100);
-	pRT3->SetReferencePosition(0, 100);
-	sprite->AddComponent<leap::Button>()->OnClicked.AddListener([](const leap::Button&) { std::cout << "Button click\n"; });
-	pRT3->SetDepth(5);
-
-	auto bunnyMesh{ scene.CreateGameObject("Bunny mesh") };
+	auto bunnyMesh{ rotator->CreateChild("Bunny mesh") };
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };
 	pBunnyMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
 	pBunnyMeshRenderer->SetMaterial(pNormalMaterial);
 	bunnyMesh->GetTransform()->Scale(10.0f);
-	bunnyMesh->GetTransform()->Translate(-5.0f, 0.0f, 0.0f);
+	bunnyMesh->GetTransform()->Translate(-10.0f, 0.0f, 0.0f);
 	bunnyMesh->AddComponent<Transformator>();
+	leap::AudioSource* pAudio{ bunnyMesh->AddComponent<leap::AudioSource>() };
+	pAudio->SetClip(pClip);
+	pAudio->Set3DSound(true);
+	pAudio->SetPlayOnAwake(true);
+	pAudio->SetLooping(true);
+	bunnyMesh->AddComponent<AudioTester>();
 
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();

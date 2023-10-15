@@ -7,7 +7,7 @@ namespace leap
 {
 	namespace audio
 	{
-		class AudioSystem;
+		class IAudioSystem;
 		class DefaultAudioSystem;
 	}
 	namespace graphics
@@ -19,14 +19,14 @@ namespace leap
 	class ServiceLocator final
 	{
 	public:
-		static audio::AudioSystem& GetAudio();
+		static audio::IAudioSystem& GetAudio();
 		static graphics::IRenderer& GetRenderer();
 		template <typename T>
 		static void RegisterAudioSystem();
 		template <typename T>
 		static void RegisterRenderer(GLFWwindow* pWindow);
 	private:
-		static std::unique_ptr<audio::AudioSystem> m_pAudioSystem;
+		static std::unique_ptr<audio::IAudioSystem> m_pAudioSystem;
 		static std::unique_ptr<audio::DefaultAudioSystem> m_pDefaultAudioSystem;
 		static std::unique_ptr<graphics::IRenderer> m_pRenderer;
 		static std::unique_ptr<graphics::DefaultRenderer> m_pDefaultRenderer;
@@ -35,7 +35,7 @@ namespace leap
 	template<typename T>
 	inline void ServiceLocator::RegisterAudioSystem()
 	{
-		static_assert(std::is_base_of<audio::AudioSystem, T>::value);
+		static_assert(std::is_base_of<audio::IAudioSystem, T>::value);
 		m_pAudioSystem = std::make_unique<T>();
 	}
 
