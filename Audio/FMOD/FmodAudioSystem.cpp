@@ -132,7 +132,7 @@ namespace leap::audio
             return sound.id;
         }
 
-        bool IsValidSound(int id)
+        bool IsValidSound(int id) const
         {
             // Throw an error if no sound exists for this id
             if (m_Sounds.size() <= id)
@@ -163,38 +163,7 @@ namespace leap::audio
             if (!isPlaying) m_SoundsToPlay.emplace_back(queuedSound);
         }
 
-        int PlaySound2D(int id, float volume)
-        {
-            // Throw an error if no sound exists for this id
-            if (m_Sounds.size() <= id)
-                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
-
-            // Retrieve the sound with this id
-            FMODSound& sound{ m_Sounds[id] };
-
-            // Play the sound
-            FMOD::Channel* pChannel{};
-            const FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
-
-            // Throw an error if the sound was not found
-            if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
-
-            // Apply the given volume
-            pChannel->setVolume(volume);
-
-            // Retrieve the channel id
-            int channel{};
-            pChannel->getIndex(&channel);
-
-            // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, false });
-
-            // Return the current playing channel
-            return channel;
-        }
-
-        void SetVolume2D(int channel, float volume)
+        void SetVolume2D(int channel, float volume) const
         {
             // Retrieve the current channel
             FMOD::Channel* pChannel{};
@@ -212,45 +181,7 @@ namespace leap::audio
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
         }
 
-        int PlaySound3D(int id, const SoundData3D& soundData)
-        {
-            // Throw an error if no sound exists for this id
-            if (m_Sounds.size() <= id)
-                throw std::runtime_error("FMODAudioSystem Error: No sound found with this id");
-
-            // Retrieve the sound with this id
-            FMODSound& sound{ m_Sounds[id] };
-
-            // Play the sound
-            FMOD::Channel* pChannel{};
-            FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
-
-            // Throw an error if the sound was not found
-            if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
-
-            // Set the roll off mode of this channel
-            result = pChannel->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
-
-            // Throw an error if settings the roll of mode failed
-            if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
-
-            // Retrieve the channel id
-            int channel{};
-            pChannel->getIndex(&channel);
-
-            // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, false });
-
-            // Update the 3D sound
-            UpdateSound3D(channel, soundData);
-
-            // Return the current playing channel
-            return channel;
-        }
-
-        void UpdateSound3D(int channel, const SoundData3D& soundData)
+        void UpdateSound3D(int channel, const SoundData3D& soundData) const
         {
             // Retrieve the current channel
             FMOD::Channel* pChannel{};
@@ -277,7 +208,7 @@ namespace leap::audio
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the volume on this channel");
         }
 
-        void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up)
+        void UpdateListener3D(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& forward, const glm::vec3& up) const
         {
             // Set the 3D attributes of the listener
             const FMOD_VECTOR fmodPosition{ position.x, position.y, position.z };
@@ -291,7 +222,7 @@ namespace leap::audio
                 throw std::runtime_error("FMODAudioSystem Error: Can't set the attributes of the audio listener");
         }
 
-        bool IsPlaying(int channel)
+        bool IsPlaying(int channel) const
         {
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
@@ -306,7 +237,7 @@ namespace leap::audio
             return soundIt != end(m_Sounds);
         }
 
-        void SetLooping(int channel, bool shouldLoop)
+        void SetLooping(int channel, bool shouldLoop) const
         {
             // Retrieve the current channel
             FMOD::Channel* pChannel{};
@@ -357,7 +288,7 @@ namespace leap::audio
                 })->paused = true;
         }
 
-        void PauseAll()
+        void PauseAll() const
         {
             // Channel to be reused
             FMOD::Channel* pChannel{};
@@ -417,7 +348,7 @@ namespace leap::audio
                 })->paused = false;
         }
 
-        void ResumeAll()
+        void ResumeAll() const
         {
             // channel to be reused
             FMOD::Channel* pChannel{};
@@ -479,7 +410,7 @@ namespace leap::audio
                 })->muted = true;
         }
 
-        void MuteAll()
+        void MuteAll() const
         {
             // Channel to be reused
             FMOD::Channel* pChannel{};
@@ -539,7 +470,7 @@ namespace leap::audio
                 })->muted = false;
         }
 
-        void UnmuteAll()
+        void UnmuteAll() const
         {
             // Channel to be reused
             FMOD::Channel* pChannel{};
@@ -657,7 +588,7 @@ namespace leap::audio
             pChannel->getIndex(&channel);
 
             // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, false, queuedSound.stopCallback });
+            sound.channels.push_back(ChannelData{ channel, false, false, queuedSound.stopCallback });
 
             // Set the current playing channel
             *queuedSound.pChannelIdx = channel;

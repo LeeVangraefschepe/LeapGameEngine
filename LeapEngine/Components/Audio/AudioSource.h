@@ -40,12 +40,11 @@ namespace leap
 
 		bool IsPlaying() const;
 
-	protected:
+	private:
 		virtual void Awake() override;
 		virtual void Update() override;
 		virtual void OnDestroy() override;
 
-	private:
 		void Update2DVolume() const;
 		void Update3DSound() const;
 		void UpdateLoopCount() const;

@@ -11,13 +11,10 @@ namespace unag
 {
 	class AudioTester final : public leap::Component
 	{
-	public:
-
-	protected:
+	private:
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
 
-	private:
 		std::vector<std::unique_ptr<leap::Command>> m_pCommands{};
 	};
 }

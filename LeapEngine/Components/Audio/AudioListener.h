@@ -15,7 +15,7 @@ namespace leap
 		AudioListener& operator=(const AudioListener& other) = delete;
 		AudioListener& operator=(AudioListener&& other) = delete;
 
-	protected:
+	private:
 		virtual void Update() override;
 	};
 }
