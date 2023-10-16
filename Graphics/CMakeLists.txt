@@ -44,7 +44,9 @@ add_library(GraphicsEngine STATIC
 "Data/SpriteVertex.h"
 "Data/Sprite.h"
 "Shaders/Sprites.h"
-"Shaders/Sprites.cpp")
+"Shaders/Sprites.cpp" 
+"DirectX/DirectXDefaults.h" 
+"DirectX/DirectXDefaults.cpp")
 
 # DirectXTex
 set(DIRECTX_TEX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/DirectXTex/include")

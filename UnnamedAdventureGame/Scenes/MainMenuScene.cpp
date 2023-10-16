@@ -108,6 +108,15 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pAudio->SetLooping(true);
 	bunnyMesh->AddComponent<AudioTester>();
 
+	auto meshNotLoaded{ scene.CreateGameObject("NoMesh") };
+	meshNotLoaded->AddComponent<leap::MeshRendererComponent>();
+	meshNotLoaded->GetTransform()->SetWorldPosition(5.0f, 1.0f, 0.0f);
+
+	auto materialNotLoaded{ scene.CreateGameObject("NoMaterial") };
+	materialNotLoaded->AddComponent<leap::MeshRendererComponent>()->LoadMesh("Data/highpolybunnywithnormals.obj");
+	materialNotLoaded->GetTransform()->SetWorldPosition(-5.0f, 1.0f, 0.0f);
+	materialNotLoaded->GetTransform()->SetWorldScale(10.0f);
+
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
 

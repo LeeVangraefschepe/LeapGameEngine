@@ -23,6 +23,7 @@
 #include "DirectXTexture.h"
 #include "DirectXMeshLoader.h"
 #include "DirectXMaterial.h"
+#include "DirectXDefaults.h"
 
 #include "../Shaders/PosNormTex3D.h"
 
@@ -306,6 +307,8 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 
 	// Create a new sprite renderer using new video settings
 	m_SpriteRenderer.Create(m_pDevice, m_pDeviceContext, glm::vec2{ width, height });
+
+	DirectXDefaults::GetInstance().Reload(m_pDevice);
 
 	std::cout << "DirectXRenderer Log: Successfully reloaded DirectX engine\n";
 

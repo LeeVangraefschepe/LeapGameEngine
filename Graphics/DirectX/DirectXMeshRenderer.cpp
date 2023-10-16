@@ -4,6 +4,7 @@
 
 #include "DirectXMaterial.h"
 #include "DirectXMeshLoader.h"
+#include "DirectXDefaults.h"
 
 #include "../MeshLoader.h"
 
@@ -24,8 +25,17 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 
 void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 {
-	if (!pMaterial) return;
-	if (!m_pVertexBuffer || !m_pIndexBuffer) return;
+	ID3D11Buffer* pVertexBuffer{ m_pVertexBuffer };
+	ID3D11Buffer* pIndexBuffer{ m_pIndexBuffer };
+	unsigned int nrIndices{ m_NrIndices };
+
+	if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pDevice);
+	if (!m_pVertexBuffer || !m_pIndexBuffer)
+	{
+		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
+		pMaterial = defaults.GetMaterialError(m_pDevice);
+		defaults.GetMeshError(m_pDevice, pVertexBuffer, pIndexBuffer, nrIndices);
+	}
 
 	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
 
@@ -41,10 +51,10 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	// Set vertex buffer
 	constexpr UINT stride{ sizeof(Vertex) };
 	constexpr UINT offset{ 0 };
-	m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &stride, &offset);
+	m_pDeviceContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
 
 	// Set index buffer
-	m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pDeviceContext->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
@@ -52,7 +62,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
 		pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
-		m_pDeviceContext->DrawIndexed(m_NrIndices, 0, 0);
+		m_pDeviceContext->DrawIndexed(nrIndices, 0, 0);
 	}
 }
 
