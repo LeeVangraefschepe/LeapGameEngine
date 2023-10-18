@@ -58,10 +58,14 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
-	pDXMaterial->GetTechnique()->GetDesc(&techniqueDesc);
+	HRESULT result{ pDXMaterial->GetTechnique()->GetDesc(&techniqueDesc) };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXRenderer Error : Failed to get description of effect technique" };
+
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
-		pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
+		result = pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
+		if (FAILED(result)) throw std::runtime_error{ "DirectXRenderer Error : Failed to apply a effect technique pass to device" };
+
 		m_pDeviceContext->DrawIndexed(nrIndices, 0, 0);
 	}
 }
