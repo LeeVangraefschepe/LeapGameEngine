@@ -18,9 +18,9 @@ namespace leap::graphics
 
 		DirectXMaterial* GetMaterialNotFound(ID3D11Device* pDevice);
 		DirectXMaterial* GetMaterialError(ID3D11Device* pDevice);
-		void GetMeshError(ID3D11Device* pDevice, ID3D11Buffer*& pVertexBuffer, ID3D11Buffer*& pIndexBuffer, unsigned int& nrIndices);
+		static void GetMeshError(ID3D11Device* pDevice, ID3D11Buffer*& pVertexBuffer, ID3D11Buffer*& pIndexBuffer, unsigned int& nrIndices);
 
-		void Reload(ID3D11Device* pDevice);
+		void Reload(ID3D11Device* pDevice) const;
 	private:
 		friend Singleton;
 
