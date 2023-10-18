@@ -67,5 +67,12 @@ namespace leap::graphics
 		std::string m_AssetFile{};
 		std::unordered_map<std::string, DirectXTexture*> m_pTextures{};
 		ID3DX11EffectTechnique* m_pTechnique{};
+
+		struct MaterialVariable final
+		{
+			std::any data{};
+			unsigned int byteCount{};
+		};
+		std::unordered_map<std::string, MaterialVariable> m_MaterialVariables{};
 	};
 }

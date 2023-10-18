@@ -77,31 +77,51 @@ void leap::graphics::DirectXMaterial::SetWorldMatrix(const glm::mat4x4& worldMat
 void leap::graphics::DirectXMaterial::SetBool(const std::string& varName, bool data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var->IsValid()) var->AsScalar()->SetBool(data);
+	if (var->IsValid()) 
+	{
+		var->AsScalar()->SetBool(data);
+		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
+	}
 }
 
 void leap::graphics::DirectXMaterial::SetFloat(const std::string& varName, float data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if(var->IsValid()) var->AsScalar()->SetFloat(data);
+	if (var->IsValid())
+	{
+		var->AsScalar()->SetFloat(data);
+		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
+	}
 }
 
 void leap::graphics::DirectXMaterial::SetFloat2(const std::string& varName, const glm::vec2& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var->IsValid()) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+	if (var->IsValid())
+	{
+		var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
+	}
 }
 
 void leap::graphics::DirectXMaterial::SetFloat3(const std::string& varName, const glm::vec3& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var->IsValid()) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+	if (var->IsValid())
+	{
+		var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
+	}
 }
 
 void leap::graphics::DirectXMaterial::SetFloat4(const std::string& varName, const glm::vec4& data)
 {
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
-	if (var->IsValid()) var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+	if (var->IsValid())
+	{
+		var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
+		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
+	}
 }
 
 void leap::graphics::DirectXMaterial::SetMat3x3(const std::string& varName, const glm::mat3x3& data)
@@ -156,6 +176,15 @@ void leap::graphics::DirectXMaterial::Reload(ID3D11Device* pDevice)
 	}
 
 	m_pInputLayout = LoadInputLayout(pDevice);
+
+	// Set all material variables again
+	for (const auto& nameVariablePair : m_MaterialVariables)
+	{
+		auto var = m_pEffect->GetVariableByName(nameVariablePair.first.c_str());
+
+		const MaterialVariable varData{ nameVariablePair.second };
+		var->SetRawValue(&varData.data, 0, varData.byteCount);
+	}
 }
 
 std::unique_ptr<leap::graphics::DirectXMaterial> leap::graphics::DirectXMaterial::Clone(ID3D11Device* pDevice)
