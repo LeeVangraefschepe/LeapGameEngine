@@ -60,6 +60,13 @@ namespace leap
 		glm::vec3 GetLocalEulerDegrees() const;
 		const glm::vec3& GetLocalScale() const;
 
+		glm::mat4x4 GetWorldTransform();
+		glm::mat4x4 GetLocalTransform() const;
+
+		const glm::vec3& GetForward();
+		const glm::vec3& GetUp();
+		const glm::vec3& GetRight();
+
 		void KeepWorldTransform(GameObject* pParent);
 
 	private:
@@ -68,12 +75,14 @@ namespace leap
 			None = 0,
 			Translation = 1,
 			Rotation = 2,
-			Scale = 4
+			Scale = 4,
+			DirectionVectors = 8
 		};
 
 		void UpdateTranslation();
 		void UpdateRotation();
 		void UpdateScale();
+		void UpdateDirectionVectors();
 		bool IsDirty(DirtyFlags flag) const;
 		void SetDirty(DirtyFlags flag);
 
@@ -87,6 +96,10 @@ namespace leap
 
 		glm::vec3 m_LocalScale{ 1.0f, 1.0f, 1.0f };
 		glm::vec3 m_WorldScale{ 1.0f, 1.0f, 1.0f };
+
+		glm::vec3 m_Forward{ 0.0f, 0.0f, 1.0f };
+		glm::vec3 m_Up{ 0.0f, 1.0f, 0.0f };
+		glm::vec3 m_Right{ 1.0f, 0.0f, 0.0f };
 
 		unsigned int m_IsDirty{ static_cast<unsigned int>(DirtyFlags::Translation) | static_cast<unsigned int>(DirtyFlags::Rotation) | static_cast<unsigned int>(DirtyFlags::Scale) };
 	};

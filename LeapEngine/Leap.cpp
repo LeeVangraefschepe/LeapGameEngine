@@ -2,9 +2,10 @@
 
 #include <chrono>
 #include "InputManager.h"
-#include "Renderer.h"
+#include "Interfaces/IRenderer.h"
 #include "ServiceLocator/ServiceLocator.h"
-#include "Systems/FmodAudioSystem.h"
+#include "FMOD/FmodAudioSystem.h"
+#include "DirectX/DirectXEngine.h"
 
 #include "vec3.hpp"
 
@@ -14,50 +15,59 @@
 #include "GameContext/GameContext.h"
 #include "SceneGraph/SceneManager.h"
 
-leap::LeapEngine::LeapEngine()
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
-    std::cout << "Engine created\n";
+    std::cout << "LeapEngine Log: Engine created\n";
 
     /* Initialize the library */
     if (!glfwInit())
-        return;
+        throw std::runtime_error("LeapEngine Error: GLFW initialisation error");
 
     /* Create a windowed mode window and its OpenGL context */
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    m_pWindow = glfwCreateWindow(1280, 720, "Leap Engine", nullptr, nullptr);
+    m_pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
     if (!m_pWindow)
     {
         glfwTerminate();
-        throw std::runtime_error("Failed to create window");
-    }
-
-    if (!glfwInit())
-    {
-        throw std::runtime_error("Failed to initialize glfw");
+        throw std::runtime_error("LeapEngine Error: Failed to create window");
     }
 
     /* Make the window's context current */
     glfwMakeContextCurrent(m_pWindow);
 
-    input::InputManager::GetInstance().SetWindow(m_pWindow);
+    std::cout << "LeapEngine Log: Window created successfully\n";
+}
+
+leap::LeapEngine::LeapEngine(int width, int height, const std::string& title, const std::string&) : LeapEngine(width, height, title)
+{
 }
 
 leap::LeapEngine::~LeapEngine()
-{}
+{
+    std::cout << "LeapEngine Log: Engine destroyed\n";
+}
 
 void leap::LeapEngine::Run(int desiredFPS)
 {
-	  std::cout << "Engine startup\n";
-
-    m_pRenderer = std::make_unique<graphics::Renderer>(m_pWindow);
-    m_pRenderer->Initialize();
-
-    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
-
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
-    auto& audio = ServiceLocator::GetAudio();
 
+    std::cout << "LeapEngine Log: Linking window to the Input library\n";
+    input::InputManager::GetInstance().SetWindow(m_pWindow);
+
+    std::cout << "LeapEngine Log: Linking window to the game context\n";
+    gameContext.CreateWindowWrapper(m_pWindow);
+
+    std::cout << "LeapEngine Log: Registering default audio system (FMOD)\n";
+    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+
+    std::cout << "LeapEngine Log: Registering default renderer (DirectX)\n";
+    ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
+
+    m_pRenderer = &ServiceLocator::GetRenderer();
+    m_pRenderer->Initialize();
+
+    std::cout << "LeapEngine Log: Loading default scene\n";
     auto& sceneManager = SceneManager::GetInstance();
     const auto timer = gameContext.GetTimer();
     sceneManager.LoadScene(0);
@@ -65,11 +75,13 @@ void leap::LeapEngine::Run(int desiredFPS)
     const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
     float fixedTotalTime{};
 
+    auto& audio = ServiceLocator::GetAudio();
+
     while (!glfwWindowShouldClose(m_pWindow))
     {
         const auto currentTime = std::chrono::high_resolution_clock::now();
 
-        //Update gamecontext (Timer class)
+        // Update gamecontext (Timer & window)
         gameContext.Update();
         fixedTotalTime += timer->GetDeltaTime();
 
@@ -91,12 +103,10 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         sceneManager.LateUpdate();
 
-        //Render here
-        glClearColor(0.2f, 0.7f, 0.5f, 1.0f);
-        sceneManager.Render();
-        m_pRenderer->Draw();
+        m_pRenderer->GuiDraw();
         sceneManager.OnGUI();
-        glClear(GL_COLOR_BUFFER_BIT);
+
+        m_pRenderer->Draw();
         glfwSwapBuffers(m_pWindow);
 
         sceneManager.OnFrameEnd();
@@ -106,5 +116,8 @@ void leap::LeapEngine::Run(int desiredFPS)
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
     }
 
+    sceneManager.UnloadScene();
+
+    std::cout << "LeapEngine Log: Destroying window\n";
     glfwTerminate();
 }

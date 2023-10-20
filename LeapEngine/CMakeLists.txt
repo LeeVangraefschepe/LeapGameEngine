@@ -18,6 +18,27 @@ add_library(LeapEngine
     "SceneGraph/Scene.cpp"
     "SceneGraph/SceneManager.h"
     "SceneGraph/SceneManager.cpp"
-)
+    "Components/RenderComponents/CameraComponent.h" 
+    "Components/RenderComponents/CameraComponent.cpp" 
+    "Components/RenderComponents/MeshRenderer.h" 
+    "Components/RenderComponents/MeshRenderer.cpp" 
+    "Components/RenderComponents/DirectionalLightComponent.cpp" 
+    "GameContext/Window.h" 
+    "GameContext/Window.cpp" 
+    "Components/RenderComponents/UIComponents/Image.h" 
+    "Components/RenderComponents/UIComponents/Image.cpp"
+    "Components/RenderComponents/UIComponents/CanvasComponent.h"
+    "Components/RenderComponents/UIComponents/CanvasComponent.cpp" 
+    "Components/RenderComponents/UIComponents/RectTransform.h"
+    "Components/RenderComponents/UIComponents/RectTransform.cpp"
+    "Components/RenderComponents/UIComponents/CanvasActions.h"
+    "Components/RenderComponents/UIComponents/CanvasActions.cpp" 
+    "Components/RenderComponents/UIComponents/Button.h" 
+    "Components/RenderComponents/UIComponents/Button.cpp" 
+    "Components/RenderComponents/UIComponents/ICanvasElement.h" 
+    "Components/Audio/AudioSource.h" 
+    "Components/Audio/AudioSource.cpp" 
+    "Components/Audio/AudioListener.h" 
+    "Components/Audio/AudioListener.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

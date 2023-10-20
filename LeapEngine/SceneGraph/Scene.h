@@ -9,7 +9,7 @@ namespace leap
 	class Scene final
 	{
 	public:
-		explicit Scene(const std::string& name);
+		explicit Scene(const char* name);
 		~Scene();
 
 		Scene(const Scene& other) = delete;
@@ -17,7 +17,7 @@ namespace leap
 		Scene& operator=(const Scene& other) = delete;
 		Scene& operator=(Scene&& other) = delete;
 
-		GameObject* CreateGameObject(const std::string& name) const;
+		GameObject* CreateGameObject(const char* name) const;
 		void RemoveAll();
 		GameObject* GetRootObject() const;
 
@@ -27,7 +27,6 @@ namespace leap
 		void FixedUpdate() const;
 		void Update() const;
 		void LateUpdate() const;
-		void Render() const;
 		void OnGUI() const;
 		void OnFrameEnd() const;
 

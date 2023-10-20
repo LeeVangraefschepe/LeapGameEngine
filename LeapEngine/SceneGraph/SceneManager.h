@@ -20,7 +20,7 @@ namespace leap
 		SceneManager& operator=(SceneManager&& other) = delete;
 
 		Scene* GetActiveScene() const;
-		void AddScene(const std::string& name, const std::function<void(Scene&)>& load);
+		void AddScene(const char* name, const std::function<void(Scene&)>& load);
 		void LoadScene(unsigned index);
 		void LoadScene(const std::string& name);
 
@@ -30,15 +30,15 @@ namespace leap
 		void FixedUpdate() const;
 		void Update() const;
 		void LateUpdate() const;
-		void Render() const;
 		void OnGUI() const;
 		void OnFrameEnd() const;
 
 		void LoadInternalScene();
+		void UnloadScene();
 
 		struct SceneData final
 		{
-			std::string name;
+			const std::string name;
 			std::function<void(Scene&)> load;
 		};
 		std::vector<SceneData> m_Scenes{};

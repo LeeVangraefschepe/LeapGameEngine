@@ -6,7 +6,7 @@
 
 #include "SceneManager.h"
 
-leap::GameObject::GameObject(const std::string& name)
+leap::GameObject::GameObject(const char* name)
 	: m_Name{ name }
 {
 	m_pTransform = AddComponent<Transform>();
@@ -37,11 +37,14 @@ void leap::GameObject::SetParent(GameObject* pParent)
 	// Add self to the new parent
 	pParent->m_pChildren.emplace_back(std::move(pSelf));
 
+	// Erase self from previous parent
+	pPrevParent->m_pChildren.erase(selfIt);
+
 	// Set the new parent of this gameobject
 	m_pParent = pParent;
 }
 
-leap::GameObject* leap::GameObject::CreateChild(const std::string& name)
+leap::GameObject* leap::GameObject::CreateChild(const char* name)
 {
 	// Create a new gameobject
 	auto pGameObject{ std::make_unique<GameObject>(name) };
@@ -62,7 +65,7 @@ leap::GameObject* leap::GameObject::GetChild(int index) const
 	// Make sure the index is not out of range
 	if (index < 0 || index >= static_cast<int>(m_pChildren.size()))
 	{
-		throw std::runtime_error("GameObject Error: GetChild index out of bounds");
+		throw std::runtime_error("LeapEngine Error: GameObject::GetChild index out of bounds");
 	}
 
 	return m_pChildren[index].get();
@@ -73,19 +76,32 @@ void leap::GameObject::SetActive(bool isActive)
 	// Set the next active state
 	// The new active state will be handled at the end of the frame
 	//		(e.g. call OnEnable/OnDisable)
-	m_NextIsActiveLocal = isActive;
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame);
+
+}
+
+bool leap::GameObject::IsActive() const
+{
+	return IsActiveWorld();
 }
 
 void leap::GameObject::Destroy()
 {
-	m_IsMarkedDead = true;
+	m_StateFlags |= static_cast<unsigned char>(StateFlags::IsMarkedAsDead);
+}
+
+bool leap::GameObject::IsMarkedAsDead() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsMarkedAsDead);
 }
 
 void leap::GameObject::OnFrameStart()
 {
 	MoveNewObjectsAndComponents(); // Move components and children from the temp container to the normal container
 	CallAwake(); // Call Awake on all new children and components
-	OnFrameStartCleanup(); // Clear all the temp containers
 	ChangeActiveState(); // Update the local and world active states
 	CallStart(); // Call the start when needed
 	CallEnableAndDisable(); // Call OnEnable and OnDisable when needed
@@ -93,17 +109,15 @@ void leap::GameObject::OnFrameStart()
 
 void leap::GameObject::MoveNewObjectsAndComponents()
 {	
-	// Store the raw new components and move the components from the temp container to the default container
+	// Move the components from the temp container to the default container
 	for (auto& pComponent : m_pComponentsToAdd)
 	{
-		m_pNewestComponents.emplace_back(pComponent.get());
 		m_pComponents.emplace_back(std::move(pComponent));
 	}
 
-	// Store the raw new children and move the children from the temp container to the default container
+	// Move the children from the temp container to the default container
 	for (auto& pChild : m_pChildrenToAdd)
 	{
-		m_pNewestChildren.emplace_back(pChild.get());
 		m_pChildren.emplace_back(std::move(pChild));
 	}
 
@@ -120,26 +134,20 @@ void leap::GameObject::MoveNewObjectsAndComponents()
 
 void leap::GameObject::CallAwake() const
 {
-	// Call awake on all the new components and children
-	for (auto pComponent : m_pNewestComponents) pComponent->Awake();
-
-	// Call awake on all children
-	for (const auto& pChild : m_pNewestChildren)
+	// Call awake on the new components and children
+	for (const auto& pComponent : m_pComponents)
 	{
-		if (pChild) pChild->CallAwake();
+		if (!pComponent->IsInitialized())
+		{
+			pComponent->Initialize();
+			pComponent->Awake();
+		}
 	}
-}
-
-void leap::GameObject::OnFrameStartCleanup()
-{
-	// Clear all the new object containers
-	m_pNewestChildren.clear();
-	m_pNewestComponents.clear();
-
-	// Clear all new containers of the children
+	
+	// Call awake on all children
 	for (const auto& pChild : m_pChildren)
 	{
-		if (pChild) pChild->OnFrameStartCleanup();
+		if (pChild) pChild->CallAwake();
 	}
 }
 
@@ -147,19 +155,19 @@ void leap::GameObject::ChangeActiveState()
 {
 	// Only update the active state if this gameobject is not the root gameobject
 	//	and the active state has been changed
-	if (m_pParent != nullptr && m_NextIsActiveLocal != m_IsActiveLocal)
+	if (m_pParent != nullptr && IsActiveLocalNextFrame() != IsActiveLocal())
 	{
 		// Set the new local state
-		m_IsActiveLocal = m_NextIsActiveLocal;
+		SetActiveLocal(IsActiveLocalNextFrame());
 
 		// Update the world state of this object and its children
-		SetWorldState(m_IsActiveLocal && m_pParent->IsActive());
+		SetWorldState(IsActiveLocal() && m_pParent->IsActive());
 	}
 	else if (m_pParent == nullptr)
 	{
 		// Ensure that the root gameobject is always enabled
-		m_IsActiveLocal = true;
-		m_IsActiveWorld = true;
+		SetActiveLocal(true);
+		SetActiveWorld(true);
 	}
 
 	// Update the active state of the components
@@ -175,7 +183,7 @@ void leap::GameObject::ChangeActiveState()
 void leap::GameObject::SetWorldState(bool isActive)
 {
 	// Update the world active state
-	m_IsActiveWorld = isActive && m_IsActiveLocal;
+	SetActiveWorld(isActive && IsActiveLocal());
 
 	// Update the world state of every child
 	for (const auto& pChild : m_pChildren)
@@ -225,7 +233,7 @@ void leap::GameObject::CheckDestroyFlag() const
 	}
 
 	// Call OnDestroy on this gameobject and its children
-	if (m_IsMarkedDead) OnDestroy();
+	if (IsMarkedAsDead()) OnDestroy();
 	else
 	{
 		// Call OnDestroy on components if needed
@@ -270,6 +278,37 @@ void leap::GameObject::UpdateCleanup()
 
 	// Cleanup every child
 	for (const auto& pChild : m_pChildren) pChild->UpdateCleanup();
+}
+
+bool leap::GameObject::IsActiveLocalNextFrame() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame);
+}
+
+bool leap::GameObject::IsActiveLocal() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsActiveLocal);
+}
+
+void leap::GameObject::SetActiveLocal(bool isActive)
+{
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::IsActiveLocal);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::IsActiveLocal);
+}
+
+bool leap::GameObject::IsActiveWorld() const
+{
+	return m_StateFlags & static_cast<unsigned char>(StateFlags::IsActiveWorld);
+}
+
+void leap::GameObject::SetActiveWorld(bool isActive)
+{
+	if (isActive)
+		m_StateFlags |= static_cast<unsigned char>(StateFlags::IsActiveWorld);
+	else
+		m_StateFlags &= ~static_cast<unsigned char>(StateFlags::IsActiveWorld);
 }
 
 leap::Transform* leap::GameObject::GetTransform() const
@@ -325,18 +364,6 @@ void leap::GameObject::LateUpdate() const
 	for (const auto& pChild : m_pChildren)
 	{
 		if (pChild) pChild->LateUpdate();
-	}
-}
-
-void leap::GameObject::Render() const
-{
-	// Delegate Render method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->Render();
-
-	// Delegate Render method to the children
-	for (const auto& pChild : m_pChildren)
-	{
-		if (pChild) pChild->Render();
 	}
 }
 
