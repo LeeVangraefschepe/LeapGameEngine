@@ -2,6 +2,11 @@
 #include <fstream>
 #include <sstream>
 
+leap::FileLogger::FileLogger()
+{
+    SetEnabled(true);
+}
+
 leap::FileLogger::~FileLogger()
 {
     SetEnabled(false);
@@ -26,6 +31,7 @@ void leap::FileLogger::SetEnabled(bool enable)
 
 void leap::FileLogger::SetPath(const std::string& path)
 {
+	const std::string oldPath = m_Path;
     m_Path = path;
 
     if (m_File.is_open())
@@ -34,7 +40,7 @@ void leap::FileLogger::SetPath(const std::string& path)
         StartFile();
 
         std::stringstream ss{};
-        ss << "Already logged to " << path;
+        ss << "Already logged to " << oldPath;
         Debug::LogWarning(ss.str());
     }
 }

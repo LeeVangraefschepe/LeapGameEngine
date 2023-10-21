@@ -3,10 +3,11 @@
 #include "Observer.h"
 #include "Debug.h"
 #include <vector>
+#include "ILogger.h"
 
 namespace leap
 {
-	class ImGuiLogger final : Observer<Debug::LogInfo>
+	class ImGuiLogger final : Observer<Debug::LogInfo>, public ILogger
 	{
 	public:
 		ImGuiLogger();
@@ -16,10 +17,9 @@ namespace leap
 		ImGuiLogger& operator=(const ImGuiLogger& other) = delete;
 		ImGuiLogger& operator=(ImGuiLogger&& other) = delete;
 
-		void SetEnabled(bool enable);
+		virtual void SetEnabled(bool enable) override;
 
 	private:
-
 		struct LogInfo final
 		{
 			std::string Message;
@@ -27,12 +27,10 @@ namespace leap
 			std::source_location Location;
 		};
 
-		friend class GameContext;
+		virtual void OnGUI() override;
+		virtual void Notify(const Debug::LogInfo& data) override;
 
-		void OnGUI();
-		void Notify(const Debug::LogInfo& data) override;
-
-		bool m_Enabled{ true };
+		bool m_Enabled{};
 		std::vector<std::vector<LogInfo>> m_Logs{};
 
 		Debug::Type m_ActiveType{ Debug::Type::Message };

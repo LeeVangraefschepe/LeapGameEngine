@@ -4,12 +4,12 @@
 
 leap::ImGuiLogger::ImGuiLogger()
 {
-    Debug::OnEvent.AddListener(this);
-
     // Create vectors for type of logging
     m_Logs.emplace_back();
     m_Logs.emplace_back();
     m_Logs.emplace_back();
+
+    SetEnabled(true);
 }
 
 leap::ImGuiLogger::~ImGuiLogger()

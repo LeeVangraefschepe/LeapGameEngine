@@ -1,6 +1,8 @@
 #pragma once
 #include "Singleton.h"
 #include <memory>
+#include <vector>
+#include "Logger/ILogger.h"
 
 class GLFWwindow;
 
@@ -9,9 +11,7 @@ namespace leap
 	class LeapEngine;
 	class Timer;
 	class Window;
-	class ImGuiLogger;
-	class ConsoleLogger;
-	class FileLogger;
+
 	class GameContext final : public Singleton<GameContext>
 	{
 	public:
@@ -23,10 +23,11 @@ namespace leap
 
 		Timer* GetTimer() const { return m_pTimer.get(); }
 		Window* GetWindow() const { return m_pWindow.get(); }
-		ImGuiLogger* GetImGuiLogger() const { return m_pImguiLogger.get(); }
-		ConsoleLogger* GetConsoleLogger() const { return m_pConsoleLogger.get(); }
-		FileLogger* GetFileLogger() const { return m_pFileLogger.get(); }
 
+		template <class T>
+		T* AddLogger();
+		template <class T>
+		T* GetLogger() const;
 	private:
 		friend Singleton;
 		friend LeapEngine;
@@ -38,8 +39,37 @@ namespace leap
 
 		std::unique_ptr<Timer> m_pTimer;
 		std::unique_ptr<Window> m_pWindow;
-		std::unique_ptr<ImGuiLogger> m_pImguiLogger;
-		std::unique_ptr<ConsoleLogger> m_pConsoleLogger;
-		std::unique_ptr<FileLogger> m_pFileLogger;
+
+		std::vector<std::unique_ptr<ILogger>> m_pLoggers{};
 	};
+
+	template<class T>
+	inline T* GameContext::GetLogger() const
+	{
+		static_assert(std::is_base_of<ILogger, T>::value, "T needs to be derived from the ILogger class");
+
+		const auto iterator{ std::find_if(begin(m_pLoggers), end(m_pLoggers), [](const auto& pComponent) { return dynamic_cast<T*>(pComponent.get()) != nullptr; }) };
+
+		if (iterator == end(m_pLoggers)) return nullptr;
+
+		return static_cast<T*>(iterator->get());
+	}
+	template <class T>
+	T* GameContext::AddLogger()
+	{
+		static_assert(std::is_base_of<ILogger, T>::value, "T needs to be derived from the ILogger class");
+
+		// Create a new logger
+		auto pLogger{ std::make_unique<T>() };
+
+		// Get the raw ptr from the new logger
+		T* pRawComponent{ pLogger.get() };
+
+		// Add the new logger to the list
+		m_pLoggers.emplace_back(std::move(pLogger));
+
+		// Return the raw ptr of the new logger
+		return pRawComponent;
+	}
+
 }

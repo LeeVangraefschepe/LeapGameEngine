@@ -1,9 +1,10 @@
 #pragma once
 #include "Observer.h"
 #include "Debug.h"
+#include "ILogger.h"
 namespace leap
 {
-	class ConsoleLogger final : Observer<Debug::LogInfo>
+	class ConsoleLogger final : Observer<Debug::LogInfo>, public ILogger
 	{
 	public:
 		ConsoleLogger();
@@ -13,13 +14,11 @@ namespace leap
 		ConsoleLogger& operator=(const ConsoleLogger& other) = delete;
 		ConsoleLogger& operator=(ConsoleLogger&& other) = delete;
 
-		void SetEnabled(bool enable);
+		virtual void SetEnabled(bool enable) override;
 
 	private:
-		friend class GameContext;
-
-		void Notify(const Debug::LogInfo& data) override;
-		bool m_Enabled{ true };
+		virtual void Notify(const Debug::LogInfo& data) override;
+		bool m_Enabled{};
 
 #pragma region Color codes
 		inline static const char* RESET = "\033[0m";         /* Default */

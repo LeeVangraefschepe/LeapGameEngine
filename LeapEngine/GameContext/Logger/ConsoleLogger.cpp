@@ -3,8 +3,7 @@
 
 leap::ConsoleLogger::ConsoleLogger()
 {
-    Debug::OnEvent.AddListener(this);
-    SetEnabled(false);
+    SetEnabled(true);
 }
 
 leap::ConsoleLogger::~ConsoleLogger()

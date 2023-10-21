@@ -36,10 +36,8 @@ add_library(LeapEngine
     "Components/RenderComponents/UIComponents/Button.h" 
     "Components/RenderComponents/UIComponents/Button.cpp" 
     "Components/RenderComponents/UIComponents/ICanvasElement.h"
-    "GameContext/ImGuiLogger.h"
-    "GameContext/ImGuiLogger.cpp"
-    "GameContext/ConsoleLogger.h"
-    "GameContext/ConsoleLogger.cpp"
-    "GameContext/FileLogger.cpp")
+    "GameContext/Logger/ImGuiLogger.cpp"
+    "GameContext/Logger/ConsoleLogger.cpp"
+    "GameContext/Logger/FileLogger.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

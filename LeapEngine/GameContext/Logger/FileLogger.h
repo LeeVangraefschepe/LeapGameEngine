@@ -3,29 +3,28 @@
 #include "Debug.h"
 #include <string>
 #include <fstream>
+#include "ILogger.h"
 
 namespace leap
 {
-	class FileLogger final : Observer<Debug::LogInfo>
+	class FileLogger final : Observer<Debug::LogInfo>, public ILogger
 	{
 	public:
-		FileLogger() = default;
+		FileLogger();
 		virtual ~FileLogger();
 		FileLogger(const FileLogger& other) = delete;
 		FileLogger(FileLogger&& other) = delete;
 		FileLogger& operator=(const FileLogger& other) = delete;
 		FileLogger& operator=(FileLogger&& other) = delete;
 
-		void SetEnabled(bool enable);
+		virtual void SetEnabled(bool enable) override;
 		void SetPath(const std::string& path);
 	private:
-		friend class GameContext;
-
 		void StartFile();
 		void CloseFile();
 
-		void Notify(const Debug::LogInfo& data) override;
-		bool m_Enabled{ false };
+		virtual void Notify(const Debug::LogInfo& data) override;
+		bool m_Enabled{};
 		std::string m_Path{ "log.txt" };
 		std::fstream m_File{};
 	};
