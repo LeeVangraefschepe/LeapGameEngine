@@ -40,7 +40,6 @@
 #include <Components/Audio/AudioSource.h>
 #include <Components/Audio/AudioListener.h>
 
-#include <iostream>
 #include "../Components/AudioTester.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)

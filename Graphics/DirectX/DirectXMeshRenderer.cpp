@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <d3dx11effect.h>
 
+#include "Debug.h"
 #include "DirectXMaterial.h"
 #include "DirectXMeshLoader.h"
 #include "DirectXDefaults.h"
@@ -59,12 +60,12 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	// Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
 	HRESULT result{ pDXMaterial->GetTechnique()->GetDesc(&techniqueDesc) };
-	if (FAILED(result)) throw std::runtime_error{ "DirectXRenderer Error : Failed to get description of effect technique" };
+	if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to get description of effect technique");
 
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
 		result = pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
-		if (FAILED(result)) throw std::runtime_error{ "DirectXRenderer Error : Failed to apply a effect technique pass to device" };
+		if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to apply a effect technique pass to device");
 
 		m_pDeviceContext->DrawIndexed(nrIndices, 0, 0);
 	}

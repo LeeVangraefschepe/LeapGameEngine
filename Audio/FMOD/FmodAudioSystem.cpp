@@ -245,14 +245,14 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Set the loop count for this channel (-1 is infinite looping, 0 is one shot)
             result = pChannel->setLoopCount(shouldLoop ? -1 : 0);
 
             // Throw an error if changing the loop count failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't change the loop count on this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't change the loop count on this channel");
         }
 
         void Pause(int channel)
@@ -507,14 +507,14 @@ namespace leap::audio
 
             // Throw an error if the channel was not found
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't retieve channel with this id");
+                Debug::LogError("FMODAudioSystem Error: Can't retieve channel with this id");
 
             // Stop this channel
             result = pChannel->stop();
 
             // Throw an error if stopping failed
             if (result != FMOD_OK)
-                throw std::runtime_error("FMODAudioSystem Error: Can't unmute this channel");
+                Debug::LogError("FMODAudioSystem Error: Can't unmute this channel");
 
             // Find the sound that is using this channel
             auto soundIt{ std::find_if(begin(m_Sounds), end(m_Sounds), [channel](const auto& sound)
@@ -564,13 +564,10 @@ namespace leap::audio
             // Throw an error if the sound was not found
             if (result != FMOD_OK)
             {
-                if (result == FMOD_ERR_NOTREADY)
-                {
-                    *queuedSound.pChannelIdx = -1;
-                    return false;
-                }
-                else
-                    throw std::runtime_error("FMODAudioSystem Error: Failed to play a sound");
+                if (result == FMOD_ERR_NOTREADY) *queuedSound.pChannelIdx = -1;
+                else Debug::LogError("FMODAudioSystem Error: Failed to play a sound");
+
+                return false;
             }
 
             if (queuedSound.is3dSound)
@@ -580,7 +577,7 @@ namespace leap::audio
 
                 // Throw an error if settings the roll of mode failed
                 if (result != FMOD_OK)
-                    throw std::runtime_error("FMODAudioSystem Error: Failed to set roll off mode for this channel");
+                    Debug::LogError("FMODAudioSystem Error: Failed to set roll off mode for this channel");
             }
 
             // Retrieve the channel id
@@ -588,7 +585,7 @@ namespace leap::audio
             pChannel->getIndex(&channel);
 
             // Insert the new channel to the sound
-            sound.channels.push_back(ChannelData{ channel, false, false, queuedSound.stopCallback });
+            sound.channels.emplace_back(channel, false, false, queuedSound.stopCallback);
 
             // Set the current playing channel
             *queuedSound.pChannelIdx = channel;
