@@ -128,4 +128,4 @@ target_link_libraries(
 # Game Project
 add_subdirectory(UnnamedAdventureGame)
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
-target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine EngineUtils)
+target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine)
