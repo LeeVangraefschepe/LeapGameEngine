@@ -32,60 +32,6 @@ RasterizerState BackCulling
     CullMode = BACK;
 };
 
-SamplerComparisonState cmpSampler
-{
-	// sampler state
-    Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
-    AddressU = MIRROR;
-    AddressV = MIRROR;
-
-	// sampler comparison state
-    ComparisonFunc = LESS_EQUAL;
-};
-
-float gShadowMapBias = 0.0005f;
-
-float2 texOffset(int u, int v)
-{
-    return float2(u / 1280.0f, v / 720.0f);
-}
-
-float EvaluateShadowMap(float4 lpos)
-{
-	// Re-homogenize position after interpolation
-    lpos.xyz /= lpos.w;
-
-	// If position is not visible to the light - dont illuminate it
-	// Results in hard light frustum
-    if (lpos.x < -1.0f || lpos.x > 1.0f ||
-		lpos.y < -1.0f || lpos.y > 1.0f ||
-		lpos.z < 0.0f || lpos.z > 1.0f)
-        return 1.0f;
-
-	// Transform clip space coords to texture space coords (-1:1 to 0:1)
-    lpos.x = lpos.x / 2.0f + 0.5f;
-    lpos.y = lpos.y / -2.0f + 0.5f;
-
-	// Apply shadow map bias
-    lpos.z -= gShadowMapBias;
-	
-	// PCF sampling for shadow map
-    float sum = 0;
-
-	// Perform PCF filtering on a 4 x 4 texel neighborhood
-    for (float y = -1.5; y <= 1.5; y += 1.0)
-    {
-        for (float x = -1.5; x <= 1.5; x += 1.0)
-        {
-            sum += gShadowMap.SampleCmpLevelZero(cmpSampler, lpos.xy + texOffset(x, y), lpos.z);
-        }
-    }
-
-    float shadowMapDepth = sum / 16.0;
-	
-    return shadowMapDepth * 0.5f + 0.5f;
-}
-
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
@@ -103,8 +49,7 @@ VS_OUTPUT VS(VS_INPUT input) {
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_TARGET
 {
-    float shadowValue = EvaluateShadowMap(input.lPos);
-    return gColor * shadowValue;
+    return gColor;
 }
 
 //--------------------------------------------------------------------------------------

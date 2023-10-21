@@ -38,6 +38,10 @@ add_library(LeapEngine
     "Components/RenderComponents/UIComponents/ICanvasElement.h"
     "GameContext/Logger/ImGuiLogger.cpp"
     "GameContext/Logger/ConsoleLogger.cpp"
-    "GameContext/Logger/FileLogger.cpp")
+    "GameContext/Logger/FileLogger.cpp"
+    "Components/Audio/AudioSource.h" 
+    "Components/Audio/AudioSource.cpp" 
+    "Components/Audio/AudioListener.h" 
+    "Components/Audio/AudioListener.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

@@ -4,7 +4,7 @@
 #include "InputManager.h"
 #include "Interfaces/IRenderer.h"
 #include "ServiceLocator/ServiceLocator.h"
-#include "Systems/FmodAudioSystem.h"
+#include "FMOD/FmodAudioSystem.h"
 #include "DirectX/DirectXEngine.h"
 
 #include "Debug.h"
@@ -50,7 +50,6 @@ void leap::LeapEngine::Run(int desiredFPS)
 {
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
-    auto& audio = ServiceLocator::GetAudio();
 
     Debug::Log("LeapEngine Log: Linking window to the Input library");
     input::InputManager::GetInstance().SetWindow(m_pWindow);
@@ -74,6 +73,8 @@ void leap::LeapEngine::Run(int desiredFPS)
 
     const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
     float fixedTotalTime{};
+
+    auto& audio = ServiceLocator::GetAudio();
 
     while (!glfwWindowShouldClose(m_pWindow))
     {

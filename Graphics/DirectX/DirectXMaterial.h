@@ -7,14 +7,13 @@
 #include <functional>
 #include <memory>
 
-#include <d3dx11effect.h>
-
 struct ID3D11InputLayout;
 struct ID3D11Device;
 struct ID3DX11Effect;
 struct ID3DX11EffectTechnique;
 struct ID3DX11EffectMatrixVariable;
 struct ID3D11ShaderResourceView;
+struct D3D11_INPUT_ELEMENT_DESC;
 
 namespace leap::graphics
 {
@@ -68,5 +67,12 @@ namespace leap::graphics
 		std::string m_AssetFile{};
 		std::unordered_map<std::string, DirectXTexture*> m_pTextures{};
 		ID3DX11EffectTechnique* m_pTechnique{};
+
+		struct MaterialVariable final
+		{
+			std::any data{};
+			unsigned int byteCount{};
+		};
+		std::unordered_map<std::string, MaterialVariable> m_MaterialVariables{};
 	};
 }
