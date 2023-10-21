@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include "Debug.h"
 #include "Observer.h"
+#include "Debug.h"
 #include <vector>
 
 namespace leap

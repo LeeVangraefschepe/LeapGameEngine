@@ -39,6 +39,7 @@ add_library(LeapEngine
     "GameContext/ImGuiLogger.h"
     "GameContext/ImGuiLogger.cpp"
     "GameContext/ConsoleLogger.h"
-    "GameContext/ConsoleLogger.cpp")
+    "GameContext/ConsoleLogger.cpp"
+    "GameContext/FileLogger.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

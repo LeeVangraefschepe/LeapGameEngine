@@ -11,6 +11,7 @@ namespace leap
 	class Window;
 	class ImGuiLogger;
 	class ConsoleLogger;
+	class FileLogger;
 	class GameContext final : public Singleton<GameContext>
 	{
 	public:
@@ -24,6 +25,7 @@ namespace leap
 		Window* GetWindow() const { return m_pWindow.get(); }
 		ImGuiLogger* GetImGuiLogger() const { return m_pImguiLogger.get(); }
 		ConsoleLogger* GetConsoleLogger() const { return m_pConsoleLogger.get(); }
+		FileLogger* GetFileLogger() const { return m_pFileLogger.get(); }
 
 	private:
 		friend Singleton;
@@ -38,5 +40,6 @@ namespace leap
 		std::unique_ptr<Window> m_pWindow;
 		std::unique_ptr<ImGuiLogger> m_pImguiLogger;
 		std::unique_ptr<ConsoleLogger> m_pConsoleLogger;
+		std::unique_ptr<FileLogger> m_pFileLogger;
 	};
 }

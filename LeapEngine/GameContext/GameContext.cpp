@@ -1,6 +1,7 @@
 #include "GameContext.h"
 
 #include "ConsoleLogger.h"
+#include "FileLogger.h"
 #include "Window.h"
 #include "ImGuiLogger.h"
 #include "Timer.h"
@@ -14,6 +15,7 @@ leap::GameContext::GameContext()
 	m_pTimer = std::make_unique<Timer>();
 	m_pImguiLogger = std::make_unique<ImGuiLogger>();
 	m_pConsoleLogger = std::make_unique<ConsoleLogger>();
+	m_pFileLogger = std::make_unique<FileLogger>();
 }
 
 void leap::GameContext::Update()

@@ -2,6 +2,7 @@
 #include "GameContext/GameContext.h"
 #include "GameContext/ImGuiLogger.h"
 #include "GameContext/ConsoleLogger.h"
+#include "GameContext/FileLogger.h"
 #include "SceneGraph/SceneManager.h"
 #include "Scenes/MainMenuScene.h"
 
@@ -9,6 +10,7 @@ int main()
 {
 	leap::GameContext::GetInstance().GetImGuiLogger()->SetEnabled(true);
 	leap::GameContext::GetInstance().GetConsoleLogger()->SetEnabled(false);
+	leap::GameContext::GetInstance().GetFileLogger()->SetEnabled(true);
 
 	leap::LeapEngine engine{1280, 720, "Leap engine"};
 	leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
