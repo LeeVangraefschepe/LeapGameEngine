@@ -160,27 +160,6 @@ namespace leap::audio
             const QueuedSound queuedSound{ id, is3dSound, stopCallback, startCallback, pChannelIdx };
             const bool isPlaying{ TryPlaySound(queuedSound) };
 
-            // Play the sound
-            FMOD::Channel* pChannel{};
-            const FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
-
-            // Throw an error if the sound was not found
-            if (result != FMOD_OK)
-                Debug::LogError("FMODAudioSystem Error: Failed to play a sound");
-
-            // Apply the given volume
-            pChannel->setVolume(volume);
-
-            // Retrieve the channel id
-            int channel{};
-            pChannel->getIndex(&channel);
-
-            // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, false });
-
-            // Return the current playing channel
-            return channel;
-
             if (!isPlaying) m_SoundsToPlay.emplace_back(queuedSound);
         }
 
@@ -200,44 +179,6 @@ namespace leap::audio
             // Throw an error if setting the volume failed
             if (result != FMOD_OK)
                 Debug::LogError("FMODAudioSystem Error: Can't set the volume on this channel");
-        }
-
-        int PlaySound3D(int id, const SoundData3D& soundData)
-        {
-            // Throw an error if no sound exists for this id
-            if (m_Sounds.size() <= id)
-                Debug::LogError("FMODAudioSystem Error: No sound found with this id");
-
-            // Retrieve the sound with this id
-            FMODSound& sound{ m_Sounds[id] };
-
-            // Play the sound
-            FMOD::Channel* pChannel{};
-            FMOD_RESULT result{ m_pSystem->playSound(sound.pSound, nullptr, false, &pChannel) };
-
-            // Throw an error if the sound was not found
-            if (result != FMOD_OK)
-                Debug::LogError("FMODAudioSystem Error: Failed to play a sound");
-
-            // Set the roll off mode of this channel
-            result = pChannel->setMode(FMOD_3D_LINEARSQUAREROLLOFF);
-
-            // Throw an error if settings the roll of mode failed
-            if (result != FMOD_OK)
-                Debug::LogError("FMODAudioSystem Error: Failed to set roll off mode for this channel");
-
-            // Retrieve the channel id
-            int channel{};
-            pChannel->getIndex(&channel);
-
-            // Insert the new channel to the sound
-            sound.channels.emplace_back(ChannelData{ channel, false, false });
-
-            // Update the 3D sound
-            UpdateSound3D(channel, soundData);
-
-            // Return the current playing channel
-            return channel;
         }
 
         void UpdateSound3D(int channel, const SoundData3D& soundData) const
