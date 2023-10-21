@@ -9,7 +9,7 @@
 
 #include "CanvasComponent.h"
 
-#include <stdexcept>
+#include "Debug.h"
 
 void leap::RectTransform::SetSize(const glm::vec2& size)
 {
@@ -134,10 +134,14 @@ void leap::RectTransform::GetCanvas()
 	if (m_pCanvas == nullptr)
 	{
 		RectTransform* pParentRect{ pParent->GetComponent<RectTransform>() };
-		if(pParentRect == nullptr) throw std::runtime_error("LeapEngine Error : A RectTransform is a child of a gameobject that doesn't have a CanvasComponent or a RectTransform.");
+		if(pParentRect == nullptr)
+		{
+			Debug::LogError("LeapEngine Error : A RectTransform is a child of a gameobject that doesn't have a CanvasComponent or a RectTransform.");
+			return;
+		}
 
 		m_pCanvas = pParentRect->m_pCanvas;
 	}
 
-	if (m_pCanvas == nullptr) throw std::runtime_error("LeapEngine Error : A RectTransform is a child of a gameobject that doesn't have a CanvasComponent or a RectTransform.");
+	if (m_pCanvas == nullptr) Debug::LogError("LeapEngine Error : A RectTransform is a child of a gameobject that doesn't have a CanvasComponent or a RectTransform.");
 }
