@@ -57,9 +57,7 @@ void leap::ImGuiLogger::OnGUI()
         }
 
         if (ImGui::BeginTabItem("Clear")) {
-            m_Logs[0].clear();
-            m_Logs[1].clear();
-            m_Logs[2].clear();
+            m_Logs[static_cast<int>(m_ActiveType)].clear();
             ImGui::EndTabItem();
             ImGui::SetTabItemClosed("Clear");
         }
