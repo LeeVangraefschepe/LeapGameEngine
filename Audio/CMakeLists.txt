@@ -1,5 +1,5 @@
 #Audio engine cmake
-add_library(AudioEngine 
+add_library(AudioEngine STATIC
 	"Interfaces/IAudioSystem.h"  
 	"HelperObjects/SoundData3D.h" 
 	"FMOD/FmodAudioSystem.h" 

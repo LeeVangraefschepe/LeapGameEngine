@@ -1,5 +1,5 @@
 #Leap engine library
-add_library(LeapEngine 
+add_library(LeapEngine STATIC
     "Leap.h"
     "Leap.cpp"
     "GameContext/Timer.h"

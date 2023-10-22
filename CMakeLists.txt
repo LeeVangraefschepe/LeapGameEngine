@@ -2,7 +2,6 @@
 cmake_minimum_required(VERSION 3.22)
 
 Project(Leap VERSION 1.0.0)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -71,7 +70,8 @@ message("Include dir: ${EngineUtilsIncludeDir}")
 add_subdirectory(Physics)
 message("Include dir: ${PhysicsEngineIncludeDir}")
 target_include_directories(PhysicsEngine PUBLIC ${GLMIncludeDir} ${PHYSX_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(PhysicsEngine PUBLIC ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR} EngineUtils)
+target_link_libraries(PhysicsEngine PUBLIC EngineUtils)
+target_link_libraries(PhysicsEngine PRIVATE ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR})
 
 # Graphics Engine
 add_subdirectory(Graphics)
@@ -81,21 +81,24 @@ target_include_directories(
 	${GLFW_INCLUDE_DIR}
 	${GLMIncludeDir}
 	${EngineUtilsIncludeDir}
-	${VkBootstrapIncludeDir}
 )
-target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} EngineUtils)
+target_link_libraries(GraphicsEngine PRIVATE ${GLFW_LIBRARY_DIR})
+target_link_libraries(GraphicsEngine PUBLIC EngineUtils)
 
 # Input Engine
 add_subdirectory(Inputs)
 message("Include dir: ${InputEngineIncludeDir}")
 target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} EngineUtils)
+target_link_libraries(InputEngine PRIVATE ${GLFW_LIBRARY_DIR})
+target_link_libraries(InputEngine PUBLIC EngineUtils)
 
 # Audio Engine
 add_subdirectory(Audio)
 message("Include dir: ${AudioEngineIncludeDir}")
-target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${FMOD_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(AudioEngine PUBLIC ${FMOD_LIBRARY_DIR} EngineUtils)
+target_include_directories(AudioEngine PRIVATE ${FMOD_INCLUDE_DIR})
+target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${EngineUtilsIncludeDir})
+target_link_libraries(AudioEngine PRIVATE ${FMOD_LIBRARY_DIR})
+target_link_libraries(AudioEngine PUBLIC EngineUtils)
 
 # Networking Engine
 add_subdirectory(Networking)
@@ -123,7 +126,8 @@ target_link_libraries(
 	AudioEngine
 	NetworkingEngine
 	EngineUtils
-	${GLFW_LIBRARY_DIR})
+)
+target_link_libraries(LeapEngine PRIVATE ${GLFW_LIBRARY_DIR})
 
 # Game Project
 add_subdirectory(UnnamedAdventureGame)
