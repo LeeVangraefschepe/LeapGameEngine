@@ -39,6 +39,8 @@ add_library(LeapEngine
     "Components/Audio/AudioSource.h" 
     "Components/Audio/AudioSource.cpp" 
     "Components/Audio/AudioListener.h" 
-    "Components/Audio/AudioListener.cpp")
+    "Components/Audio/AudioListener.cpp" 
+    "Components/RenderComponents/TerrainComponent.h"
+    "Components/RenderComponents/TerrainComponent.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

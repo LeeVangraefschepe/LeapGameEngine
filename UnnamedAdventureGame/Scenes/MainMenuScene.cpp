@@ -41,6 +41,9 @@
 #include <iostream>
 #include "../Components/AudioTester.h"
 
+#include "Shaders/Heightmap.h"
+#include <Components/RenderComponents/TerrainComponent.h>
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -50,9 +53,20 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
+	pMainCamera->GetData()->SetFarPlane(1000.0f);
 	pCameraObj->AddComponent<FreeCamMovement>();
 	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
+
+	auto canvas{ scene.CreateGameObject("Canvas") };
+	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
+	pCanvas->SetReferenceResolution({ 1920,1080 });
+	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
+	canvas->AddComponent<leap::CanvasActions>();
+
+	leap::GameObject* pHeightMap{ scene.CreateGameObject("HeightMap")};
+	pHeightMap->AddComponent<leap::MeshRendererComponent>()->SetMaterial(leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::Heightmap::GetShader(), "HeightMap"));
+	pHeightMap->AddComponent<leap::TerrainComponent>();
 
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
@@ -82,12 +96,6 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	};
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
-
-	auto canvas{ scene.CreateGameObject("Canvas") };
-	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
-	pCanvas->SetReferenceResolution({ 1920,1080 });
-	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
-	canvas->AddComponent<leap::CanvasActions>();
 
 	leap::audio::IAudioClip* pClip{ leap::ServiceLocator::GetAudio().LoadClip("Data/sound.mp3", true) };
 

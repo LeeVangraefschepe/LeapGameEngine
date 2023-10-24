@@ -6,7 +6,16 @@
 
 #include <sstream>
 
-leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, const std::string& path)
+#include "DirectXEngine.h"
+
+leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, int width, int height)
+	: m_pDeviceContext{ pDeviceContext }
+{
+	LoadTexture(pDevice, width, height);
+}
+
+leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& path)
+	: m_pDeviceContext{ pDeviceContext }
 {
 	LoadTexture(pDevice, path);
 }
@@ -23,6 +32,19 @@ glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/) const
 	throw std::runtime_error("DirectXEngine Error: GetPixel is not implemented");
 }
 
+void leap::graphics::DirectXTexture::SetPixel(int x, int y, const glm::vec4& color)
+{
+	glm::uvec4 unsignedColor{ color * 255.0f };
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource{};
+	const HRESULT result{ m_pDeviceContext->Map(m_pResource, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource) };
+	if (FAILED(result)) throw std::runtime_error("DirectXRenderer Error : Failed to map texture to CPU");
+
+	memcpy(static_cast<unsigned char*>(mappedResource.pData) + (x + y * 1024), &unsignedColor, sizeof(unsignedColor));
+
+	m_pDeviceContext->Unmap(m_pResource, 0);
+}
+
 glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
 {
 	D3D11_TEXTURE2D_DESC desc{};
@@ -30,14 +52,57 @@ glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
 	return { desc.Width, desc.Height };
 }
 
-void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, const std::string& path)
+void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& path)
 {
+	m_pDeviceContext = pDeviceContext;
+
 	if (m_pResource) m_pResource->Release();
 	if (m_pSRV) m_pSRV->Release();
 
 	LoadTexture(pDevice, path);
 }
 
+void leap::graphics::DirectXTexture::StoreData(ID3D11Device* pDevice)
+{
+	D3D11_TEXTURE2D_DESC desc{};
+	m_pResource->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
+	desc.BindFlags = 0;
+
+	ID3D11Texture2D* pStagingTexture{};
+	HRESULT result{ pDevice->CreateTexture2D(&desc, nullptr, &pStagingTexture) };
+	if(FAILED(result) || !pStagingTexture) throw std::runtime_error("DirectXEngine Error: Cannot create staging texture");
+
+	m_pDeviceContext->CopyResource(pStagingTexture, m_pResource);
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource{};
+	m_pDeviceContext->Map(pStagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
+
+	const unsigned int nrBytes{ mappedResource.DepthPitch };
+
+	m_pData = std::make_unique<std::vector<char>>(nrBytes);
+
+	memcpy(m_pData->data(), mappedResource.pData, nrBytes);
+
+	m_pDeviceContext->Unmap(m_pResource, 0);
+}
+
+void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+{
+	m_pDeviceContext = pDeviceContext;
+
+	int width{}, height{};
+	D3D11_TEXTURE2D_DESC textureDesc{};
+	m_pResource->GetDesc(&textureDesc);
+	width = textureDesc.Width;
+	height = textureDesc.Height;
+
+	if (m_pResource) m_pResource->Release();
+	if (m_pSRV) m_pSRV->Release();
+
+	LoadTexture(pDevice, width, height);
+}
 void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const std::string& path)
 {
 	// Create a WIC factory
@@ -122,7 +187,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	desc.MiscFlags = 0;
 
 	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = /*realP*/pPixelData;
+	initData.pSysMem = pPixelData;
 	initData.SysMemPitch = stride;
 	initData.SysMemSlicePitch = static_cast<UINT>(wicHeight * stride);
 
@@ -143,6 +208,50 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	pWICFactory->Release();
 	pWICDecoder->Release();
 	pWICFrame->Release();
+}
+
+void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, int width, int height)
+{
+	// Create a texture from the pixel data
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = static_cast<unsigned int>(width);
+	desc.Height = static_cast<unsigned int>(height);
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_R32_FLOAT;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.MiscFlags = 0;
+
+	if (m_pData)
+	{
+		D3D11_SUBRESOURCE_DATA initData{};
+		initData.pSysMem = m_pData->data();
+		initData.SysMemPitch = static_cast<UINT>(m_pData->size() / height);
+		initData.SysMemSlicePitch = static_cast<UINT>(m_pData->size());
+
+		const HRESULT result{ pDevice->CreateTexture2D(&desc, &initData, &m_pResource) };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create directX texture using the previous data" };
+
+		m_pData = nullptr;
+	}
+	else
+	{
+		const HRESULT result{ pDevice->CreateTexture2D(&desc, nullptr, &m_pResource) };
+		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create empty directX texture" };
+	}
+
+	// Create shader resource view
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	const HRESULT result{ pDevice->CreateShaderResourceView(m_pResource, &srvDesc, &m_pSRV) };
+	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create shader resource view with the given texture" };
 }
 
 DXGI_FORMAT leap::graphics::DirectXTexture::ConvertWICToDXGI(const WICPixelFormatGUID& wicFormatGUID)

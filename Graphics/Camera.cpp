@@ -26,6 +26,18 @@ void leap::graphics::Camera::SetTransform(const glm::mat4x3& transform)
 	m_IsDirty = true;
 }
 
+void leap::graphics::Camera::SetFarPlane(float farPlane)
+{
+	m_FarC = farPlane;
+	CalculateProjectionMatrix();
+}
+
+void leap::graphics::Camera::SetNearPlane(float nearPlane)
+{
+	m_NearC = nearPlane;
+	CalculateProjectionMatrix();
+}
+
 const glm::mat4x4& leap::graphics::Camera::GetViewMatrix()
 {
 	if (m_IsDirty) CalculateViewMatrix();

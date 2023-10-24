@@ -23,28 +23,28 @@ void unag::FreeCamMovement::Start()
 	// Link keyboard input
 	auto command = std::make_unique<leap::LambdaCommand>([=]()
 		{
-			GetGameObject()->GetParent()->GetTransform()->Translate(-GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
+			GetGameObject()->GetParent()->GetTransform()->Translate(-GetTransform()->GetRight() * 100.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 		});
 	keyboard->AddCommand(command.get(), leap::input::InputManager::InputType::EventRepeat, leap::input::Keyboard::Key::KeyA);
 	m_Commands.push_back(std::move(command));
 
 	command = std::make_unique<leap::LambdaCommand>([=]()
 		{
-			GetGameObject()->GetParent()->GetTransform()->Translate(GetTransform()->GetRight() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
+			GetGameObject()->GetParent()->GetTransform()->Translate(GetTransform()->GetRight() * 100.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 		});
 	keyboard->AddCommand(command.get(), leap::input::InputManager::InputType::EventRepeat, leap::input::Keyboard::Key::KeyD);
 	m_Commands.push_back(std::move(command));
 
 	command = std::make_unique<leap::LambdaCommand>([=]()
 		{
-			GetGameObject()->GetParent()->GetTransform()->Translate(GetTransform()->GetForward() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
+			GetGameObject()->GetParent()->GetTransform()->Translate(GetTransform()->GetForward() * 100.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 		});
 	keyboard->AddCommand(command.get(), leap::input::InputManager::InputType::EventRepeat, leap::input::Keyboard::Key::KeyW);
 	m_Commands.push_back(std::move(command));
 
 	command = std::make_unique<leap::LambdaCommand>([=]()
 		{
-			GetGameObject()->GetParent()->GetTransform()->Translate(-GetTransform()->GetForward() * 10.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
+			GetGameObject()->GetParent()->GetTransform()->Translate(-GetTransform()->GetForward() * 100.0f * leap::GameContext::GetInstance().GetTimer()->GetDeltaTime());
 		});
 	keyboard->AddCommand(command.get(), leap::input::InputManager::InputType::EventRepeat, leap::input::Keyboard::Key::KeyS);
 	m_Commands.push_back(std::move(command));

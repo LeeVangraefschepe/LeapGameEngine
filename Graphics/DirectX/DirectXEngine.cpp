@@ -137,11 +137,26 @@ leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std
 		return it->second.get();
 	}
 
-	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, path) };
+	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, m_pDeviceContext, path) };
 	auto pTextureRaw{ pTexture.get() };
 
 	m_pTextures[path] = std::move(pTexture);
 	return pTextureRaw;
+}
+
+leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(int width, int height)
+{
+	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, m_pDeviceContext, width, height) };
+	auto pTextureRaw{ pTexture.get() };
+
+	m_pUniqueTextures.emplace_back(std::move(pTexture));
+
+	return pTextureRaw;
+}
+
+ID3D11Device* leap::graphics::DirectXEngine::GetDevice() const
+{
+	return m_pDevice;
 }
 
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
@@ -185,6 +200,12 @@ void leap::graphics::DirectXEngine::Release()
 
 void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 {
+	// Store all the previous texture information to reapply it later to reloaded textures
+	for (const auto& pTexture : m_pUniqueTextures)
+	{
+		pTexture->StoreData(m_pDevice);
+	}
+
 	// Release the previous version of the graphics engine
 	Release();
 
@@ -287,7 +308,11 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	// Reload existing textures, materials & meshes using new video settings
 	for (const auto& texturePair : m_pTextures)
 	{
-		texturePair.second->Reload(m_pDevice, texturePair.first);
+		texturePair.second->Reload(m_pDevice, m_pDeviceContext, texturePair.first);
+	}
+	for (const auto& pTexture : m_pUniqueTextures)
+	{
+		pTexture->Reload(m_pDevice, m_pDeviceContext);
 	}
 
 	for (const auto& materialPair : m_pMaterials)
