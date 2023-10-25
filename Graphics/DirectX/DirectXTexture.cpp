@@ -60,7 +60,11 @@ void leap::graphics::DirectXTexture::StoreData(ID3D11Device* pDevice)
 
 	ID3D11Texture2D* pStagingTexture{};
 	HRESULT result{ pDevice->CreateTexture2D(&desc, nullptr, &pStagingTexture) };
-	if(FAILED(result) || !pStagingTexture) throw std::runtime_error("DirectXEngine Error: Cannot create staging texture");
+	if (FAILED(result) || !pStagingTexture)
+	{
+		Debug::LogError("DirectXEngine Error: Cannot create staging texture");
+		return;
+	}
 
 	m_pDeviceContext->CopyResource(pStagingTexture, m_pResource);
 
@@ -98,14 +102,22 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	// Create a WIC factory
 	IWICImagingFactory* pWICFactory{};
 	HRESULT result{ CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pWICFactory)) };
-	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create WIC factory when creating a texture");
+	if (FAILED(result))
+	{
+		Debug::LogError("DirectXEngine Error: Failed to create WIC factory when creating a texture");
+		return;
+	}
 
 	// Load the image using WIC
 	std::wstringstream wss{};
 	wss << path.c_str();
 	IWICBitmapDecoder* pWICDecoder;
 	result = pWICFactory->CreateDecoderFromFilename(wss.str().c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pWICDecoder);
-	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to load image using the WIC factory");
+	if (FAILED(result))
+	{
+		Debug::LogError("DirectXEngine Error: Failed to load image using the WIC factory");
+		return;
+	}
 
 	// Get the WIC frame from the image
 	IWICBitmapFrameDecode* pWICFrame{};
@@ -159,7 +171,11 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	{
 		// If the format was a dxgi supported format, just copy data from the wic frame to pixel array
 		result = pWICFrame->CopyPixels(nullptr, stride, bufferSize, pPixelData);
-		if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to copy pixeldata to bitmap");
+		if (FAILED(result))
+		{
+			Debug::LogError("DirectXEngine Error: Failed to copy pixeldata to bitmap");
+			return;
+		}
 	}
 
 	// Create a texture from the pixel data
@@ -182,7 +198,11 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	initData.SysMemSlicePitch = static_cast<UINT>(wicHeight * stride);
 
 	result = pDevice->CreateTexture2D(&desc, &initData, &m_pResource);
-	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create directX texture using the WIC frame");
+	if (FAILED(result))
+	{
+		Debug::LogError("DirectXEngine Error: Failed to create directX texture using the WIC frame");
+		return;
+	}
 
 	// Create shader resource view
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -224,14 +244,22 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, int widt
 		initData.SysMemSlicePitch = static_cast<UINT>(m_pData->size());
 
 		const HRESULT result{ pDevice->CreateTexture2D(&desc, &initData, &m_pResource) };
-		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create directX texture using the previous data" };
+		if (FAILED(result))
+		{
+			Debug::LogError("DirectXEngine Error: Failed to create directX texture using the previous data");
+			return;
+		}
 
 		m_pData = nullptr;
 	}
 	else
 	{
 		const HRESULT result{ pDevice->CreateTexture2D(&desc, nullptr, &m_pResource) };
-		if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create empty directX texture" };
+		if (FAILED(result))
+		{
+			Debug::LogError("DirectXEngine Error: Failed to create empty directX texture");
+			return;
+		}
 	}
 
 	// Create shader resource view
@@ -241,7 +269,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, int widt
 	srvDesc.Texture2D.MipLevels = 1;
 
 	const HRESULT result{ pDevice->CreateShaderResourceView(m_pResource, &srvDesc, &m_pSRV) };
-	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error: Failed to create shader resource view with the given texture" };
+	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create shader resource view with the given texture");
 }
 
 DXGI_FORMAT leap::graphics::DirectXTexture::ConvertWICToDXGI(const WICPixelFormatGUID& wicFormatGUID)
