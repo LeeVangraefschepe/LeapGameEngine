@@ -7,6 +7,7 @@
 #include "../../ServiceLocator/ServiceLocator.h"
 #include "../Transform/Transform.h"
 #include "../../GameContext/GameContext.h"
+#include "../../GameContext/Window.h"
 
 leap::CameraComponent::CameraComponent()
 {

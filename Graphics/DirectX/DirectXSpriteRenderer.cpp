@@ -6,7 +6,8 @@
 #include "../Shaders/Sprites.h"
 
 #include <algorithm>
-#include <stdexcept>
+
+#include "Debug.h"
 
 void leap::graphics::DirectXSpriteRenderer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const glm::vec2& screenSize)
 {
@@ -86,7 +87,7 @@ void leap::graphics::DirectXSpriteRenderer::DrawSprite(Sprite* pSprite) const
 
 	ID3D11Buffer* pVertexBuffer{};
 	HRESULT result{ m_pDevice->CreateBuffer(&bd, &initData, &pVertexBuffer) };
-	if (FAILED(result)) throw std::runtime_error{ "DirectXEngine Error : Failed to created a vertex buffer for sprites" };
+	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to created a vertex buffer for sprites");
 
 	// Set vertex buffer
 	constexpr UINT stride{ sizeof(SpriteVertex) };

@@ -10,6 +10,7 @@
 #include "Interfaces/IRenderer.h"
 
 #include "GameContext/GameContext.h"
+#include "GameContext/Window.h"
 
 #include <Components/RenderComponents/MeshRenderer.h>
 #include "../Components/Transformator.h"
@@ -32,13 +33,13 @@
 #include "Components/RenderComponents/UIComponents/Button.h"
 #include "Components/RenderComponents/UIComponents/CanvasActions.h"
 
+#include "Debug.h"
 #include <Interfaces/IAudioSystem.h>
 #include <Interfaces/IAudioClip.h>
 
 #include <Components/Audio/AudioSource.h>
 #include <Components/Audio/AudioListener.h>
 
-#include <iostream>
 #include "../Components/AudioTester.h"
 
 #include "Shaders/Heightmap.h"
@@ -106,6 +107,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	rotator->AddComponent<Transformator>();
 
 	auto bunnyMesh{ rotator->CreateChild("Bunny mesh") };
+	
 	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };
 	pBunnyMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
 	pBunnyMeshRenderer->SetMaterial(pNormalMaterial);

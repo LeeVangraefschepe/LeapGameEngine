@@ -71,7 +71,7 @@ message("Include dir: ${EngineUtilsIncludeDir}")
 add_subdirectory(Physics)
 message("Include dir: ${PhysicsEngineIncludeDir}")
 target_include_directories(PhysicsEngine PUBLIC ${GLMIncludeDir} ${PHYSX_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(PhysicsEngine PUBLIC ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR})
+target_link_libraries(PhysicsEngine PUBLIC ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR} EngineUtils)
 
 # Graphics Engine
 add_subdirectory(Graphics)
@@ -83,23 +83,23 @@ target_include_directories(
 	${EngineUtilsIncludeDir}
 	${VkBootstrapIncludeDir}
 )
-target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR})
+target_link_libraries(GraphicsEngine PUBLIC ${GLFW_LIBRARY_DIR} EngineUtils)
 
 # Input Engine
 add_subdirectory(Inputs)
 message("Include dir: ${InputEngineIncludeDir}")
 target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR})
+target_link_libraries(InputEngine PUBLIC ${GLFW_LIBRARY_DIR} EngineUtils)
 
 # Audio Engine
 add_subdirectory(Audio)
 message("Include dir: ${AudioEngineIncludeDir}")
 target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${FMOD_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(AudioEngine PUBLIC ${FMOD_LIBRARY_DIR})
+target_link_libraries(AudioEngine PUBLIC ${FMOD_LIBRARY_DIR} EngineUtils)
 
 # Networking Engine
 add_subdirectory(Networking)
-target_include_directories(NetworkingEngine PUBLIC ${EngineUtilsIncludeDir})
+target_include_directories(NetworkingEngine PUBLIC ${EngineUtilsIncludeDir} EngineUtils)
 message("Include dir: ${NetworkingEngineIncludeDir}")
 
 # Main Engine
@@ -122,6 +122,7 @@ target_link_libraries(
 	InputEngine
 	AudioEngine
 	NetworkingEngine
+	EngineUtils
 	${GLFW_LIBRARY_DIR})
 
 # Game Project
