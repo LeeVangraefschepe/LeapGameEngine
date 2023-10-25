@@ -30,11 +30,19 @@ void leap::TerrainComponent::Awake()
 
 	// Create material
 	graphics::IMaterial* pMaterial{ ServiceLocator::GetRenderer().CreateMaterial(graphics::shaders::Heightmap::GetShader(), "Heightmap") };
-	pMaterial->SetTexture("gHeightMap", m_pTexture);
 	pMeshRenderer->SetMaterial(pMaterial);
+
+	// Apply texture
+	SetTexture(m_pTexture);
 }
 
 void leap::TerrainComponent::ApplyHeights()
 {
 	m_pTexture->SetData(m_Heights.data(), static_cast<unsigned int>(m_Heights.size() * sizeof(float)));
+}
+
+void leap::TerrainComponent::SetTexture(leap::graphics::ITexture* pTexture)
+{
+	m_pTexture = pTexture;
+	GetGameObject()->GetComponent<MeshRendererComponent>()->GetMaterial()->SetTexture("gHeightMap", m_pTexture);
 }

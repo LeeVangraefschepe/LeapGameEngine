@@ -29,6 +29,11 @@ void leap::MeshRendererComponent::SetMaterial(graphics::IMaterial* pMaterial)
 	m_pRenderer->SetMaterial(pMaterial);
 }
 
+leap::graphics::IMaterial* leap::MeshRendererComponent::GetMaterial() const
+{
+	return m_pRenderer->GetMaterial();
+}
+
 void leap::MeshRendererComponent::LateUpdate()
 {
 	m_pRenderer->SetTransform(GetTransform()->GetWorldTransform());

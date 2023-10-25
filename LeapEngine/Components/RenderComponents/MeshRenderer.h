@@ -25,6 +25,7 @@ namespace leap
 		void LoadMesh(const std::string& filePath);
 		void LoadMesh(const graphics::CustomMesh& mesh);
 		void SetMaterial(graphics::IMaterial* pMaterial);
+		graphics::IMaterial* GetMaterial() const;
 
 	protected:
 		virtual void LateUpdate() override;

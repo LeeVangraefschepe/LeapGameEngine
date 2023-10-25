@@ -26,6 +26,8 @@ namespace leap
 		std::vector<float>& GetHeights() { return m_Heights; }
 		void ApplyHeights();
 
+		void SetTexture(graphics::ITexture* pTexture);
+
 	private:
 		virtual void Awake() override;
 
