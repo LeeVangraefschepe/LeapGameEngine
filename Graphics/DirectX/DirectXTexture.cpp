@@ -26,23 +26,9 @@ leap::graphics::DirectXTexture::~DirectXTexture()
 	if(m_pSRV) m_pSRV->Release();
 }
 
-glm::vec4 leap::graphics::DirectXTexture::GetPixel(int /*x*/, int /*y*/) const
+void leap::graphics::DirectXTexture::SetData(void* pData, unsigned int nrBytes)
 {
-	// TODO: Implement this function
-	throw std::runtime_error("DirectXEngine Error: GetPixel is not implemented");
-}
-
-void leap::graphics::DirectXTexture::SetPixel(int x, int y, const glm::vec4& color)
-{
-	glm::uvec4 unsignedColor{ color * 255.0f };
-
-	D3D11_MAPPED_SUBRESOURCE mappedResource{};
-	const HRESULT result{ m_pDeviceContext->Map(m_pResource, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource) };
-	if (FAILED(result)) throw std::runtime_error("DirectXRenderer Error : Failed to map texture to CPU");
-
-	memcpy(static_cast<unsigned char*>(mappedResource.pData) + (x + y * 1024), &unsignedColor, sizeof(unsignedColor));
-
-	m_pDeviceContext->Unmap(m_pResource, 0);
+	m_pDeviceContext->UpdateSubresource(m_pResource, 0, nullptr, pData, nrBytes / GetSize().x, nrBytes);
 }
 
 glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
@@ -86,6 +72,8 @@ void leap::graphics::DirectXTexture::StoreData(ID3D11Device* pDevice)
 	memcpy(m_pData->data(), mappedResource.pData, nrBytes);
 
 	m_pDeviceContext->Unmap(m_pResource, 0);
+
+	pStagingTexture->Release();
 }
 
 void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
@@ -221,7 +209,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, int widt
 	desc.Format = DXGI_FORMAT_R32_FLOAT;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MiscFlags = 0;
@@ -246,7 +234,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, int widt
 
 	// Create shader resource view
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.Format = desc.Format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 

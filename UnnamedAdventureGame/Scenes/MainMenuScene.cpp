@@ -44,6 +44,8 @@
 #include "Shaders/Heightmap.h"
 #include <Components/RenderComponents/TerrainComponent.h>
 
+#include "../Components/SineWaveTerrain.h"
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -65,8 +67,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	canvas->AddComponent<leap::CanvasActions>();
 
 	leap::GameObject* pHeightMap{ scene.CreateGameObject("HeightMap")};
-	pHeightMap->AddComponent<leap::MeshRendererComponent>()->SetMaterial(leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::Heightmap::GetShader(), "HeightMap"));
+	pHeightMap->AddComponent<leap::MeshRendererComponent>();
 	pHeightMap->AddComponent<leap::TerrainComponent>();
+	pHeightMap->AddComponent<SineWaveTerrain>();
 
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
