@@ -64,41 +64,18 @@ message("Include dir: ${GLMIncludeDir}")
 
 # Utils
 add_subdirectory(Utils)
-message("Include dir: ${EngineUtilsIncludeDir}")
 
 # Physics Engine
 add_subdirectory(Physics)
-message("Include dir: ${PhysicsEngineIncludeDir}")
-target_include_directories(PhysicsEngine PUBLIC ${GLMIncludeDir} ${PHYSX_INCLUDE_DIR} ${EngineUtilsIncludeDir})
-target_link_libraries(PhysicsEngine PUBLIC EngineUtils)
-target_link_libraries(PhysicsEngine PRIVATE ${PHYSX_LIBRARY_DIR} ${PHYSX_COMMON_LIBRARY_DIR} ${PHYSX_COOKING_LIBRARY_DIR} ${PHYSX_FOUNDATION_LIBRARY_DIR})
 
 # Graphics Engine
 add_subdirectory(Graphics)
-message("Include dir: ${GraphicsEngineIncludeDir}")
-target_include_directories(
-	GraphicsEngine PUBLIC 
-	${GLFW_INCLUDE_DIR}
-	${GLMIncludeDir}
-	${EngineUtilsIncludeDir}
-)
-target_link_libraries(GraphicsEngine PRIVATE ${GLFW_LIBRARY_DIR})
-target_link_libraries(GraphicsEngine PUBLIC EngineUtils)
 
 # Input Engine
 add_subdirectory(Inputs)
-message("Include dir: ${InputEngineIncludeDir}")
-target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(InputEngine PRIVATE ${GLFW_LIBRARY_DIR})
-target_link_libraries(InputEngine PUBLIC EngineUtils)
 
 # Audio Engine
 add_subdirectory(Audio)
-message("Include dir: ${AudioEngineIncludeDir}")
-target_include_directories(AudioEngine PRIVATE ${FMOD_INCLUDE_DIR})
-target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${EngineUtilsIncludeDir})
-target_link_libraries(AudioEngine PRIVATE ${FMOD_LIBRARY_DIR})
-target_link_libraries(AudioEngine PUBLIC EngineUtils)
 
 # Networking Engine
 add_subdirectory(Networking)
@@ -107,29 +84,6 @@ message("Include dir: ${NetworkingEngineIncludeDir}")
 
 # Main Engine
 add_subdirectory(LeapEngine)
-message("Include dir: ${LeapEngineIncludeDir}")
-target_include_directories(
-	LeapEngine PUBLIC 
-	${PhysicsEngineIncludeDir} 
-	${GraphicsEngineIncludeDir}
-	${InputEngineIncludeDir}
-	${AudioEngineIncludeDir}
-	${NetworkingEngineIncludeDir}
-	${GLFW_INCLUDE_DIR}
-	${GLMIncludeDir} 
-	${EngineUtilsIncludeDir})
-target_link_libraries(
-	LeapEngine PUBLIC 
-	PhysicsEngine
-	GraphicsEngine
-	InputEngine
-	AudioEngine
-	NetworkingEngine
-	EngineUtils
-)
-target_link_libraries(LeapEngine PRIVATE ${GLFW_LIBRARY_DIR})
 
 # Game Project
 add_subdirectory(UnnamedAdventureGame)
-target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
-target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine)

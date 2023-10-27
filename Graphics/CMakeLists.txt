@@ -67,5 +67,15 @@ endif()
 
 set(GraphicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
 
-target_include_directories(GraphicsEngine PUBLIC ${DIRECTX_TEX_INCLUDE_DIR} ${FX11_INCLUDE_DIR})
-target_link_libraries(GraphicsEngine PUBLIC ${FX11_LIBRARY_DIR})
+target_include_directories(
+	GraphicsEngine PUBLIC 
+	${GLFW_INCLUDE_DIR}
+	${GLMIncludeDir}
+	${EngineUtilsIncludeDir}
+	${DIRECTX_TEX_INCLUDE_DIR}
+	${FX11_INCLUDE_DIR}
+)
+target_link_libraries(GraphicsEngine PRIVATE ${GLFW_LIBRARY_DIR} ${FX11_LIBRARY_DIR})
+target_link_libraries(GraphicsEngine PUBLIC EngineUtils)
+
+message("Include dir: ${GraphicsEngineIncludeDir}")
