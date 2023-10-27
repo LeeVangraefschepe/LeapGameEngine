@@ -35,7 +35,7 @@ std::unique_ptr<leap::graphics::Shader, leap::graphics::ShaderDelete> leap::grap
 
 			return vertexDesc;
 		};
-	pShader->directXDataPath = "Data/Sprites.fx";
+	pShader->directXDataPath = "Data/Engine/Shaders/Sprites.fx";
 
 	return std::move(pShader);
 }

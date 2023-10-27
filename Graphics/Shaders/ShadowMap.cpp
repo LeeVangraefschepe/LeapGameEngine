@@ -20,7 +20,7 @@ std::unique_ptr<leap::graphics::Shader, leap::graphics::ShaderDelete> leap::grap
 
 			return vertexDesc;
 		};
-	pShader->directXDataPath = "Data/ShadowMap.fx";
+	pShader->directXDataPath = "Data/Engine/Shaders/ShadowMap.fx";
 
 	return std::move(pShader);
 }

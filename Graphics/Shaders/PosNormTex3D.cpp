@@ -30,7 +30,7 @@ std::unique_ptr<leap::graphics::Shader, leap::graphics::ShaderDelete> leap::grap
 
 		return vertexDesc;
 	};
-	pShader->directXDataPath = "Data/PosNormTex3D.fx";
+	pShader->directXDataPath = "Data/Engine/Shaders/PosNormTex3D.fx";
 
 	return std::move(pShader);
 }
