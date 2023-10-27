@@ -1,7 +1,8 @@
 #Audio engine cmake
 add_library(AudioEngine STATIC
 	"FMOD/FmodAudioSystem.cpp" 
-	"FMOD/FmodAudioClip.cpp")
+	"FMOD/FmodAudioClip.cpp"
+)
 
 target_include_directories(AudioEngine PRIVATE ${FMOD_INCLUDE_DIR})
 target_include_directories(AudioEngine PUBLIC ${GLMIncludeDir} ${EngineUtilsIncludeDir})

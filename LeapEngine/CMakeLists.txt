@@ -1,6 +1,5 @@
 #Leap engine library
 add_library(LeapEngine STATIC
-    "Leap.h"
     "Leap.cpp"
     "GameContext/Timer.cpp"
     "GameContext/GameContext.cpp"
@@ -23,7 +22,8 @@ add_library(LeapEngine STATIC
     "GameContext/Logger/ConsoleLogger.cpp"
     "GameContext/Logger/FileLogger.cpp"
     "Components/Audio/AudioSource.cpp" 
-    "Components/Audio/AudioListener.cpp")
+    "Components/Audio/AudioListener.cpp"
+)
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
 message("Include dir: ${LeapEngineIncludeDir}")

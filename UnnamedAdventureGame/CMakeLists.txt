@@ -1,13 +1,14 @@
 # Game cmake
 
 add_executable(UnnamedAdventureGame
-"main.cpp"
-"Scenes/MainMenuScene.cpp"
-"Components/Transformator.cpp"
-"Components/InfoUI.cpp"
-"Components/FreeCamMovement.cpp"
-"Components/WindowManager.cpp"
-"Components/AudioTester.cpp")
+	"main.cpp"
+	"Scenes/MainMenuScene.cpp"
+	"Components/Transformator.cpp"
+	"Components/InfoUI.cpp"
+	"Components/FreeCamMovement.cpp"
+	"Components/WindowManager.cpp"
+	"Components/AudioTester.cpp"
+)
 
 target_include_directories(
 	LeapEngine PUBLIC 

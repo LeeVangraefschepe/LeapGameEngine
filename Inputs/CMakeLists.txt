@@ -1,8 +1,9 @@
 #Input engine cmake
 add_library(InputEngine STATIC
-"InputManager.cpp"
-"Mouse.cpp"
-"Keyboard.cpp")
+	"InputManager.cpp"
+	"Mouse.cpp"
+	"Keyboard.cpp"
+)
 
 target_include_directories(InputEngine PUBLIC ${GLFW_INCLUDE_DIR} ${GLMIncludeDir} ${EngineUtilsIncludeDir})
 target_link_libraries(InputEngine PRIVATE ${GLFW_LIBRARY_DIR})
