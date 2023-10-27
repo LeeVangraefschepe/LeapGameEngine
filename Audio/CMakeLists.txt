@@ -1,12 +1,6 @@
 #Audio engine cmake
 add_library(AudioEngine STATIC
-	"Interfaces/IAudioSystem.h"  
-	"HelperObjects/SoundData3D.h" 
-	"FMOD/FmodAudioSystem.h" 
 	"FMOD/FmodAudioSystem.cpp" 
-	"HelperObjects/ChannelData.h" 
-	"Interfaces/IAudioClip.h" 
-	"FMOD/FmodAudioClip.h"
 	"FMOD/FmodAudioClip.cpp")
 
 target_include_directories(AudioEngine PRIVATE ${FMOD_INCLUDE_DIR})

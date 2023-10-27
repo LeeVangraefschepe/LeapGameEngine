@@ -1,6 +1,5 @@
 #Networking engine cmake
 add_library(NetworkingEngine STATIC
-Client.h
 Client.cpp)
 
 target_include_directories(NetworkingEngine PUBLIC ${EngineUtilsIncludeDir} EngineUtils)
