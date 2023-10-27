@@ -27,23 +27,6 @@ add_library(GraphicsEngine STATIC
 	"DirectX/DirectXDefaults.cpp"
 )
 
-# DirectXTex
-set(DIRECTX_TEX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/DirectXTex/include")
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(DIRECTX_TEX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/DirectXTex/lib/debug/DirectXTex.lib")
-else()
-	set(DIRECTX_TEX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/DirectXTex/lib/release/DirectXTex.lib")
-endif()
-
-# FX11
-set(FX11_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/FX11/include")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-set(FX11_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/FX11/lib/debug/Effects11.lib")
-else()
-set(FX11_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdParty/FX11/lib/release/Effects11.lib")
-endif()
-
 set(GraphicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
 
 target_include_directories(
