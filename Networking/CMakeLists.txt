@@ -6,4 +6,3 @@ add_library(NetworkingEngine STATIC
 target_include_directories(NetworkingEngine PUBLIC ${EngineUtilsIncludeDir} EngineUtils)
 
 set(NetworkingEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-message("Include dir: ${NetworkingEngineIncludeDir}")

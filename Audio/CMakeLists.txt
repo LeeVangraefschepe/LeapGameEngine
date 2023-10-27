@@ -10,4 +10,3 @@ target_link_libraries(AudioEngine PRIVATE ${FMOD_LIBRARY_DIR})
 target_link_libraries(AudioEngine PUBLIC EngineUtils)
 
 set(AudioEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-message("Include dir: ${AudioEngineIncludeDir}")

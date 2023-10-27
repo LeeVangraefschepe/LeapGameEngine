@@ -26,4 +26,3 @@ add_library(LeapEngine STATIC
 )
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-message("Include dir: ${LeapEngineIncludeDir}")

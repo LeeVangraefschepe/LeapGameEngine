@@ -15,52 +15,8 @@ endif()
 set(DATA_FILES "${CMAKE_CURRENT_SOURCE_DIR}/Data")
 set(DESTINATION_COPY "${CMAKE_BINARY_DIR}/UnnamedAdventureGame/Data")
 
-# GLFW include paths
-set(GLFW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/include")
-set(GLFW_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/GLFW/lib/glfw3.lib")
-message("Include dir: ${GLFW_INCLUDE_DIR} with ${GLFW_LIBRARY_DIR}")
-
-# FMOD
-set(FMOD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/include")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/bin/debug/fmodL64.dll")
-	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/lib/debug/fmodL64_vc.lib")
-else()
-	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/bin/release/fmod64.dll")
-	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/FMOD/lib/release/fmod64_vc.lib")
-endif()
-message("Include dir: ${FMOD_INCLUDE_DIR} with ${FMOD_LIBRARY_DIR} and ${FMOD_DLL_DIR}")
-
-# PhysX
-set(PHYSX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/include")
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	# DLLs
-	set(PHYSX_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysX_64.dll")
-	set(PHYSX_COMMON_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysXCommon_64.dll")
-	set(PHYSX_COOKING_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysXCooking_64.dll")
-	set(PHYSX_FOUNDATION_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/debug/PhysXFoundation_64.dll")
-	# LIBs
-	set(PHYSX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysX_64.lib")
-	set(PHYSX_COMMON_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysXCommon_64.lib")
-	set(PHYSX_COOKING_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysXCooking_64.lib")
-	set(PHYSX_FOUNDATION_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/debug/PhysXFoundation_64.lib")
-else()
-	# DLLs
-	set(PHYSX_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysX_64.dll")
-	set(PHYSX_COMMON_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysXCommon_64.dll")
-	set(PHYSX_COOKING_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysXCooking_64.dll")
-	set(PHYSX_FOUNDATION_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/bin/release/PhysXFoundation_64.dll")
-	# LIBs
-	set(PHYSX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysX_64.lib")
-	set(PHYSX_COMMON_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXCommon_64.lib")
-	set(PHYSX_COOKING_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXCooking_64.lib")
-	set(PHYSX_FOUNDATION_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/PhysX/lib/release/PhysXFoundation_64.lib")
-endif()
-message("Include dir: ${PHYSX_INCLUDE_DIR}")
-
-# GLM
-add_subdirectory(3rdParty/GLM)
-message("Include dir: ${GLMIncludeDir}")
+# 3rdParty
+add_subdirectory(3rdParty)
 
 # Utils
 add_subdirectory(Utils)
@@ -79,8 +35,6 @@ add_subdirectory(Audio)
 
 # Networking Engine
 add_subdirectory(Networking)
-target_include_directories(NetworkingEngine PUBLIC ${EngineUtilsIncludeDir} EngineUtils)
-message("Include dir: ${NetworkingEngineIncludeDir}")
 
 # Main Engine
 add_subdirectory(LeapEngine)

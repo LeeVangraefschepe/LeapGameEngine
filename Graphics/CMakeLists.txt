@@ -56,5 +56,3 @@ target_include_directories(
 )
 target_link_libraries(GraphicsEngine PRIVATE ${GLFW_LIBRARY_DIR} ${FX11_LIBRARY_DIR})
 target_link_libraries(GraphicsEngine PUBLIC EngineUtils)
-
-message("Include dir: ${GraphicsEngineIncludeDir}")

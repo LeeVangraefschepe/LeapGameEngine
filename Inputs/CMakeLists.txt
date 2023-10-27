@@ -10,4 +10,3 @@ target_link_libraries(InputEngine PRIVATE ${GLFW_LIBRARY_DIR})
 target_link_libraries(InputEngine PUBLIC EngineUtils)
 
 set(InputEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
-message("Include dir: ${InputEngineIncludeDir}")
