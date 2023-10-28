@@ -21,7 +21,7 @@ namespace leap::graphics
 			const size_t vertexStart{ m_Vertices.size() };
 
 			m_Vertices.resize(m_Vertices.size() + vertexSize);
-			memcpy(&m_Vertices[vertexStart], &vertex, vertexSize);
+			memcpy_s(&m_Vertices[vertexStart], vertexSize, &vertex, vertexSize);
 
 			m_PrevSize = vertexSize;
 		}
