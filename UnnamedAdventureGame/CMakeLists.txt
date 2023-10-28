@@ -1,6 +1,36 @@
 # Game cmake
 
-add_executable(UnnamedAdventureGame main.cpp "Scenes/MainMenuScene.cpp" "Components/Transformator.h" "Components/Transformator.cpp" "Components/InfoUI.cpp" "Components/InfoUI.h" "Components/FreeCamMovement.h" "Components/FreeCamMovement.cpp" "Components/WindowManager.cpp" "Components/WindowManager.h" "Components/AudioTester.h" "Components/AudioTester.cpp" "Components/SineWaveTerrain.h" "Components/SineWaveTerrain.cpp")
+add_executable(UnnamedAdventureGame
+	"main.cpp"
+	"Scenes/MainMenuScene.cpp"
+	"Components/Transformator.cpp"
+	"Components/InfoUI.cpp"
+	"Components/FreeCamMovement.cpp"
+	"Components/WindowManager.cpp"
+	"Components/AudioTester.cpp"
+	"Components/SineWaveTerrain.cpp"
+)
+
+target_include_directories(
+	LeapEngine PUBLIC 
+	${PhysicsEngineIncludeDir} 
+	${GraphicsEngineIncludeDir}
+	${InputEngineIncludeDir}
+	${AudioEngineIncludeDir}
+	${NetworkingEngineIncludeDir}
+	${GLFW_INCLUDE_DIR}
+	${GLMIncludeDir} 
+	${EngineUtilsIncludeDir})
+target_link_libraries(
+	LeapEngine PUBLIC 
+	PhysicsEngine
+	GraphicsEngine
+	InputEngine
+	AudioEngine
+	NetworkingEngine
+	EngineUtils)
+target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
+target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine ${GLFW_LIBRARY_DIR})
 
 # Copies used for .exe
 add_custom_command(TARGET UnnamedAdventureGame PRE_LINK

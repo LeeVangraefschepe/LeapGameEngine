@@ -1,0 +1,7 @@
+# FX 11
+set(FX11_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" CACHE PATH "")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+set(FX11_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/debug/Effects11.lib" CACHE PATH "")
+else()
+set(FX11_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/release/Effects11.lib" CACHE PATH "")
+endif()

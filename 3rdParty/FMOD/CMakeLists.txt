@@ -1,0 +1,9 @@
+# FMOD CMake
+set(FMOD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" CACHE PATH "")
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/debug/fmodL64.dll" CACHE PATH "")
+	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/debug/fmodL64_vc.lib" CACHE PATH "")
+else()
+	set(FMOD_DLL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bin/release/fmod64.dll" CACHE PATH "")
+	set(FMOD_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/release/fmod64_vc.lib" CACHE PATH "")
+endif()
