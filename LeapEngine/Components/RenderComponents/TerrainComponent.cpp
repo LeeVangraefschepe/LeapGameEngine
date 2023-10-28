@@ -90,9 +90,9 @@ void leap::TerrainComponent::Init()
 
 	constexpr unsigned int vertexSize{ sizeof(leap::graphics::VertexPosUV) };
 
-	for (unsigned int x{}; x < m_Size; ++x)
+	for (unsigned int x{}; x < m_Size - 1; ++x)
 	{
-		for (unsigned int y{}; y < m_Size; ++y)
+		for (unsigned int y{}; y < m_Size - 1; ++y)
 		{
 			const unsigned int startIdx{ static_cast<unsigned int>(plane.GetVertexBuffer().size()) / vertexSize };
 
