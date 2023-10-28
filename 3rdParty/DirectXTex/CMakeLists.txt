@@ -1,0 +1,8 @@
+# DirectXTex CMake
+set(DIRECTX_TEX_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include" CACHE PATH "")
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	set(DIRECTX_TEX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/debug/DirectXTex.lib" CACHE PATH "")
+else()
+	set(DIRECTX_TEX_LIBRARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/release/DirectXTex.lib" CACHE PATH "")
+endif()
