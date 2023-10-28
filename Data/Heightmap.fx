@@ -11,7 +11,6 @@ float gMaxHeight = 100;
 
 struct VS_INPUT {
 	float3 pos : POSITION;
-	float3 normal : NORMAL;
     float2 uv : TEXCOORD0;
 };
 struct VS_OUTPUT {
@@ -98,7 +97,7 @@ float EvaluateShadowMap(float4 lpos)
 VS_OUTPUT VS(VS_INPUT input) 
 {
 	VS_OUTPUT output;
-    float2 heightMapPos = input.uv * 1024;
+    float2 heightMapPos = input.uv;
 	// Step 1:	convert position into float4 and multiply with matWorldViewProj
     float height = gHeightMap[heightMapPos];
 	

@@ -15,7 +15,7 @@ namespace leap
 	class TerrainComponent final : public Component
 	{
 	public:
-		TerrainComponent();
+		TerrainComponent() = default;
 		virtual ~TerrainComponent() = default;
 
 		TerrainComponent(const TerrainComponent& other) = delete;
@@ -23,17 +23,21 @@ namespace leap
 		TerrainComponent& operator=(const TerrainComponent& other) = delete;
 		TerrainComponent& operator=(TerrainComponent&& other) = delete;
 
-		std::vector<float>& GetHeights() { return m_Heights; }
-		void ApplyHeights();
-
+		void SetSize(unsigned int size);
 		void SetTexture(graphics::ITexture* pTexture);
 
+		std::vector<float>& GetHeights();
+		void ApplyHeights();
+
 	private:
-		virtual void Awake() override;
+		void ApplyTexture() const;
+		void Init();
 
 		graphics::ITexture* m_pTexture{};
 		std::vector<float> m_Heights{};
 
-		unsigned int m_Size{ 1024 };
+		unsigned int m_Size{};
+
+		bool m_IsInitialized{};
 	};
 }

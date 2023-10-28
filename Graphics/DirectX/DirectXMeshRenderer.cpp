@@ -26,6 +26,7 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 
 void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 {
+	unsigned int vertexSize{ m_VertexSize };
 	ID3D11Buffer* pVertexBuffer{ m_pVertexBuffer };
 	ID3D11Buffer* pIndexBuffer{ m_pIndexBuffer };
 	unsigned int nrIndices{ m_NrIndices };
@@ -35,7 +36,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	{
 		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
 		pMaterial = defaults.GetMaterialError(m_pDevice);
-		defaults.GetMeshError(m_pDevice, pVertexBuffer, pIndexBuffer, nrIndices);
+		defaults.GetMeshError(m_pDevice, vertexSize, pVertexBuffer, pIndexBuffer, nrIndices);
 	}
 
 	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
@@ -50,7 +51,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	m_pDeviceContext->IASetInputLayout(pDXMaterial->GetInputLayout());
 
 	// Set vertex buffer
-	constexpr UINT stride{ sizeof(Vertex) };
+	const UINT stride{ vertexSize };
 	constexpr UINT offset{ 0 };
 	m_pDeviceContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
 
@@ -92,6 +93,7 @@ void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
 
 	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh(filePath, m_pDevice) };
 
+	m_VertexSize = mesh.vertexSize;
 	m_pVertexBuffer = mesh.vertexBuffer;
 	m_pIndexBuffer = mesh.indexBuffer;
 	m_NrIndices = mesh.nrIndices;
@@ -101,6 +103,7 @@ void leap::graphics::DirectXMeshRenderer::LoadMesh(const CustomMesh& mesh)
 {
 	const DirectXMeshLoader::DirectXMeshDefinition& directXMesh{ DirectXMeshLoader::GetInstance().LoadMesh(mesh, m_pDevice) };
 
+	m_VertexSize = directXMesh.vertexSize;
 	m_pVertexBuffer = directXMesh.vertexBuffer;
 	m_pIndexBuffer = directXMesh.indexBuffer;
 	m_NrIndices = directXMesh.nrIndices;

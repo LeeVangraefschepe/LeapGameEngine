@@ -8,7 +8,7 @@ namespace leap
 	namespace graphics
 	{
 		class IMaterial;
-		struct CustomMesh;
+		class CustomMesh;
 	}
 
 	class MeshRendererComponent final : public Component

@@ -7,7 +7,7 @@
 namespace leap::graphics
 {
 	class IMaterial;
-	struct CustomMesh;
+	class CustomMesh;
 
 	class IMeshRenderer 
 	{

@@ -2,13 +2,46 @@
 
 #include "Vertex.h"
 
+#include <Debug.h>
+
 #include <vector>
 
 namespace leap::graphics
 {
-	struct CustomMesh final
+	class CustomMesh final
 	{
-		std::vector<Vertex> vertices{};
-		std::vector<unsigned int> indices{};
+	public:
+		template<typename T>
+		void AddVertex(const T& vertex)
+		{
+			constexpr unsigned int vertexSize{ sizeof(T) };
+
+			if (m_PrevSize != 0 && vertexSize != m_PrevSize) Debug::LogError("LeapEngine Graphics Error : Custom Mesh received two different kinds of vertex types");
+
+			const size_t vertexStart{ m_Vertices.size() };
+
+			m_Vertices.resize(m_Vertices.size() + vertexSize);
+			memcpy(&m_Vertices[vertexStart], &vertex, vertexSize);
+
+			m_PrevSize = vertexSize;
+		}
+		void AddIndex(unsigned int index)
+		{
+			m_Indices.emplace_back(index);
+		}
+		void SetIndices(std::vector<unsigned int>&& indices)
+		{
+			m_Indices = indices;
+		}
+
+		const std::vector<unsigned char>& GetVertexBuffer() const { return m_Vertices; }
+		unsigned int GetVertexSize() const { return m_PrevSize; }
+		const std::vector<unsigned int>& GetIndexBuffer() const { return m_Indices; }
+
+	private:
+		unsigned int m_PrevSize{};
+
+		std::vector<unsigned char> m_Vertices{};
+		std::vector<unsigned int> m_Indices{};
 	};
 }

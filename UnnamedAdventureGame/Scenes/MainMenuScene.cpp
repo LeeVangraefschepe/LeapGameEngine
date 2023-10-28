@@ -75,8 +75,6 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
-	const auto pNormalMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "Normals") };
-
 	auto shadedMesh{ scene.CreateGameObject("Mesh") };
 	leap::MeshRendererComponent* pShadedMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
 	pShadedMeshRenderer->LoadMesh("Data/plane.obj");
@@ -84,20 +82,17 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	shadedMesh->GetTransform()->Scale(10.0f);
 	shadedMesh->GetTransform()->SetLocalPosition(0, -1.0f, 0);
 
+	const auto pNormalMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "Normals") };
+
 	auto customMesh{ scene.CreateGameObject("Custom mesh") };
 	leap::MeshRendererComponent* pCustomMeshRenderer{ customMesh->AddComponent<leap::MeshRendererComponent>() };
 
 	leap::graphics::CustomMesh customMeshData{};
-	customMeshData.vertices =
-	{
-		leap::graphics::Vertex{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-		leap::graphics::Vertex{ { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-		leap::graphics::Vertex{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } }
-	};
-	customMeshData.indices =
-	{
-		0,1,2
-	};
+	customMeshData.AddVertex(leap::graphics::Vertex{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
+	customMeshData.AddVertex(leap::graphics::Vertex{ { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
+	customMeshData.AddVertex(leap::graphics::Vertex{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
+	customMeshData.SetIndices({ 0,1,2 });
+
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
 

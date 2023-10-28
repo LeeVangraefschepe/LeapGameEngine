@@ -51,6 +51,7 @@ namespace leap::graphics
 
 		glm::mat4x4 m_Transform{};
 
+		unsigned int m_VertexSize{};
 		ID3D11Buffer* m_pVertexBuffer{};
 		unsigned int m_NrIndices{};
 		ID3D11Buffer* m_pIndexBuffer{};
