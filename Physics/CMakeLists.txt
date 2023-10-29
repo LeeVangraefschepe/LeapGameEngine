@@ -1,6 +1,7 @@
 #Physics engine cmake
 add_library(PhysicsEngine STATIC
-"PhysX/PhysXEngine.cpp"  )
+"PhysX/PhysXEngine.cpp"
+"PhysX/PhysXScene.cpp")
 
 set(PhysicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
 

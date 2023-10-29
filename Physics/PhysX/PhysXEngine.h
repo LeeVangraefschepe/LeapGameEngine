@@ -11,10 +11,13 @@ namespace physx
 	class PxFoundation;
 	class PxPhysics;
 	class PxCooking;
+	class PxDefaultCpuDispatcher;
 }
 
 namespace leap::physics
 {
+	class IPhysicsScene;
+
 	class PhysXEngine final : public IPhysics
 	{
 	public:
@@ -26,6 +29,8 @@ namespace leap::physics
 		PhysXEngine& operator=(const PhysXEngine& other) = delete;
 		PhysXEngine& operator=(PhysXEngine&& other) = delete;
 
+		virtual void CreateScene() override;
+
 	private:
 		std::unique_ptr<physx::PxDefaultErrorCallback> m_pDefaultErrorCallback{};
 		std::unique_ptr<physx::PxDefaultAllocator> m_pDefaultAllocatorCallback{};
@@ -33,5 +38,8 @@ namespace leap::physics
 		physx::PxFoundation* m_pFoundation{};
 		physx::PxPhysics* m_pPhysics{};
 		physx::PxCooking* m_pCooking{};
+		physx::PxDefaultCpuDispatcher* m_pDispatcher{};
+
+		std::unique_ptr<physics::IPhysicsScene> m_pScene{};
 	};
 }

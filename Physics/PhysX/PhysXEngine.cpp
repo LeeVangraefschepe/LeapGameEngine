@@ -4,6 +4,8 @@
 
 #include <Debug.h>
 
+#include "PhysXScene.h"
+
 leap::physics::PhysXEngine::PhysXEngine()
     : m_pDefaultAllocatorCallback{ std::make_unique<physx::PxDefaultAllocator>() }
     , m_pDefaultErrorCallback{ std::make_unique<physx::PxDefaultErrorCallback>() }
@@ -40,6 +42,9 @@ leap::physics::PhysXEngine::PhysXEngine()
         Debug::LogError("PhysXEngine Error : PxCreateCooking failed");
         return;
     }
+
+    // Create a CPU dispatcher
+    m_pDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 }
 
 leap::physics::PhysXEngine::~PhysXEngine()
@@ -47,4 +52,16 @@ leap::physics::PhysXEngine::~PhysXEngine()
     m_pCooking->release();
     m_pPhysics->release();
     m_pFoundation->release();
+}
+
+void leap::physics::PhysXEngine::CreateScene()
+{
+    physx::PxSceneDesc sceneDesc{ m_pPhysics->getTolerancesScale() };
+    sceneDesc.gravity = physx::PxVec3{ 0.0f, -9.81f, 0.0f };
+    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+    sceneDesc.cpuDispatcher = m_pDispatcher;
+
+    physx::PxScene* pPhysXScene{ m_pPhysics->createScene(sceneDesc) };
+
+    m_pScene = std::make_unique<PhysXScene>(pPhysXScene);
 }

@@ -6,11 +6,15 @@ namespace leap::physics
 	{
 	public:
 		virtual ~IPhysics() = default;
+
+		virtual void CreateScene() = 0;
 	};
 
 	class DefaultPhysics final : public IPhysics
 	{
 	public:
 		virtual ~DefaultPhysics() = default;
+
+		virtual void CreateScene() override {}
 	};
 }

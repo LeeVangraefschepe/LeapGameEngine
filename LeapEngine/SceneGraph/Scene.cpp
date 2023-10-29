@@ -1,59 +1,63 @@
 #include "Scene.h"
 
+#include <Interfaces/IPhysics.h>
+#include "../ServiceLocator/ServiceLocator.h"
+
 leap::Scene::Scene(const char* name)
 {
-	m_RootObject = std::make_unique<GameObject>(name);
+	m_pRootObject = std::make_unique<GameObject>(name);
+	ServiceLocator::GetPhysics().CreateScene();
 }
 
 leap::Scene::~Scene()
 {
-	m_RootObject->OnDestroy();
+	m_pRootObject->OnDestroy();
 }
 
 leap::GameObject* leap::Scene::CreateGameObject(const char* name) const
 {
-	return m_RootObject->CreateChild(name);
+	return m_pRootObject->CreateChild(name);
 }
 
 void leap::Scene::RemoveAll()
 {
-	m_RootObject->OnDestroy();
-	const char* name = m_RootObject->GetRawName();
-	m_RootObject.reset();
-	m_RootObject = std::make_unique<GameObject>(name);
+	m_pRootObject->OnDestroy();
+	const char* name = m_pRootObject->GetRawName();
+	m_pRootObject.reset();
+	m_pRootObject = std::make_unique<GameObject>(name);
 }
 
 leap::GameObject* leap::Scene::GetRootObject() const
 {
-	return m_RootObject.get();
+	return m_pRootObject.get();
 }
 
 void leap::Scene::OnFrameStart() const
 {
-	m_RootObject->OnFrameStart();
+	m_pRootObject->OnFrameStart();
 }
 
 void leap::Scene::FixedUpdate() const
 {
-	m_RootObject->FixedUpdate();
+	m_pRootObject->FixedUpdate();
 }
 
 void leap::Scene::Update() const
 {
-	m_RootObject->Update();
+	m_pRootObject->Update();
 }
 
 void leap::Scene::LateUpdate() const
 {
-	m_RootObject->LateUpdate();
+	m_pRootObject->LateUpdate();
 }
 
 void leap::Scene::OnGUI() const
 {
-	m_RootObject->OnGUI();
+	m_pRootObject->OnGUI();
 }
 
 void leap::Scene::OnFrameEnd() const
 {
-	m_RootObject->OnFrameEnd();
+	m_pRootObject->OnFrameEnd();
 }
