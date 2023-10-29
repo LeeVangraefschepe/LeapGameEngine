@@ -16,6 +16,8 @@
 
 #include <Data/CustomMesh.h>
 
+#include <Data/Vertex.h>
+
 #include <Debug.h>
 
 void leap::TerrainComponent::SetTexture(leap::graphics::ITexture* pTexture)

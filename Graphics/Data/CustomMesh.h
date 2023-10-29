@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Vertex.h"
-
 #include <Debug.h>
 
 #include <vector>

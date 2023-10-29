@@ -45,6 +45,7 @@
 #include "Shaders/Heightmap.h"
 #include <Components/RenderComponents/TerrainComponent.h>
 
+#include <Data/Vertex.h>
 #include "../Components/SineWaveTerrain.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
