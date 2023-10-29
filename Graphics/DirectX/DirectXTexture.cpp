@@ -210,7 +210,7 @@ void leap::graphics::DirectXTexture::LoadTexture(ID3D11Device* pDevice, const st
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	pDevice->CreateShaderResourceView(m_pResource, &srvDesc, &m_pSRV);
+	result = pDevice->CreateShaderResourceView(m_pResource, &srvDesc, &m_pSRV);
 	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create shader resource view with the given texture");
 
 	// Clean up resources
