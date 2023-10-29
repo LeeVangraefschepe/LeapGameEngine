@@ -38,7 +38,7 @@ namespace leap::graphics
 		void Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
 
 	private:
-		std::unique_ptr<std::vector<char>> m_pData{};
+		std::unique_ptr<std::vector<unsigned char>> m_pData{};
 
 		void LoadTexture(ID3D11Device* pDevice, const std::string& path);
 		void LoadTexture(ID3D11Device* pDevice, int width, int height);

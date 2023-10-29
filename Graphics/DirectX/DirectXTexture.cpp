@@ -73,7 +73,7 @@ void leap::graphics::DirectXTexture::StoreData(ID3D11Device* pDevice)
 
 	const unsigned int nrBytes{ mappedResource.DepthPitch };
 
-	m_pData = std::make_unique<std::vector<char>>(nrBytes);
+	m_pData = std::make_unique<std::vector<unsigned char>>(nrBytes);
 
 	memcpy(m_pData->data(), mappedResource.pData, nrBytes);
 
