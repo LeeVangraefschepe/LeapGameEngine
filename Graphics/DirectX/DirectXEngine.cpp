@@ -152,11 +152,6 @@ leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(int width
 	return pTextureRaw;
 }
 
-ID3D11Device* leap::graphics::DirectXEngine::GetDevice() const
-{
-	return m_pDevice;
-}
-
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
 {
 	if (!m_pCamera) return;
