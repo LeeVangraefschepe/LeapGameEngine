@@ -42,6 +42,12 @@
 
 #include "../Components/AudioTester.h"
 
+#include "Shaders/Heightmap.h"
+#include <Components/RenderComponents/TerrainComponent.h>
+
+#include <Data/Vertex.h>
+#include "../Components/SineWaveTerrain.h"
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -51,14 +57,24 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
+	pMainCamera->GetData()->SetFarPlane(1000.0f);
 	pCameraObj->AddComponent<FreeCamMovement>();
 	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
 
+	auto canvas{ scene.CreateGameObject("Canvas") };
+	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
+	pCanvas->SetReferenceResolution({ 1920,1080 });
+	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
+	canvas->AddComponent<leap::CanvasActions>();
+
+	leap::GameObject* pHeightMap{ scene.CreateGameObject("HeightMap")};
+	pHeightMap->AddComponent<leap::MeshRendererComponent>();
+	pHeightMap->AddComponent<leap::TerrainComponent>();
+	pHeightMap->AddComponent<SineWaveTerrain>();
+
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-
-	const auto pNormalMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "Normals") };
 
 	auto shadedMesh{ scene.CreateGameObject("Mesh") };
 	leap::MeshRendererComponent* pShadedMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
@@ -67,28 +83,19 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	shadedMesh->GetTransform()->Scale(10.0f);
 	shadedMesh->GetTransform()->SetLocalPosition(0, -1.0f, 0);
 
+	const auto pNormalMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "Normals") };
+
 	auto customMesh{ scene.CreateGameObject("Custom mesh") };
 	leap::MeshRendererComponent* pCustomMeshRenderer{ customMesh->AddComponent<leap::MeshRendererComponent>() };
 
 	leap::graphics::CustomMesh customMeshData{};
-	customMeshData.vertices =
-	{
-		leap::graphics::Vertex{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-		leap::graphics::Vertex{ { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } },
-		leap::graphics::Vertex{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } }
-	};
-	customMeshData.indices =
-	{
-		0,1,2
-	};
+	customMeshData.AddVertex(leap::graphics::Vertex{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
+	customMeshData.AddVertex(leap::graphics::Vertex{ { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
+	customMeshData.AddVertex(leap::graphics::Vertex{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
+	customMeshData.SetIndices({ 0,1,2 });
+
 	pCustomMeshRenderer->LoadMesh(customMeshData);
 	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
-
-	auto canvas{ scene.CreateGameObject("Canvas") };
-	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
-	pCanvas->SetReferenceResolution({ 1920,1080 });
-	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
-	canvas->AddComponent<leap::CanvasActions>();
 
 	leap::audio::IAudioClip* pClip{ leap::ServiceLocator::GetAudio().LoadClip("Data/sound.mp3", true) };
 

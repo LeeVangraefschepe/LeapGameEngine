@@ -21,7 +21,7 @@ const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::
 
 const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::DirectXMeshLoader::LoadMesh(const CustomMesh& mesh, ID3D11Device* pDevice)
 {
-	DirectXMeshDefinition directXMesh{ CreateMesh(mesh.vertices, mesh.indices, pDevice) };
+	DirectXMeshDefinition directXMesh{ CreateMesh(mesh.GetVertexBuffer(), mesh.GetVertexSize(), mesh.GetIndexBuffer(), pDevice)};
 
 	m_CustomMeshes.push_back(directXMesh);
 
@@ -79,6 +79,41 @@ leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectX
 
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = vertices.data();
+
+	HRESULT result{ pDevice->CreateBuffer(&bd, &initData, &mesh.vertexBuffer) };
+
+	// Create index buffer
+	bd.Usage = D3D11_USAGE_IMMUTABLE;
+	bd.ByteWidth = sizeof(unsigned int) * static_cast<unsigned int>(indices.size());
+	bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+	initData.pSysMem = indices.data();
+
+	result = pDevice->CreateBuffer(&bd, &initData, &mesh.indexBuffer);
+
+	mesh.vertexSize = sizeof(Vertex);
+
+	return mesh;
+}
+
+leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectXMeshLoader::CreateMesh(const std::vector<unsigned char>& vertexData, unsigned int vertexSize, const std::vector<unsigned int>& indices, ID3D11Device* pDevice) const
+{
+	DirectXMeshDefinition mesh{};
+
+	mesh.nrIndices = static_cast<unsigned int>(indices.size());
+	mesh.vertexSize = vertexSize;
+
+	// Create vertex buffer
+	D3D11_BUFFER_DESC bd{};
+	bd.Usage = D3D11_USAGE_IMMUTABLE;
+	bd.ByteWidth = static_cast<unsigned int>(vertexData.size());
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+	bd.MiscFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA initData{};
+	initData.pSysMem = vertexData.data();
 
 	HRESULT result{ pDevice->CreateBuffer(&bd, &initData, &mesh.vertexBuffer) };
 

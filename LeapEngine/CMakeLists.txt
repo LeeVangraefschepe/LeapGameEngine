@@ -23,6 +23,7 @@ add_library(LeapEngine STATIC
     "GameContext/Logger/FileLogger.cpp"
     "Components/Audio/AudioSource.cpp" 
     "Components/Audio/AudioListener.cpp"
+    "Components/RenderComponents/TerrainComponent.cpp"
 )
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

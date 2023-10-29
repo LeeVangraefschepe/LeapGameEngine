@@ -34,9 +34,10 @@ leap::graphics::DirectXMaterial* leap::graphics::DirectXDefaults::GetMaterialErr
 	return m_pNoMeshMaterial.get();
 }
 
-void leap::graphics::DirectXDefaults::GetMeshError(ID3D11Device* pDevice, ID3D11Buffer*& pVertexBuffer, ID3D11Buffer*& pIndexBuffer, unsigned int& nrIndices)
+void leap::graphics::DirectXDefaults::GetMeshError(ID3D11Device* pDevice, unsigned int& vertexSize, ID3D11Buffer*& pVertexBuffer, ID3D11Buffer*& pIndexBuffer, unsigned int& nrIndices)
 {
 	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh("Data/Engine/Models/error.obj", pDevice)};
+	vertexSize = mesh.vertexSize;
 	pVertexBuffer = mesh.vertexBuffer;
 	pIndexBuffer = mesh.indexBuffer;
 	nrIndices = mesh.nrIndices;

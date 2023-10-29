@@ -25,6 +25,7 @@ add_library(GraphicsEngine STATIC
 	"DirectX/DirectXSpriteRenderer.cpp"
 	"Shaders/Sprites.cpp" 
 	"DirectX/DirectXDefaults.cpp"
+	"Shaders/Heightmap.cpp"
 )
 
 set(GraphicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

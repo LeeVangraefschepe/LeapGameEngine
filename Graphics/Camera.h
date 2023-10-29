@@ -20,11 +20,15 @@ namespace leap::graphics
 		void SetAspectRatio(const glm::ivec2& size);
 		void SetColor(const glm::vec4& color) { m_Color = color; }
 		void SetTransform(const glm::mat4x3& transform);
+		void SetFarPlane(float farPlane);
+		void SetNearPlane(float nearPlane);
 
 		const glm::vec4& GetColor() const { return m_Color; }
 		const glm::mat4x4& GetInverseViewMatrix();
 		const glm::mat4x4& GetViewMatrix();
 		const glm::mat4x4& GetProjectionMatrix() const;
+		float GetFarPlane() const { return m_FarC; }
+		float GetNearPlane() const { return m_NearC; }
 
 	private:
 		glm::vec4 m_Color{ 0.39f, 0.59f, 0.93f, 1.f };

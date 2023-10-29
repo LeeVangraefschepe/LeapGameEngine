@@ -13,6 +13,7 @@ struct ID3D11RenderTargetView;
 #include "../DirectionalLight.h"
 
 #include "DirectXRenderTarget.h"
+#include "DirectXTexture.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXMaterial.h"
 
@@ -30,7 +31,6 @@ namespace leap::graphics
 	class Camera;
 	class IMeshRenderer;
 	class IMaterial;
-	class DirectXTexture;
 
 	class DirectXEngine final : public IRenderer
 	{
@@ -58,8 +58,8 @@ namespace leap::graphics
 		virtual void SetDirectionLight(const glm::mat3x3& transform) override;
 
 		// Meshes
-		virtual IMeshRenderer* CreateMeshRenderer();
-		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer);
+		virtual IMeshRenderer* CreateMeshRenderer() override;
+		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) override;
 
 		// Sprites
 		virtual void AddSprite(Sprite* pSprite) override;
@@ -69,6 +69,8 @@ namespace leap::graphics
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
 		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) override;
 		virtual ITexture* CreateTexture(const std::string& path) override;
+		virtual ITexture* CreateTexture(int width, int height) override;
+
 	private:
 		void Release();
 		void ReloadDirectXEngine();
@@ -88,6 +90,7 @@ namespace leap::graphics
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXTexture>> m_pTextures{};
+		std::vector<std::unique_ptr<DirectXTexture>> m_pUniqueTextures{};
 
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};

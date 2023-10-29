@@ -8,6 +8,7 @@ add_executable(UnnamedAdventureGame
 	"Components/FreeCamMovement.cpp"
 	"Components/WindowManager.cpp"
 	"Components/AudioTester.cpp"
+	"Components/SineWaveTerrain.cpp"
 )
 
 target_include_directories(
