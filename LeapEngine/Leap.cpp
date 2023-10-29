@@ -6,6 +6,7 @@
 #include "ServiceLocator/ServiceLocator.h"
 #include "FMOD/FmodAudioSystem.h"
 #include "DirectX/DirectXEngine.h"
+#include "PhysX/PhysXEngine.h"
 
 #include "Debug.h"
 #include <glfw3.h>
@@ -62,6 +63,9 @@ void leap::LeapEngine::Run(int desiredFPS)
 
     Debug::Log("LeapEngine Log: Registering default renderer (DirectX)");
     ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
+
+    Debug::Log("LeapEngine Log: Registering default physics (PhysX)");
+    ServiceLocator::RegisterPhysics<physics::PhysXEngine>();
 
     m_pRenderer = &ServiceLocator::GetRenderer();
     m_pRenderer->Initialize();
