@@ -15,6 +15,8 @@
 #include "GameContext/Timer.h"
 #include "SceneGraph/SceneManager.h"
 
+#include "Utils/PhysicsSync.h"
+
 leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
     Debug::Log("LeapEngine Log: Engine created");
@@ -79,6 +81,8 @@ void leap::LeapEngine::Run(int desiredFPS)
     float fixedTotalTime{};
 
     auto& audio = ServiceLocator::GetAudio();
+    auto& physics = ServiceLocator::GetPhysics();
+    physics.SetSyncFunc(PhysicsSync::SetTransform);
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
@@ -98,6 +102,7 @@ void leap::LeapEngine::Run(int desiredFPS)
         {
             fixedTotalTime -= fixedInterval;
             sceneManager.FixedUpdate();
+            physics.Update(fixedInterval);
         }
 
         sceneManager.Update();

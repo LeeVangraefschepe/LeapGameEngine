@@ -5,6 +5,7 @@
 namespace physx
 {
 	class PxScene;
+	class PxRigidActor;
 }
 
 namespace leap::physics
@@ -19,6 +20,11 @@ namespace leap::physics
 		PhysXScene(PhysXScene&& other) = delete;
 		PhysXScene& operator=(const PhysXScene& other) = delete;
 		PhysXScene& operator=(PhysXScene&& other) = delete;
+
+		virtual void Simulate(float fixedDeltaTime) override;
+
+		void AddActor(physx::PxRigidActor* pActor);
+		void RemoveActor(physx::PxRigidActor* pActor);
 
 	private:
 		physx::PxScene* m_pScene{};

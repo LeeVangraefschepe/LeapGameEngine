@@ -6,5 +6,7 @@ namespace leap::physics
 	{
 	public:
 		virtual ~IPhysicsScene() = default;
+
+		virtual void Simulate(float fixedDeltaTime) = 0;
 	};
 }

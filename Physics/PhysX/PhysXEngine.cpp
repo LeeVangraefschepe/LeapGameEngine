@@ -5,6 +5,10 @@
 #include <Debug.h>
 
 #include "PhysXScene.h"
+#include "PhysXShapes.h"
+#include "PhysXObject.h"
+
+#include <algorithm>
 
 leap::physics::PhysXEngine::PhysXEngine()
     : m_pDefaultAllocatorCallback{ std::make_unique<physx::PxDefaultAllocator>() }
@@ -49,9 +53,33 @@ leap::physics::PhysXEngine::PhysXEngine()
 
 leap::physics::PhysXEngine::~PhysXEngine()
 {
+    m_pScene = nullptr;
+
     m_pCooking->release();
     m_pPhysics->release();
     m_pFoundation->release();
+}
+
+void leap::physics::PhysXEngine::SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& syncFunc)
+{
+    m_SyncFunc = syncFunc;
+}
+
+void leap::physics::PhysXEngine::Update(float fixedDeltaTime)
+{
+    // Update all the physics objects and apply updates
+    for (auto& pObject : m_pObjects)
+    {
+        pObject.second->Update(this, m_pScene.get());
+    }
+
+    m_pScene->Simulate(fixedDeltaTime);
+
+    // Apply poses
+    for (auto& pObject : m_pObjects)
+    {
+        pObject.second->Apply(m_SyncFunc);
+    }
 }
 
 void leap::physics::PhysXEngine::CreateScene()
@@ -64,4 +92,25 @@ void leap::physics::PhysXEngine::CreateScene()
     physx::PxScene* pPhysXScene{ m_pPhysics->createScene(sceneDesc) };
 
     m_pScene = std::make_unique<PhysXScene>(pPhysXScene);
+}
+
+leap::physics::IPhysicsObject* leap::physics::PhysXEngine::Get(void* pOwner)
+{
+    if (!m_pObjects.contains(pOwner))
+    {
+        m_pObjects[pOwner] = std::make_unique<PhysXObject>(pOwner);
+    }
+
+    return m_pObjects[pOwner].get();
+}
+
+std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(physics::EShape shape)
+{
+    switch (shape)
+    {
+    case EShape::Box:
+        return std::make_unique<PhysXBoxShape>(this);
+    }
+
+    return nullptr;
 }

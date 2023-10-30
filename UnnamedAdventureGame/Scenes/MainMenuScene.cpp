@@ -48,6 +48,9 @@
 #include <Data/Vertex.h>
 #include "../Components/SineWaveTerrain.h"
 
+#include <Components/Physics/BoxCollider.h>
+#include <Components/Physics/Rigidbody.h>
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -68,11 +71,6 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 	canvas->AddComponent<leap::CanvasActions>();
 
-	leap::GameObject* pHeightMap{ scene.CreateGameObject("HeightMap")};
-	pHeightMap->AddComponent<leap::MeshRendererComponent>();
-	pHeightMap->AddComponent<leap::TerrainComponent>();
-	pHeightMap->AddComponent<SineWaveTerrain>();
-
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
@@ -83,52 +81,20 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	shadedMesh->GetTransform()->Scale(10.0f);
 	shadedMesh->GetTransform()->SetLocalPosition(0, -1.0f, 0);
 
-	const auto pNormalMaterial{ leap::ServiceLocator::GetRenderer().CreateMaterial(leap::graphics::shaders::PosNorm3D::GetShader(), "Normals") };
-
-	auto customMesh{ scene.CreateGameObject("Custom mesh") };
-	leap::MeshRendererComponent* pCustomMeshRenderer{ customMesh->AddComponent<leap::MeshRendererComponent>() };
-
-	leap::graphics::CustomMesh customMeshData{};
-	customMeshData.AddVertex(leap::graphics::Vertex{ { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
-	customMeshData.AddVertex(leap::graphics::Vertex{ { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
-	customMeshData.AddVertex(leap::graphics::Vertex{ { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, -1.0f } });
-	customMeshData.SetIndices({ 0,1,2 });
-
-	pCustomMeshRenderer->LoadMesh(customMeshData);
-	pCustomMeshRenderer->SetMaterial(pNormalMaterial);
-
-	leap::audio::IAudioClip* pClip{ leap::ServiceLocator::GetAudio().LoadClip("Data/sound.mp3", true) };
-
-	auto rotator{ scene.CreateGameObject("rotator") };
-	rotator->AddComponent<Transformator>();
-
-	auto bunnyMesh{ rotator->CreateChild("Bunny mesh") };
-	
-	leap::MeshRendererComponent* pBunnyMeshRenderer{ bunnyMesh->AddComponent<leap::MeshRendererComponent>() };
-	pBunnyMeshRenderer->LoadMesh("Data/highpolybunnywithnormals.obj");
-	pBunnyMeshRenderer->SetMaterial(pNormalMaterial);
-	bunnyMesh->GetTransform()->Scale(10.0f);
-	bunnyMesh->GetTransform()->Translate(-10.0f, 0.0f, 0.0f);
-	bunnyMesh->AddComponent<Transformator>();
-	leap::AudioSource* pAudio{ bunnyMesh->AddComponent<leap::AudioSource>() };
-	pAudio->SetClip(pClip);
-	pAudio->Set3DSound(true);
-	pAudio->SetPlayOnAwake(true);
-	pAudio->SetLooping(true);
-	bunnyMesh->AddComponent<AudioTester>();
-
-	auto meshNotLoaded{ scene.CreateGameObject("NoMesh") };
-	meshNotLoaded->AddComponent<leap::MeshRendererComponent>();
-	meshNotLoaded->GetTransform()->SetWorldPosition(5.0f, 1.0f, 0.0f);
-
-	auto materialNotLoaded{ scene.CreateGameObject("NoMaterial") };
-	materialNotLoaded->AddComponent<leap::MeshRendererComponent>()->LoadMesh("Data/highpolybunnywithnormals.obj");
-	materialNotLoaded->GetTransform()->SetWorldPosition(-5.0f, 1.0f, 0.0f);
-	materialNotLoaded->GetTransform()->SetWorldScale(10.0f);
-
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
 
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
+
+	auto pBox{ scene.CreateGameObject("Box") };
+	pBox->AddComponent<leap::BoxCollider>();
+	pBox->AddComponent<leap::Rigidbody>()->SetVelocity({ 0.0f, 10.0f, 0.0f});
+	pBox->AddComponent<leap::MeshRendererComponent>()->LoadMesh("Data/cube.obj");
+	pBox->GetTransform()->Translate(0.0f, 0.0f, 0.0f);
+	pBox->GetTransform()->Rotate(45.0f, 45.0f, 80.0f);
+
+	auto pBox2{ scene.CreateGameObject("Box2") };
+	pBox2->AddComponent<leap::BoxCollider>();
+	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
 }
