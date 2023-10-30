@@ -91,11 +91,12 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	auto pBox{ scene.CreateGameObject("Box") };
 	pBox->AddComponent<leap::BoxCollider>();
 	pBox->AddComponent<leap::Rigidbody>()->SetVelocity({ 0.0f, 10.0f, 0.0f});
-	pBox->AddComponent<leap::MeshRendererComponent>()->LoadMesh("Data/cube.obj");
+	pBox->AddComponent<leap::MeshRendererComponent>()->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox->GetTransform()->Translate(0.0f, 0.0f, 0.0f);
 	pBox->GetTransform()->Rotate(45.0f, 45.0f, 80.0f);
 
 	auto pBox2{ scene.CreateGameObject("Box2") };
 	pBox2->AddComponent<leap::BoxCollider>();
+	pBox2->AddComponent<leap::MeshRendererComponent>()->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
 }

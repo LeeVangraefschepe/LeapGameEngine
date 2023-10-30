@@ -11,33 +11,37 @@ namespace leap::physics
 {
 	class PhysXEngine;
 
-	class PhysXShape : public IShape
+	class IPhysXShape : public IShape
 	{
 	public:
-		virtual ~PhysXShape() = default;
+		virtual ~IPhysXShape() = default;
 
 		virtual physx::PxShape& GetShape() = 0;
 	};
 
-	class PhysXBoxShape final : public PhysXShape
+	class PhysXBoxShape final : public IPhysXShape
 	{
 	public:
 		PhysXBoxShape(PhysXEngine* pEngine);
 		virtual ~PhysXBoxShape();
 
 		virtual physx::PxShape& GetShape() override;
+		virtual void SetSize(const glm::vec3& size) override;
+		virtual void SetRadius(float radius) override;
 
 	private:
 		physx::PxShape* m_pShape{};
 	};
 
-	class PhysXSphereShape final : public PhysXShape
+	class PhysXSphereShape final : public IPhysXShape
 	{
 	public:
 		PhysXSphereShape(PhysXEngine* pEngine);
 		virtual ~PhysXSphereShape();
 
 		virtual physx::PxShape& GetShape() override;
+		virtual void SetSize(const glm::vec3& size) override;
+		virtual void SetRadius(float radius) override;
 
 	private:
 		physx::PxShape* m_pShape{};

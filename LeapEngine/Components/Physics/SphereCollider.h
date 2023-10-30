@@ -19,9 +19,13 @@ namespace leap
 		SphereCollider& operator=(const SphereCollider& other) = delete;
 		SphereCollider& operator=(SphereCollider&& other) = delete;
 
+		void SetRadius(float radius);
+
 	private:
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
+
+		float m_Radius{ 0.5f };
 
 		std::unique_ptr<physics::IShape> m_pShape{};
 	};

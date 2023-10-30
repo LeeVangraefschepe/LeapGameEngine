@@ -20,7 +20,7 @@ namespace leap::physics
 {
 	class PhysXEngine;
 	class IPhysicsScene;
-	class PhysXShape;
+	class IPhysXShape;
 
 	class PhysXObject final : public IPhysicsObject
 	{
@@ -42,7 +42,7 @@ namespace leap::physics
 		void UpdateTransform();
 		void UpdateRigidbody();
 
-		std::vector<PhysXShape*> m_pShapes{};
+		std::vector<IPhysXShape*> m_pShapes{};
 		physx::PxRigidActor* m_pActor{};
 		void* m_pOwner{};
 		std::unique_ptr<Rigidbody> m_pRigidbody{};

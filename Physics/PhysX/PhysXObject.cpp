@@ -35,7 +35,7 @@ void leap::physics::PhysXObject::Apply(const std::function<void(void*, const glm
 
 void leap::physics::PhysXObject::AddShape(IShape* pShape)
 {
-	PhysXShape* pPhysXShape{ static_cast<PhysXShape*>(pShape) };
+	IPhysXShape* pPhysXShape{ reinterpret_cast<IPhysXShape*>(pShape) };
 	m_pShapes.emplace_back(pPhysXShape);
 
 	if (m_pActor)
@@ -46,14 +46,14 @@ void leap::physics::PhysXObject::AddShape(IShape* pShape)
 
 void leap::physics::PhysXObject::RemoveShape(IShape* pShape)
 {
-	PhysXShape* pPhysXShape{ static_cast<PhysXShape*>(pShape) };
+	IPhysXShape* pPhysXShape{ reinterpret_cast<IPhysXShape*>(pShape) };
 
 	if (m_pActor)
 	{
 		m_pActor->detachShape(pPhysXShape->GetShape());
 	}
 
-	m_pShapes.erase(std::remove(begin(m_pShapes), end(m_pShapes), pShape));
+	m_pShapes.erase(std::remove(begin(m_pShapes), end(m_pShapes), pPhysXShape));
 }
 
 leap::physics::IPhysicsObject::Rigidbody* leap::physics::PhysXObject::SetRigidbody(bool hasRigidbody)
@@ -98,7 +98,7 @@ void leap::physics::PhysXObject::UpdateObject(PhysXEngine* pEngine, IPhysicsScen
 		m_pActor = pEngine->GetPhysics()->createRigidStatic(physx::PxTransform{ physx::PxIdentity });
 	}
 
-	for (PhysXShape* pShape : m_pShapes)
+	for (IPhysXShape* pShape : m_pShapes)
 	{
 		m_pActor->attachShape(pShape->GetShape());
 	}
