@@ -34,6 +34,12 @@ void leap::Window::SetFullScreen(bool value)
 	}
 }
 
+void leap::Window::SetResize(bool value) const
+{
+	if (value) glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, GLFW_TRUE);
+	else glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, GLFW_FALSE);
+}
+
 void leap::Window::Update()
 {
 	if (!m_WindowSizeDirty) return;
@@ -51,7 +57,7 @@ leap::Window::Window(GLFWwindow* pWindow) : m_pWindow(pWindow)
 
 void leap::Window::window_size_callback(GLFWwindow*, int width, int height)
 {
-	if (width < FLT_EPSILON || height < FLT_EPSILON) return;
+	if (width < 1 || height < 1) return;
 
 	const auto self = GameContext::GetInstance().GetWindow();
 

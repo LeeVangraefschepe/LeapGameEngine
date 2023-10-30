@@ -19,6 +19,7 @@ namespace leap
 		const glm::ivec2& GetWindowSize() const;
 		bool IsFullScreen() const { return m_FullScreen; }
 		void SetFullScreen(bool value);
+		void SetResize(bool value) const;
 
 	private:
 		friend class GameContext;
