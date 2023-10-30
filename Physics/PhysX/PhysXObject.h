@@ -26,16 +26,18 @@ namespace leap::physics
 	{
 	public:
 		PhysXObject(void* pOwner);
-		virtual ~PhysXObject() = default;
+		virtual ~PhysXObject();
 
 		void Update(PhysXEngine* pEngine, IPhysicsScene* pScene);
-		void Apply(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& syncFunc);
+		void Apply(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc);
 
 		virtual void AddShape(IShape* pShape) override;
 		virtual void RemoveShape(IShape* pShape) override;
 		virtual Rigidbody* SetRigidbody(bool hasRigidbody) override;
+		virtual bool IsValid() override;
 
 		virtual void SetTransform(const glm::vec3& position, const glm::quat& rotation) override;
+
 
 	private:
 		void UpdateObject(PhysXEngine* pEngine, IPhysicsScene* pScene);

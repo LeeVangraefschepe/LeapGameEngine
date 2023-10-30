@@ -27,6 +27,7 @@ add_library(LeapEngine STATIC
     "Components/Physics/BoxCollider.cpp" 
     "Utils/PhysicsSync.cpp" 
     "Components/Physics/Rigidbody.cpp"
-    "Components/Physics/SphereCollider.cpp")
+    "Components/Physics/SphereCollider.cpp"
+    "Components/Physics/Collider.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

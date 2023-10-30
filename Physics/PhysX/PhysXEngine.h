@@ -38,7 +38,7 @@ namespace leap::physics
 		PhysXEngine& operator=(const PhysXEngine& other) = delete;
 		PhysXEngine& operator=(PhysXEngine&& other) = delete;
 
-		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& syncFunc) override;
+		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc) override;
 		virtual void Update(float fixedDeltaTime) override;
 
 		virtual void CreateScene() override;
@@ -60,6 +60,7 @@ namespace leap::physics
 
 		std::unordered_map<void*, std::unique_ptr<PhysXObject>> m_pObjects{};
 
-		std::function<void(void*, const glm::vec3&, const glm::quat&)> m_SyncFunc{};
+		std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> m_SyncGetFunc{};
+		std::function<void(void*, const glm::vec3&, const glm::quat&)> m_SyncSetFunc{};
 	};
 }

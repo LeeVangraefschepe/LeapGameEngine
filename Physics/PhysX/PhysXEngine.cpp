@@ -54,15 +54,17 @@ leap::physics::PhysXEngine::PhysXEngine()
 leap::physics::PhysXEngine::~PhysXEngine()
 {
     m_pScene = nullptr;
+    m_pObjects.clear();
 
     m_pCooking->release();
     m_pPhysics->release();
     m_pFoundation->release();
 }
 
-void leap::physics::PhysXEngine::SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& syncFunc)
+void leap::physics::PhysXEngine::SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc)
 {
-    m_SyncFunc = syncFunc;
+    m_SyncGetFunc = getFunc;
+    m_SyncSetFunc = setFunc;
 }
 
 void leap::physics::PhysXEngine::Update(float fixedDeltaTime)
@@ -73,12 +75,16 @@ void leap::physics::PhysXEngine::Update(float fixedDeltaTime)
         pObject.second->Update(this, m_pScene.get());
     }
 
+    // Erase all objects that are not connected anymore to a game object
+    std::erase_if(m_pObjects, [](const auto& pObject) { return !pObject.second->IsValid(); });
+
+    // Simulate the physics scene
     m_pScene->Simulate(fixedDeltaTime);
 
     // Apply poses
     for (auto& pObject : m_pObjects)
     {
-        pObject.second->Apply(m_SyncFunc);
+        pObject.second->Apply(m_SyncSetFunc, m_SyncGetFunc);
     }
 }
 

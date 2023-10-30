@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Component.h"
+#include "Collider.h"
 
 #include <Interfaces/IShape.h>
 
@@ -10,7 +10,9 @@
 
 namespace leap
 {
-	class BoxCollider final : public Component
+	class Rigidbody;
+
+	class BoxCollider final : public Collider
 	{
 	public:
 		BoxCollider() = default;
@@ -24,11 +26,8 @@ namespace leap
 		void SetSize(const glm::vec3& size);
 
 	private:
-		virtual void Awake() override;
-		virtual void OnDestroy() override;
+		virtual void SetupShape() override;
 
 		glm::vec3 m_Size{ 1.0f, 1.0f, 1.0f };
-
-		std::unique_ptr<physics::IShape> m_pShape{};
 	};
 }

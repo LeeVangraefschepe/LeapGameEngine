@@ -35,6 +35,11 @@ void leap::physics::PhysXBoxShape::SetRadius(float)
 	Debug::LogWarning("PhysXEngine Warning: Cannot set radius on a box shape");
 }
 
+void leap::physics::PhysXBoxShape::SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation)
+{
+	m_pShape->setLocalPose(physx::PxTransform{ physx::PxVec3{ position.x, position.y, position.z }, physx::PxQuat{ rotation.x, rotation.y, rotation.z,rotation.w } });
+}
+
 leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine)
 {
 	physx::PxSphereGeometry geo{ 0.5f };
@@ -57,6 +62,11 @@ physx::PxShape& leap::physics::PhysXSphereShape::GetShape()
 void leap::physics::PhysXSphereShape::SetRadius(float radius)
 {
 	m_pShape->setGeometry(physx::PxSphereGeometry{ radius });
+}
+
+void leap::physics::PhysXSphereShape::SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation)
+{
+	m_pShape->setLocalPose(physx::PxTransform{ physx::PxVec3{ position.x, position.y, position.z }, physx::PxQuat{ rotation.x, rotation.y, rotation.z,rotation.w } });
 }
 
 void leap::physics::PhysXSphereShape::SetSize(const glm::vec3&)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Component.h"
+#include "Collider.h"
 
 #include <Interfaces/IShape.h>
 
@@ -8,7 +8,7 @@
 
 namespace leap
 {
-	class SphereCollider final : public Component
+	class SphereCollider final : public Collider
 	{
 	public:
 		SphereCollider() = default;
@@ -22,11 +22,8 @@ namespace leap
 		void SetRadius(float radius);
 
 	private:
-		virtual void Awake() override;
-		virtual void OnDestroy() override;
+		virtual void SetupShape() override;
 
 		float m_Radius{ 0.5f };
-
-		std::unique_ptr<physics::IShape> m_pShape{};
 	};
 }

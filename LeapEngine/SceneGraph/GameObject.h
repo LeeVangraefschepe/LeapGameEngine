@@ -173,7 +173,7 @@ namespace leap
 
 		for (const auto& pComponent : m_pComponents)
 		{
-			if (dynamic_cast<T*>(pComponent.get()) != nullptr) pComponents.emplace_back(pComponent.get());
+			if (dynamic_cast<T*>(pComponent.get()) != nullptr) pComponents.emplace_back(static_cast<T*>(pComponent.get()));
 		}
 
 		return pComponents;

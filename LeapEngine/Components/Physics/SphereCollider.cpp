@@ -12,26 +12,15 @@ void leap::SphereCollider::SetRadius(float radius)
 	m_Radius = radius;
 }
 
-void leap::SphereCollider::Awake()
+void leap::SphereCollider::SetupShape()
 {
 	physics::IPhysics& physics{ ServiceLocator::GetPhysics() };
 
-	// Create shape and apply the size
+	// Create shape
 	m_pShape = physics.CreateShape(physics::EShape::Sphere);
 
+	// Apply radius
 	const auto& scale{ GetTransform()->GetWorldScale() };
 	const float transformSize{ std::max(scale.x, std::max(scale.y, scale.z)) };
 	m_pShape->SetRadius(m_Radius * transformSize);
-
-	// Get the physics object associated with the gameobject
-	physics::IPhysicsObject* pObject{ physics.Get(GetGameObject()) };
-
-	// Apply the shape and set the transform of the physics object
-	pObject->AddShape(m_pShape.get());
-	pObject->SetTransform(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation());
-}
-
-void leap::SphereCollider::OnDestroy()
-{
-	ServiceLocator::GetPhysics().Get(GetGameObject())->RemoveShape(m_pShape.get());
 }

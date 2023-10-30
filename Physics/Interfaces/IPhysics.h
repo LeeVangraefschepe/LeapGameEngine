@@ -19,7 +19,7 @@ namespace leap::physics
 	public:
 		virtual ~IPhysics() = default;
 
-		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& syncFunc) = 0;
+		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc) = 0;
 		virtual void Update(float fixedDeltaTime) = 0;
 
 		virtual void CreateScene() = 0;
@@ -32,7 +32,7 @@ namespace leap::physics
 	public:
 		virtual ~DefaultPhysics() = default;
 
-		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>&) override {};
+		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>&, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)>) override {};
 		virtual void Update(float) override {}
 
 		virtual void CreateScene() override {}

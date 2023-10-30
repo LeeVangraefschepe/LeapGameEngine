@@ -26,6 +26,8 @@ namespace leap
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
 
+		void ApplyShapes(GameObject* pParent) const;
+
 		physics::IPhysicsObject::Rigidbody* m_pRigidbody{};
 	};
 }

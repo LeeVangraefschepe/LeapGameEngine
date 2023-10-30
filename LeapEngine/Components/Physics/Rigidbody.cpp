@@ -1,7 +1,9 @@
 #include "Rigidbody.h"
 
 #include "../../ServiceLocator/ServiceLocator.h"
+#include "../../SceneGraph/GameObject.h"
 #include "../Transform/Transform.h"
+#include "Collider.h"
 
 #include <Interfaces/IPhysics.h>
 #include <Interfaces/IPhysicsObject.h>
@@ -43,10 +45,32 @@ void leap::Rigidbody::Awake()
 
 	// Set the current transform to the physics object
 	ServiceLocator::GetPhysics().Get(GetGameObject())->SetTransform(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation());
+
+	ApplyShapes(GetGameObject());
 }
 
 void leap::Rigidbody::OnDestroy()
 {
 	// Remove the rigidbody
 	ServiceLocator::GetPhysics().Get(GetGameObject())->SetRigidbody(false);
+}
+
+void leap::Rigidbody::ApplyShapes(GameObject* pParent) const
+{
+	const auto pCollidersOnParent{ pParent->GetComponents<Collider>() };
+
+	// Move all the colliders on the gameobject to this rigidbody
+	for (auto pCollider : pCollidersOnParent)
+	{
+		pCollider->Move(this);
+	}
+
+	// Move all the colliders on the children to this rigidbody
+	for (int i{}; i < pParent->GetChildCount(); ++i)
+	{
+		GameObject* pChild{ pParent->GetChild(i) };
+		if (pChild->GetComponent<Rigidbody>()) continue;
+
+		ApplyShapes(pChild);
+	}
 }

@@ -28,6 +28,7 @@ namespace leap::physics
 		virtual physx::PxShape& GetShape() override;
 		virtual void SetSize(const glm::vec3& size) override;
 		virtual void SetRadius(float radius) override;
+		virtual void SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation) override;
 
 	private:
 		physx::PxShape* m_pShape{};
@@ -42,6 +43,7 @@ namespace leap::physics
 		virtual physx::PxShape& GetShape() override;
 		virtual void SetSize(const glm::vec3& size) override;
 		virtual void SetRadius(float radius) override;
+		virtual void SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation) override;
 
 	private:
 		physx::PxShape* m_pShape{};

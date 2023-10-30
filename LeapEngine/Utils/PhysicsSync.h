@@ -11,5 +11,6 @@ namespace leap
 	{
 	public:
 		static void SetTransform(void* pOwner, const glm::vec3& position, const glm::quat& rotation);
+		static std::pair<const glm::vec3&, const glm::quat&> GetTransform(void* pOwner);
 	};
 }
