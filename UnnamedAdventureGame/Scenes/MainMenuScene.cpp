@@ -50,6 +50,7 @@
 
 #include <Components/Physics/BoxCollider.h>
 #include <Components/Physics/Rigidbody.h>
+#include <Components/Physics/SphereCollider.h>
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {

@@ -30,4 +30,16 @@ namespace leap::physics
 	private:
 		physx::PxShape* m_pShape{};
 	};
+
+	class PhysXSphereShape final : public PhysXShape
+	{
+	public:
+		PhysXSphereShape(PhysXEngine* pEngine);
+		virtual ~PhysXSphereShape();
+
+		virtual physx::PxShape& GetShape() override;
+
+	private:
+		physx::PxShape* m_pShape{};
+	};
 }

@@ -110,6 +110,8 @@ std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(p
     {
     case EShape::Box:
         return std::make_unique<PhysXBoxShape>(this);
+    case EShape::Sphere:
+        return std::make_unique<PhysXSphereShape>(this);
     }
 
     return nullptr;
