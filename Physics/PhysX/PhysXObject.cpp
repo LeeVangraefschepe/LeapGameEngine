@@ -124,7 +124,6 @@ void leap::physics::PhysXObject::UpdateObject(PhysXEngine* pEngine, IPhysicsScen
 		m_pActor = pEngine->GetPhysics()->createRigidDynamic(physx::PxTransform{ physx::PxIdentity });
 		static_cast<physx::PxRigidDynamic*>(m_pActor)->setLinearDamping(0.0f);
 		static_cast<physx::PxRigidDynamic*>(m_pActor)->setAngularDamping(0.05f);
-		CalculateCenterOfMass();
 	}
 	else
 	{
@@ -135,6 +134,8 @@ void leap::physics::PhysXObject::UpdateObject(PhysXEngine* pEngine, IPhysicsScen
 	{
 		m_pActor->attachShape(pShape->GetShape());
 	}
+
+	if(m_pRigidbody) CalculateCenterOfMass();
 
 	pPhysXScene->AddActor(m_pActor);
 }
