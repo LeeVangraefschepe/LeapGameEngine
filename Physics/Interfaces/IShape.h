@@ -20,6 +20,9 @@ namespace leap::physics
 
 		virtual void SetSize(const glm::vec3& size) = 0;
 		virtual void SetRadius(float radius) = 0;
+		virtual float GetVolume() = 0;
+		
 		virtual void SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation) = 0;
+		virtual glm::vec3 GetRelativePosition() = 0;
 	};
 }

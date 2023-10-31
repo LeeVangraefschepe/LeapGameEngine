@@ -38,11 +38,11 @@ namespace leap::physics
 
 		virtual void SetTransform(const glm::vec3& position, const glm::quat& rotation) override;
 
-
 	private:
 		void UpdateObject(PhysXEngine* pEngine, IPhysicsScene* pScene);
 		void UpdateTransform();
 		void UpdateRigidbody();
+		void CalculateCenterOfMass() const;
 
 		std::vector<IPhysXShape*> m_pShapes{};
 		physx::PxRigidActor* m_pActor{};
