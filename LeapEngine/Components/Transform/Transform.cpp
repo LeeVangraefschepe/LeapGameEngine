@@ -30,7 +30,26 @@ void leap::Transform::SetWorldPosition(float x, float y, float z)
 
 void leap::Transform::SetWorldRotation(const glm::vec3& rotation, bool degrees)
 {
-	SetWorldRotation(glm::quat{ degrees ? glm::radians(rotation) : rotation });
+	const glm::vec3& radRotation{ degrees ? glm::radians(rotation) : rotation };
+	const float second{ radRotation.x / 2.0f };
+	const float first{ radRotation.y / 2.0f };
+	const float third{ radRotation.z / 2.0f };
+	const float cp{ cosf(second) };
+	const float sp{ sinf(second) };
+	const float cy{ cosf(first) };
+	const float sy{ sinf(first) };
+	const float cr{ cosf(third) };
+	const float sr{ sinf(third) };
+
+	const glm::vec4 quaternion
+	{
+		cr * sp * cy + sr * cp * sy,
+		cr * cp * sy - sr * sp * cy,
+		sr * cp * cy - cr * sp * sy,
+		cr * cp * cy + sr * sp * sy
+	};
+	
+	SetWorldRotation(glm::quat{ quaternion.w, quaternion.x, quaternion.y, quaternion.z });
 }
 
 void leap::Transform::SetWorldRotation(float x, float y, float z, bool degrees)
@@ -50,7 +69,20 @@ void leap::Transform::SetWorldRotation(const glm::quat& rotation)
 
 	// Apply the inverse transformation to the desired world position
 	m_LocalRotation = invParentWorldRotation * rotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	
+	float sinr_cosp = 2 * (m_LocalRotation.w * m_LocalRotation.y + m_LocalRotation.x * m_LocalRotation.z);
+	float cosr_cosp = 1 - 2 * (m_LocalRotation.y * m_LocalRotation.y + m_LocalRotation.x * m_LocalRotation.x);
+	m_LocalRotationEuler.y = std::atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	float sinp = std::sqrt(1 + 2 * (m_LocalRotation.w * m_LocalRotation.x - m_LocalRotation.y * m_LocalRotation.z));
+	float cosp = std::sqrt(1 - 2 * (m_LocalRotation.w * m_LocalRotation.x - m_LocalRotation.y * m_LocalRotation.z));
+	m_LocalRotationEuler.x = 2 * std::atan2(sinp, cosp) - glm::pi<float>() / 2;
+
+	// yaw (z-axis rotation)
+	float siny_cosp = 2 * (m_LocalRotation.w * m_LocalRotation.z + m_LocalRotation.y * m_LocalRotation.x);
+	float cosy_cosp = 1 - 2 * (m_LocalRotation.x * m_LocalRotation.x + m_LocalRotation.z * m_LocalRotation.z);
+	m_LocalRotationEuler.z = std::atan2(siny_cosp, cosy_cosp);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -104,8 +136,31 @@ void leap::Transform::SetLocalPosition(float x, float y, float z)
 
 void leap::Transform::SetLocalRotation(const glm::vec3& rotation, bool degrees)
 {
-	m_LocalRotation = glm::quat{ degrees ? glm::radians(rotation) : rotation };
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	const glm::vec3& radRotation{ degrees ? glm::radians(rotation) : rotation };
+	const float second{ radRotation.x / 2.0f };
+	const float first{ radRotation.y / 2.0f };
+	const float third{ radRotation.z / 2.0f };
+	const float cp{ cosf(second) };
+	const float sp{ sinf(second) };
+	const float cy{ cosf(first) };
+	const float sy{ sinf(first) };
+	const float cr{ cosf(third) };
+	const float sr{ sinf(third) };
+
+	const glm::vec4 quaternion
+	{
+		cr * sp * cy + sr * cp * sy,
+		cr * cp * sy - sr * sp * cy,
+		sr * cp * cy - cr * sp * sy,
+		cr * cp * cy + sr * sp * sy
+	};
+
+	m_LocalRotation.x = quaternion.x;
+	m_LocalRotation.y = quaternion.y;
+	m_LocalRotation.z = quaternion.z;
+	m_LocalRotation.w = quaternion.w;
+
+	m_LocalRotationEuler = radRotation;
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -119,7 +174,20 @@ void leap::Transform::SetLocalRotation(float x, float y, float z, bool degrees)
 void leap::Transform::SetLocalRotation(const glm::quat& rotation)
 {
 	m_LocalRotation = rotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+
+	float sinr_cosp = 2 * (m_LocalRotation.w * m_LocalRotation.y + m_LocalRotation.x * m_LocalRotation.z);
+	float cosr_cosp = 1 - 2 * (m_LocalRotation.y * m_LocalRotation.y + m_LocalRotation.x * m_LocalRotation.x);
+	m_LocalRotationEuler.y = std::atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	float sinp = std::sqrt(1 + 2 * (m_LocalRotation.w * m_LocalRotation.x - m_LocalRotation.y * m_LocalRotation.z));
+	float cosp = std::sqrt(1 - 2 * (m_LocalRotation.w * m_LocalRotation.x - m_LocalRotation.y * m_LocalRotation.z));
+	m_LocalRotationEuler.x = 2 * std::atan2(sinp, cosp) - glm::pi<float>() / 2;
+
+	// yaw (z-axis rotation)
+	float siny_cosp = 2 * (m_LocalRotation.w * m_LocalRotation.z + m_LocalRotation.y * m_LocalRotation.x);
+	float cosy_cosp = 1 - 2 * (m_LocalRotation.x * m_LocalRotation.x + m_LocalRotation.z * m_LocalRotation.z);
+	m_LocalRotationEuler.z = std::atan2(siny_cosp, cosy_cosp);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -170,13 +238,28 @@ void leap::Transform::Translate(float xDelta, float yDelta, float zDelta)
 
 void leap::Transform::Rotate(const glm::vec3& rotationDelta, bool degrees)
 {
-	const glm::quat quaternionDelta{ degrees ? glm::radians(rotationDelta) : rotationDelta };
+	const glm::vec3& radRotation{ degrees ? glm::radians(rotationDelta) : rotationDelta };
+	const float second{ radRotation.x / 2.0f };
+	const float first{ radRotation.y / 2.0f };
+	const float third{ radRotation.z / 2.0f };
+	const float cp{ cosf(second) };
+	const float sp{ sinf(second) };
+	const float cy{ cosf(first) };
+	const float sy{ sinf(first) };
+	const float cr{ cosf(third) };
+	const float sr{ sinf(third) };
 
-	m_LocalRotation = quaternionDelta * m_LocalRotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	const glm::vec4 quaternion
+	{
+		cr * sp * cy + sr * cp * sy,
+		cr * cp * sy - sr * sp * cy,
+		sr * cp * cy - cr * sp * sy,
+		cr * cp * cy + sr * sp * sy
+	};
 
-	SetDirty(DirtyFlags::Rotation);
-	SetDirty(DirtyFlags::DirectionVectors);
+	const glm::quat quaternionDelta{ quaternion.w, quaternion.x, quaternion.y, quaternion.z };
+
+	Rotate(quaternionDelta);
 }
 
 void leap::Transform::Rotate(float xDelta, float yDelta, float zDelta, bool degrees)
@@ -187,7 +270,20 @@ void leap::Transform::Rotate(float xDelta, float yDelta, float zDelta, bool degr
 void leap::Transform::Rotate(const glm::quat& rotationDelta)
 {
 	m_LocalRotation = rotationDelta * m_LocalRotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+
+	float sinr_cosp = 2 * (m_LocalRotation.w * m_LocalRotation.y + m_LocalRotation.x * m_LocalRotation.z);
+	float cosr_cosp = 1 - 2 * (m_LocalRotation.y * m_LocalRotation.y + m_LocalRotation.x * m_LocalRotation.x);
+	m_LocalRotationEuler.y = std::atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	float sinp = std::sqrt(1 + 2 * (m_LocalRotation.w * m_LocalRotation.x - m_LocalRotation.y * m_LocalRotation.z));
+	float cosp = std::sqrt(1 - 2 * (m_LocalRotation.w * m_LocalRotation.x - m_LocalRotation.y * m_LocalRotation.z));
+	m_LocalRotationEuler.x = 2 * std::atan2(sinp, cosp) - glm::pi<float>() / 2;
+
+	// yaw (z-axis rotation)
+	float siny_cosp = 2 * (m_LocalRotation.w * m_LocalRotation.z + m_LocalRotation.y * m_LocalRotation.x);
+	float cosy_cosp = 1 - 2 * (m_LocalRotation.x * m_LocalRotation.x + m_LocalRotation.z * m_LocalRotation.z);
+	m_LocalRotationEuler.z = std::atan2(siny_cosp, cosy_cosp);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -363,7 +459,20 @@ void leap::Transform::UpdateRotation()
 
 	// Calculate world rotation
 	m_WorldRotation = parentWorldRotation * m_LocalRotation;
-	m_WorldRotationEuler = glm::eulerAngles(m_WorldRotation);
+
+	float sinr_cosp = 2 * (m_WorldRotation.w * m_WorldRotation.y + m_WorldRotation.x * m_WorldRotation.z);
+	float cosr_cosp = 1 - 2 * (m_WorldRotation.y * m_WorldRotation.y + m_WorldRotation.x * m_WorldRotation.x);
+	m_WorldRotationEuler.y = std::atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	float sinp = std::sqrt(1 + 2 * (m_WorldRotation.w * m_WorldRotation.x - m_WorldRotation.y * m_WorldRotation.z));
+	float cosp = std::sqrt(1 - 2 * (m_WorldRotation.w * m_WorldRotation.x - m_WorldRotation.y * m_WorldRotation.z));
+	m_WorldRotationEuler.x = 2 * std::atan2(sinp, cosp) - glm::pi<float>() / 2;
+
+	// yaw (z-axis rotation)
+	float siny_cosp = 2 * (m_WorldRotation.w * m_WorldRotation.z + m_WorldRotation.y * m_WorldRotation.x);
+	float cosy_cosp = 1 - 2 * (m_WorldRotation.x * m_WorldRotation.x + m_WorldRotation.z * m_WorldRotation.z);
+	m_WorldRotationEuler.z = std::atan2(siny_cosp, cosy_cosp);
 
 	// Disable the rotation dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Rotation);
@@ -439,5 +548,5 @@ void leap::Transform::KeepWorldTransform(GameObject* pParent)
 	// Calculate the new local positions that keep the world space transform depending on the given parent 
 	SetLocalPosition(inverseParentRotation * (inverseParentScale * (worldPosition - parentPosition)));
 	SetLocalRotation(deltaRotation * worldRotation);
-	SetLocalRotation(worldScale * inverseParentScale);
+	SetLocalScale(worldScale * inverseParentScale);
 }
