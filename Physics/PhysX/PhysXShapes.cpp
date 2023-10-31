@@ -10,7 +10,7 @@ leap::physics::PhysXBoxShape::PhysXBoxShape(PhysXEngine* pEngine)
 {
 	physx::PxBoxGeometry geo{ 0.5f, 0.5f, 0.5f };
 
-	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.1f, 0.1f, 0.0f) };
+	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) };
 
 	m_pShape = pEngine->GetPhysics()->createShape(geo, *material, true);
 }
@@ -57,7 +57,7 @@ leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine)
 {
 	physx::PxSphereGeometry geo{ 0.5f };
 
-	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.1f, 0.1f, 0.0f) };
+	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) };
 
 	m_pShape = pEngine->GetPhysics()->createShape(geo, *material, true);
 }

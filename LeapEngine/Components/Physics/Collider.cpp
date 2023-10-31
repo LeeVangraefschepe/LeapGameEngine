@@ -35,9 +35,6 @@ void leap::Collider::Awake()
 		const glm::vec3 relativePosition{ GetTransform()->GetWorldPosition() - pRigidbody->GetTransform()->GetWorldPosition() };
 		const glm::quat relativeRotation{ GetTransform()->GetWorldRotation() * glm::conjugate(pRigidbody->GetTransform()->GetWorldRotation()) };
 
-		glm::vec3 euler = glm::degrees(glm::eulerAngles(relativeRotation));
-		euler = {};
-
 		m_pShape->SetRelativeTransform(relativePosition, relativeRotation);
 	}
 }

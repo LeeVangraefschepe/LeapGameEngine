@@ -3,7 +3,8 @@ add_library(PhysicsEngine STATIC
 "PhysX/PhysXEngine.cpp"
 "PhysX/PhysXScene.cpp" 
 "PhysX/PhysXObject.cpp" 
-"PhysX/PhysXShapes.cpp")
+"PhysX/PhysXShapes.cpp" 
+"Data/Rigidbody.cpp")
 
 set(PhysicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
 

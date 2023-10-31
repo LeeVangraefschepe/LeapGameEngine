@@ -8,21 +8,11 @@
 namespace leap::physics
 {
 	class IShape;
+	class Rigidbody;
 
 	class IPhysicsObject
 	{
 	public:
-		struct Rigidbody
-		{
-			bool enabled{};
-			bool isKinematic{};
-			glm::vec3 velocity{};
-			bool isKinematicDirty{};
-			bool isVelocityDirty{};
-
-			bool IsDirty() const { return isKinematicDirty || isVelocityDirty; }
-		};
-
 		virtual ~IPhysicsObject() = default;
 
 		virtual void AddShape(IShape* pShape) = 0;

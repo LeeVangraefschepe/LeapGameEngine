@@ -4,12 +4,15 @@
 #include "PhysXEngine.h"
 #include "PhysXScene.h"
 
+#include "../Data/Rigidbody.h"
+
 #include <PxPhysics.h>
 #include <PxRigidActor.h>
 #include <PxRigidStatic.h>
 #include <PxRigidDynamic.h>
 #include <PxRigidActor.h>
 #include <PxScene.h>
+#include <extensions/PxRigidBodyExt.h>
 
 #include <Debug.h>
 
@@ -79,7 +82,7 @@ void leap::physics::PhysXObject::RemoveShape(IShape* pShape)
 	m_pShapes.erase(std::remove(begin(m_pShapes), end(m_pShapes), pPhysXShape));
 }
 
-leap::physics::IPhysicsObject::Rigidbody* leap::physics::PhysXObject::SetRigidbody(bool hasRigidbody)
+leap::physics::Rigidbody* leap::physics::PhysXObject::SetRigidbody(bool hasRigidbody)
 {
 	if (!hasRigidbody)
 	{
@@ -119,6 +122,8 @@ void leap::physics::PhysXObject::UpdateObject(PhysXEngine* pEngine, IPhysicsScen
 	if (m_pRigidbody)
 	{
 		m_pActor = pEngine->GetPhysics()->createRigidDynamic(physx::PxTransform{ physx::PxIdentity });
+		static_cast<physx::PxRigidDynamic*>(m_pActor)->setLinearDamping(0.0f);
+		static_cast<physx::PxRigidDynamic*>(m_pActor)->setAngularDamping(0.05f);
 		CalculateCenterOfMass();
 	}
 	else
@@ -149,35 +154,32 @@ void leap::physics::PhysXObject::UpdateTransform()
 
 void leap::physics::PhysXObject::UpdateRigidbody()
 {
-	if (m_pRigidbody->isKinematicDirty)
+	unsigned int dirtyFlag{ static_cast<unsigned int>(m_pRigidbody->GetDirtyFlag()) };
+
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Kinematic))
 	{
-		m_pRigidbody->isKinematicDirty = false;
-		m_pActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, m_pRigidbody->isKinematic);
+		m_pActor->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, m_pRigidbody->IsKinematic());
 	}
 
-	if (m_pRigidbody->isVelocityDirty)
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Velocity))
 	{
-		m_pRigidbody->isVelocityDirty = false;
-		const physx::PxVec3 velocity{ m_pRigidbody->velocity.x, m_pRigidbody->velocity.y, m_pRigidbody->velocity.z };
-		static_cast<physx::PxRigidDynamic*>(m_pActor)->setLinearVelocity(velocity);
+		const glm::vec3& velocity{ m_pRigidbody->GetVelocity() };
+		const physx::PxVec3 pxVelocity{ velocity.x, velocity.y, velocity.z };
+		static_cast<physx::PxRigidDynamic*>(m_pActor)->setLinearVelocity(pxVelocity);
 	}
+
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Mass))
+	{
+		static_cast<physx::PxRigidDynamic*>(m_pActor)->setMass(m_pRigidbody->GetMass());
+		CalculateCenterOfMass();
+	}
+
+	m_pRigidbody->ResetDirtyFlag();
 }
 
 void leap::physics::PhysXObject::CalculateCenterOfMass() const
 {
 	physx::PxRigidDynamic* pRigidbody{ static_cast<physx::PxRigidDynamic*>(m_pActor) };
 
-	float totalVolume{};
-	for (auto& pShape : m_pShapes)
-	{
-		totalVolume += pShape->GetVolume();
-	}
-
-	glm::vec3 com{};
-	for (auto& pShape : m_pShapes)
-	{
-		com += pShape->GetRelativePosition() * (pShape->GetVolume() / totalVolume);
-	}
-
-	pRigidbody->setCMassLocalPose(physx::PxTransform{ {com.x,com.y,com.z}, physx::PxIdentity });
+	physx::PxRigidBodyExt::setMassAndUpdateInertia(*pRigidbody, pRigidbody->getMass());
 }

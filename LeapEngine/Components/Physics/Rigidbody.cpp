@@ -5,25 +5,33 @@
 #include "../Transform/Transform.h"
 #include "Collider.h"
 
+#include <Data/Rigidbody.h>
+
 #include <Interfaces/IPhysics.h>
 #include <Interfaces/IPhysicsObject.h>
 
 void leap::Rigidbody::SetKinematic(bool isKinematic)
 {
 	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
-	if (!m_pRigidbody)  m_pRigidbody = new leap::physics::IPhysicsObject::Rigidbody{};
+	if (!m_pRigidbody)  m_pRigidbody = new leap::physics::Rigidbody{};
 
-	m_pRigidbody->isKinematic = isKinematic;
-	m_pRigidbody->isKinematicDirty = true;
+	m_pRigidbody->SetIsKinematic(isKinematic);
 }
 
 void leap::Rigidbody::SetVelocity(const glm::vec3& velocity)
 {
 	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
-	if (!m_pRigidbody)  m_pRigidbody = new leap::physics::IPhysicsObject::Rigidbody{};
+	if (!m_pRigidbody) m_pRigidbody = new leap::physics::Rigidbody{};
 
-	m_pRigidbody->velocity = velocity;
-	m_pRigidbody->isVelocityDirty = true;
+	m_pRigidbody->SetVelocity(velocity);
+}
+
+void leap::Rigidbody::SetMass(float mass)
+{
+	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
+	if (!m_pRigidbody) m_pRigidbody = new leap::physics::Rigidbody{};
+
+	m_pRigidbody->SetMass(mass);
 }
 
 void leap::Rigidbody::Awake()
@@ -32,7 +40,7 @@ void leap::Rigidbody::Awake()
 	physics::IPhysicsObject* pObject{ ServiceLocator::GetPhysics().Get(GetGameObject()) };
 
 	// Create a rigidbody
-	physics::IPhysicsObject::Rigidbody* pNewRigidbody{ pObject->SetRigidbody(true) };
+	physics::Rigidbody* pNewRigidbody{ pObject->SetRigidbody(true) };
 
 	// If settings were set before awake, apply the settings and destroy the temp rigidbody
 	if (m_pRigidbody)

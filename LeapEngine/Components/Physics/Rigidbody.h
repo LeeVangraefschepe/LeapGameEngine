@@ -2,12 +2,15 @@
 
 #include "../Component.h"
 
-#include <Interfaces/IPhysicsObject.h>
-
 #include <vec3.hpp>
 
 namespace leap
 {
+	namespace physics
+	{
+		class Rigidbody;
+	}
+
 	class Rigidbody final : public Component
 	{
 	public:
@@ -21,6 +24,7 @@ namespace leap
 
 		void SetKinematic(bool isKinematic);
 		void SetVelocity(const glm::vec3& velocity);
+		void SetMass(float mass);
 
 	private:
 		virtual void Awake() override;
@@ -28,6 +32,6 @@ namespace leap
 
 		void ApplyShapes(GameObject* pParent) const;
 
-		physics::IPhysicsObject::Rigidbody* m_pRigidbody{};
+		physics::Rigidbody* m_pRigidbody{};
 	};
 }
