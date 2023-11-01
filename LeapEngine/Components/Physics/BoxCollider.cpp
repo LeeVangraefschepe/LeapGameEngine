@@ -23,3 +23,17 @@ void leap::BoxCollider::SetSize(const glm::vec3& size)
 {
 	m_Size = size;
 }
+
+void leap::BoxCollider::SetSize(float x, float y, float z)
+{
+	m_Size.x = x;
+	m_Size.y = y;
+	m_Size.z = z;
+}
+
+void leap::BoxCollider::SetSize(float size)
+{
+	m_Size.x = size;
+	m_Size.y = size;
+	m_Size.z = size;
+}

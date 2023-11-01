@@ -26,6 +26,11 @@ void leap::Rigidbody::SetVelocity(const glm::vec3& velocity)
 	m_pRigidbody->SetVelocity(velocity);
 }
 
+void leap::Rigidbody::SetVelocity(float x, float y, float z)
+{
+	SetVelocity(glm::vec3{ x,y,z });
+}
+
 void leap::Rigidbody::SetMass(float mass)
 {
 	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody

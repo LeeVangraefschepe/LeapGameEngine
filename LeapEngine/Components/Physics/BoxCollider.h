@@ -24,6 +24,8 @@ namespace leap
 		BoxCollider& operator=(BoxCollider&& other) = delete;
 
 		void SetSize(const glm::vec3& size);
+		void SetSize(float x, float y, float z);
+		void SetSize(float size);
 
 	private:
 		virtual void SetupShape() override;

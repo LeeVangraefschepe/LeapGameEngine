@@ -108,7 +108,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 
 	auto pBox4{ scene.CreateGameObject("Box") };
 	pBox4->AddComponent<leap::BoxCollider>();
-	pBox4->AddComponent<leap::Rigidbody>()/*->SetVelocity({ 0.0f, 10.0f, 0.0f })*/;
+	pBox4->AddComponent<leap::Rigidbody>()/*->SetVelocity(0.0f, 10.0f, 0.0f)*/;
 	auto pBoxMesh4{ pBox4->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh4->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBoxMesh4->LoadMesh("Data/Engine/Models/cube.obj");
