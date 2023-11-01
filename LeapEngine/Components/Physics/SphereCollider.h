@@ -2,10 +2,6 @@
 
 #include "Collider.h"
 
-#include <Interfaces/IShape.h>
-
-#include <memory>
-
 namespace leap
 {
 	class SphereCollider final : public Collider

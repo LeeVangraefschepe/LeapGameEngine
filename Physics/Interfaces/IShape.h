@@ -10,7 +10,8 @@ namespace leap::physics
 	enum class EShape
 	{
 		Box,
-		Sphere
+		Sphere,
+		Capsule
 	};
 
 	class IShape

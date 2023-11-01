@@ -2,16 +2,10 @@
 
 #include "Collider.h"
 
-#include <Interfaces/IShape.h>
-
-#include <memory>
-
 #include <vec3.hpp>
 
 namespace leap
 {
-	class Rigidbody;
-
 	class BoxCollider final : public Collider
 	{
 	public:

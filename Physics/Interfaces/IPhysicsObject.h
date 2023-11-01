@@ -21,5 +21,7 @@ namespace leap::physics
 		virtual bool IsValid() = 0;
 
 		virtual void SetTransform(const glm::vec3& position, const glm::quat& rotation) = 0;
+		virtual glm::vec3 GetPosition() = 0;
+		virtual glm::quat GetRotation() = 0;
 	};
 }

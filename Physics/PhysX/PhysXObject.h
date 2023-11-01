@@ -37,6 +37,8 @@ namespace leap::physics
 		virtual bool IsValid() override;
 
 		virtual void SetTransform(const glm::vec3& position, const glm::quat& rotation) override;
+		virtual glm::vec3 GetPosition() override;
+		virtual glm::quat GetRotation() override;
 
 	private:
 		void UpdateObject(PhysXEngine* pEngine, IPhysicsScene* pScene);

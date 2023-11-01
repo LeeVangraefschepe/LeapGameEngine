@@ -10,6 +10,8 @@
 #include <Interfaces/IPhysics.h>
 #include <Interfaces/IPhysicsObject.h>
 
+#include <Quaternion.h>
+
 void leap::Rigidbody::SetKinematic(bool isKinematic)
 {
 	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
@@ -37,6 +39,56 @@ void leap::Rigidbody::SetMass(float mass)
 	if (!m_pRigidbody) m_pRigidbody = new leap::physics::Rigidbody{};
 
 	m_pRigidbody->SetMass(mass);
+}
+
+void leap::Rigidbody::Translate(const glm::vec3& displacement) const
+{
+	m_pRigidbody->Translate(displacement);
+}
+
+void leap::Rigidbody::Translate(float x, float y, float z) const
+{
+	Translate({ x,y,z });
+}
+
+void leap::Rigidbody::SetPosition(const glm::vec3& position) const
+{
+	m_pRigidbody->SetPosition(position);
+}
+
+void leap::Rigidbody::SetPosition(float x, float y, float z) const
+{
+	SetPosition({ x, y, z });
+}
+
+void leap::Rigidbody::Rotate(const glm::quat& rotationEpsilon) const
+{
+	m_pRigidbody->Rotate(rotationEpsilon);
+}
+
+void leap::Rigidbody::Rotate(const glm::vec3& rotationEpsilon, bool degrees) const
+{
+	Rotate(Quaternion::FromEuler(rotationEpsilon, degrees));
+}
+
+void leap::Rigidbody::Rotate(float x, float y, float z, bool degrees) const
+{
+	Rotate(Quaternion::FromEuler(x, y, z, degrees));
+}
+
+void leap::Rigidbody::SetRotation(const glm::quat& rotation) const
+{
+	m_pRigidbody->SetRotation(rotation);
+}
+
+void leap::Rigidbody::SetRotation(const glm::vec3& rotation, bool degrees) const
+{
+	SetRotation(Quaternion::FromEuler(rotation, degrees));
+}
+
+void leap::Rigidbody::SetRotation(float x, float y, float z, bool degrees) const
+{
+	SetRotation(Quaternion::FromEuler(x, y, z, degrees));
 }
 
 void leap::Rigidbody::Awake()

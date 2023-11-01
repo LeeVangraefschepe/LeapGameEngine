@@ -29,8 +29,8 @@ leap::physics::PhysXObject::~PhysXObject()
 void leap::physics::PhysXObject::Update(PhysXEngine* pEngine, IPhysicsScene* pScene)
 {
 	if (m_IsObjectDirty) UpdateObject(pEngine, pScene);
-	if (m_IsTransformDirty) UpdateTransform();
 	if (m_pRigidbody && m_pRigidbody->IsDirty()) UpdateRigidbody();
+	if (m_IsTransformDirty) UpdateTransform();
 
 	if (!IsValid()) static_cast<PhysXScene*>(pScene)->RemoveActor(m_pActor);
 }
@@ -107,6 +107,22 @@ void leap::physics::PhysXObject::SetTransform(const glm::vec3& position, const g
 	m_IsTransformDirty = true;
 }
 
+glm::vec3 leap::physics::PhysXObject::GetPosition()
+{
+	if (!m_pActor) return {};
+
+	const physx::PxVec3& position{ m_pActor->getGlobalPose().p };
+	return glm::vec3{ position.x, position.y, position.z };
+}
+
+glm::quat leap::physics::PhysXObject::GetRotation()
+{
+	if (!m_pActor) return glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f };
+
+	const physx::PxQuat& rotation{ m_pActor->getGlobalPose().q };
+	return glm::quat{ rotation.w, rotation.x, rotation.y, rotation.z };
+}
+
 void leap::physics::PhysXObject::UpdateObject(PhysXEngine* pEngine, IPhysicsScene* pScene)
 {
 	m_IsObjectDirty = false;
@@ -173,6 +189,22 @@ void leap::physics::PhysXObject::UpdateRigidbody()
 	{
 		static_cast<physx::PxRigidDynamic*>(m_pActor)->setMass(m_pRigidbody->GetMass());
 		CalculateCenterOfMass();
+	}
+
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Position) || dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Rotation))
+	{
+		const glm::vec3& position{ dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Position) ? m_pRigidbody->GetPosition() : GetPosition() };
+		const glm::quat& rotation{ dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Rotation) ? m_pRigidbody->GetRotation() : GetRotation() };
+
+		SetTransform(position, rotation);
+	}
+
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Translate) || dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Rotate))
+	{
+		const glm::vec3& position{ GetPosition() };
+		const glm::quat& rotation{ GetRotation() };
+
+		SetTransform(position + m_pRigidbody->GetTranslation(), m_pRigidbody->GetRotationDelta() * rotation);
 	}
 
 	m_pRigidbody->ResetDirtyFlag();

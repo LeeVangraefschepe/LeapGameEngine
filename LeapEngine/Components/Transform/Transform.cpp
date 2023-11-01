@@ -410,6 +410,7 @@ void leap::Transform::SetDirty(DirtyFlags flag)
 		pChild->SetDirty(DirtyFlags::Rotation);
 		pChild->SetDirty(DirtyFlags::Scale);
 		pChild->SetDirty(DirtyFlags::Translation);
+		pChild->SetDirty(DirtyFlags::DirectionVectors);
 	}
 }
 

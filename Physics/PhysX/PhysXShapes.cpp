@@ -97,3 +97,51 @@ void leap::physics::PhysXSphereShape::SetSize(const glm::vec3&)
 {
 	Debug::LogWarning("PhysXEngine Warning: Cannot set size on a sphere shape");
 }
+
+leap::physics::PhysXCapsuleShape::PhysXCapsuleShape(PhysXEngine* pEngine)
+{
+	physx::PxCapsuleGeometry geo{ 0.5f, 1.0f };
+
+	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) };
+
+	m_pShape = pEngine->GetPhysics()->createShape(geo, *material, true);
+	m_pShape->setLocalPose(physx::PxTransform{ {}, physx::PxQuat{ physx::PxHalfPi, physx::PxVec3{ 0.0f, 0.0f, 1.0f } } });
+}
+
+leap::physics::PhysXCapsuleShape::~PhysXCapsuleShape()
+{
+	m_pShape->release();
+}
+
+physx::PxShape& leap::physics::PhysXCapsuleShape::GetShape()
+{
+	return *m_pShape;
+}
+
+void leap::physics::PhysXCapsuleShape::SetSize(const glm::vec3& size)
+{
+	m_pShape->setGeometry(physx::PxCapsuleGeometry{ m_pShape->getGeometry().capsule().radius, size.y / 2.0f });
+}
+
+void leap::physics::PhysXCapsuleShape::SetRadius(float radius)
+{
+	m_pShape->setGeometry(physx::PxCapsuleGeometry{ radius, m_pShape->getGeometry().capsule().halfHeight });
+}
+
+float leap::physics::PhysXCapsuleShape::GetVolume()
+{
+	const physx::PxCapsuleGeometry& geo{ m_pShape->getGeometry().capsule() };
+	return glm::pi<float>() * powf(geo.radius, 2.0f) * (4.0f / 3.0f * geo.radius * geo.halfHeight * 2.0f);
+}
+
+void leap::physics::PhysXCapsuleShape::SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation)
+{
+	const physx::PxQuat pxRotation{ physx::PxQuat{ rotation.x, rotation.y, rotation.z,rotation.w } };
+	m_pShape->setLocalPose(physx::PxTransform{ physx::PxVec3{ position.x, position.y, position.z }, physx::PxQuat{ physx::PxHalfPi, physx::PxVec3{ 0.0f, 0.0f, 1.0f } } * pxRotation });
+}
+
+glm::vec3 leap::physics::PhysXCapsuleShape::GetRelativePosition()
+{
+	const physx::PxVec3 localPose{ m_pShape->getLocalPose().p };
+	return glm::vec3{ localPose.x, localPose.y, localPose.z };
+}

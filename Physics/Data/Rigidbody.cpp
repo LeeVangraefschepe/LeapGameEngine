@@ -18,19 +18,28 @@ void leap::physics::Rigidbody::SetMass(float mass)
 	SetDirty(RigidbodyFlag::Mass);
 }
 
-bool leap::physics::Rigidbody::IsKinematic() const
+void leap::physics::Rigidbody::SetPosition(const glm::vec3& position)
 {
-	return m_IsKinematic;
+	m_Position = position;
+	SetDirty(RigidbodyFlag::Position);
 }
 
-const glm::vec3& leap::physics::Rigidbody::GetVelocity() const
+void leap::physics::Rigidbody::Translate(const glm::vec3& translation)
 {
-	return m_Velocity;
+	m_Translation += translation;
+	SetDirty(RigidbodyFlag::Translate);
 }
 
-float leap::physics::Rigidbody::GetMass() const
+void leap::physics::Rigidbody::SetRotation(const glm::quat& rotation)
 {
-	return m_Mass;
+	m_Rotation = rotation;
+	SetDirty(RigidbodyFlag::Rotation);
+}
+
+void leap::physics::Rigidbody::Rotate(const glm::quat& rotationDelta)
+{
+	m_RotationDelta = rotationDelta * m_RotationDelta;
+	SetDirty(RigidbodyFlag::Rotate);
 }
 
 bool leap::physics::Rigidbody::IsDirty() const
@@ -46,6 +55,8 @@ leap::physics::Rigidbody::RigidbodyFlag leap::physics::Rigidbody::GetDirtyFlag()
 void leap::physics::Rigidbody::ResetDirtyFlag()
 {
 	m_DirtyFlag = RigidbodyFlag::None;
+	m_RotationDelta = { 1.0f, 0.0f, 0.0f, 0.0f };
+	m_Translation = {};
 }
 
 void leap::physics::Rigidbody::SetDirty(RigidbodyFlag flag)
