@@ -7,6 +7,7 @@
 #include "PhysXScene.h"
 #include "PhysXShapes.h"
 #include "PhysXObject.h"
+#include "PhysXMaterial.h"
 
 #include <algorithm>
 
@@ -109,17 +110,45 @@ leap::physics::IPhysicsObject* leap::physics::PhysXEngine::Get(void* pOwner)
     return m_pObjects[pOwner].get();
 }
 
-std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(physics::EShape shape)
+std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(physics::EShape shape, IPhysicsMaterial* pMaterial)
 {
+    if (!pMaterial)
+    {
+        pMaterial = GetDefaultMaterial();
+    }
+
     switch (shape)
     {
     case EShape::Box:
-        return std::make_unique<PhysXBoxShape>(this);
+        return std::make_unique<PhysXBoxShape>(this, static_cast<PhysXMaterial*>(pMaterial));
     case EShape::Sphere:
-        return std::make_unique<PhysXSphereShape>(this);
+        return std::make_unique<PhysXSphereShape>(this, static_cast<PhysXMaterial*>(pMaterial));
     case EShape::Capsule:
-        return std::make_unique<PhysXCapsuleShape>(this);
+        return std::make_unique<PhysXCapsuleShape>(this, static_cast<PhysXMaterial*>(pMaterial));
     }
 
     return nullptr;
+}
+
+std::shared_ptr<leap::physics::IPhysicsMaterial> leap::physics::PhysXEngine::CreateMaterial()
+{
+    return std::make_shared<PhysXMaterial>(this);
+}
+
+leap::physics::IPhysicsMaterial* leap::physics::PhysXEngine::GetDefaultMaterial()
+{
+    static std::unique_ptr<PhysXMaterial> pMaterial{};
+
+    if (!pMaterial)
+    {
+        pMaterial = std::make_unique<PhysXMaterial>(this);
+        
+        constexpr float defaultFriction{ 0.6f };
+        constexpr float defaultBounciness{ 0.0f };
+        pMaterial->SetStaticFriction(defaultFriction);
+        pMaterial->SetDynamicFriction(defaultFriction);
+        pMaterial->SetBounciness(defaultBounciness);
+    }
+
+    return pMaterial.get();
 }

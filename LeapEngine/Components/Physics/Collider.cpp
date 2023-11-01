@@ -13,7 +13,7 @@ void leap::Collider::Awake()
 {
 	if (m_pOwningObject) return;
 
-	SetupShape();
+	SetupShape(m_pMaterial.get());
 
 	physics::IPhysics& physics{ ServiceLocator::GetPhysics() };
 
@@ -53,7 +53,7 @@ void leap::Collider::Move(const Rigidbody* pRigidbody)
 
 	// Remove the shape from the previous owner
 	if (m_pOwningObject) physics.Get(m_pOwningObject)->RemoveShape(m_pShape.get());
-	else SetupShape();
+	else SetupShape(m_pMaterial.get());
 
 	const glm::vec3 relativePosition{ (GetTransform()->GetWorldPosition() - pRigidbody->GetTransform()->GetWorldPosition()) * pRigidbody->GetTransform()->GetWorldRotation() };
 	const glm::quat relativeRotation{ glm::conjugate(pRigidbody->GetTransform()->GetWorldRotation()) * GetTransform()->GetWorldRotation() };
@@ -63,4 +63,9 @@ void leap::Collider::Move(const Rigidbody* pRigidbody)
 	// Apply the shape to the rigidbody
 	m_pOwningObject = pRigidbody->GetGameObject();
 	physics.Get(m_pOwningObject)->AddShape(m_pShape.get());
+}
+
+void leap::Collider::SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial)
+{
+	m_pMaterial = pMaterial;
 }

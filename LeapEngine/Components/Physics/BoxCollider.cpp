@@ -10,12 +10,12 @@
 #include <Interfaces/IPhysicsObject.h>
 #include <Interfaces/IShape.h>
 
-void leap::BoxCollider::SetupShape()
+void leap::BoxCollider::SetupShape(physics::IPhysicsMaterial* pMaterial)
 {
 	physics::IPhysics& physics{ ServiceLocator::GetPhysics() };
 
 	// Create shape and apply the size
-	m_pShape = physics.CreateShape(physics::EShape::Box);
+	m_pShape = physics.CreateShape(physics::EShape::Box, pMaterial);
 	m_pShape->SetSize(m_Size * GetTransform()->GetWorldScale());
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IShape.h"
+#include "IPhysicsMaterial.h"
 
 #include <memory>
 #include <functional>
@@ -24,7 +25,8 @@ namespace leap::physics
 
 		virtual void CreateScene() = 0;
 		virtual IPhysicsObject* Get(void* pOwner) = 0;
-		virtual std::unique_ptr<IShape> CreateShape(EShape shape) = 0;
+		virtual std::unique_ptr<IShape> CreateShape(EShape shape, IPhysicsMaterial* pMaterial = nullptr) = 0;
+		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() = 0;
 	};
 
 	class DefaultPhysics final : public IPhysics
@@ -37,6 +39,7 @@ namespace leap::physics
 
 		virtual void CreateScene() override {}
 		virtual IPhysicsObject* Get(void*) override { return nullptr; }
-		virtual std::unique_ptr<IShape> CreateShape(EShape) override { return nullptr; }
+		virtual std::unique_ptr<IShape> CreateShape(EShape, IPhysicsMaterial*) override { return nullptr; }
+		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override { return nullptr; }
 	};
 }

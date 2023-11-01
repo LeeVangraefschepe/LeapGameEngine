@@ -43,11 +43,14 @@ namespace leap::physics
 
 		virtual void CreateScene() override;
 		virtual IPhysicsObject* Get(void* pOwner) override;
-		virtual std::unique_ptr<IShape> CreateShape(EShape shape) override;
+		virtual std::unique_ptr<IShape> CreateShape(EShape shape, IPhysicsMaterial* pMaterial = nullptr) override;
+		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override;
 
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
 
 	private:
+		IPhysicsMaterial* GetDefaultMaterial();
+
 		std::unique_ptr<physx::PxDefaultErrorCallback> m_pDefaultErrorCallback{};
 		std::unique_ptr<physx::PxDefaultAllocator> m_pDefaultAllocatorCallback{};
 

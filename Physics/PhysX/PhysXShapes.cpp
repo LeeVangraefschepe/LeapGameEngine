@@ -1,18 +1,17 @@
 #include "PhysXShapes.h"
 
 #include "PhysXEngine.h"
+#include "PhysXMaterial.h"
 
 #include <PxPhysics.h>
 
 #include <Debug.h>
 
-leap::physics::PhysXBoxShape::PhysXBoxShape(PhysXEngine* pEngine)
+leap::physics::PhysXBoxShape::PhysXBoxShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial)
 {
 	physx::PxBoxGeometry geo{ 0.5f, 0.5f, 0.5f };
 
-	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) };
-
-	m_pShape = pEngine->GetPhysics()->createShape(geo, *material, true);
+	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
 }
 
 leap::physics::PhysXBoxShape::~PhysXBoxShape()
@@ -53,13 +52,11 @@ glm::vec3 leap::physics::PhysXBoxShape::GetRelativePosition()
 	return glm::vec3{ localPose.x, localPose.y, localPose.z };
 }
 
-leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine)
+leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial)
 {
 	physx::PxSphereGeometry geo{ 0.5f };
 
-	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) };
-
-	m_pShape = pEngine->GetPhysics()->createShape(geo, *material, true);
+	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
 }
 
 leap::physics::PhysXSphereShape::~PhysXSphereShape()
@@ -98,13 +95,11 @@ void leap::physics::PhysXSphereShape::SetSize(const glm::vec3&)
 	Debug::LogWarning("PhysXEngine Warning: Cannot set size on a sphere shape");
 }
 
-leap::physics::PhysXCapsuleShape::PhysXCapsuleShape(PhysXEngine* pEngine)
+leap::physics::PhysXCapsuleShape::PhysXCapsuleShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial)
 {
 	physx::PxCapsuleGeometry geo{ 0.5f, 1.0f };
 
-	physx::PxMaterial* material{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) };
-
-	m_pShape = pEngine->GetPhysics()->createShape(geo, *material, true);
+	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
 	m_pShape->setLocalPose(physx::PxTransform{ {}, physx::PxQuat{ physx::PxHalfPi, physx::PxVec3{ 0.0f, 0.0f, 1.0f } } });
 }
 

@@ -18,7 +18,7 @@ namespace leap
 		void SetRadius(float radius);
 
 	private:
-		virtual void SetupShape() override;
+		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) override;
 
 		float m_Radius{ 0.5f };
 	};

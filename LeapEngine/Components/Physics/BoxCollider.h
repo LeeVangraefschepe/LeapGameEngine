@@ -22,7 +22,7 @@ namespace leap
 		void SetSize(float size);
 
 	private:
-		virtual void SetupShape() override;
+		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) override;
 
 		glm::vec3 m_Size{ 1.0f, 1.0f, 1.0f };
 	};
