@@ -4,6 +4,10 @@
 #include "SceneGraph/SceneManager.h"
 #include "Scenes/MainMenuScene.h"
 
+#if _DEBUG
+#include <vld.h>
+#endif
+
 int main()
 {
 	leap::GameContext::GetInstance().AddLogger<leap::ImGuiLogger>();

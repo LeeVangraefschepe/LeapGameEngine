@@ -22,8 +22,6 @@ leap::physics::PhysXEngine::PhysXEngine()
         return;
     }
 
-    m_pDefaultAllocatorCallback->allocate(3, nullptr, nullptr, 5);
-
     // Create top-level physics object
     bool recordMemoryAllocations{};
 #if _DEBUG
@@ -56,6 +54,7 @@ leap::physics::PhysXEngine::~PhysXEngine()
     m_pScene = nullptr;
     m_pObjects.clear();
 
+    m_pDispatcher->release();
     m_pCooking->release();
     m_pPhysics->release();
     m_pFoundation->release();

@@ -32,6 +32,11 @@ target_link_libraries(
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
 target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine ${GLFW_LIBRARY_DIR})
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_include_directories(UnnamedAdventureGame PUBLIC ${VLD_INCLUDE_DIR})
+	target_link_libraries(UnnamedAdventureGame PUBLIC ${VLD_LIBRARY_DIR})
+endif()
+
 # Copies used for .exe
 add_custom_command(TARGET UnnamedAdventureGame PRE_LINK
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FMOD_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
