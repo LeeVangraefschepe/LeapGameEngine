@@ -62,8 +62,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
 	pMainCamera->GetData()->SetFarPlane(1000.0f);
-	pCameraObj->AddComponent<FreeCamMovement>();
-	pCameraObj->GetTransform()->SetWorldPosition(0.0f, 0.0f, -5.0f);
+	//pCameraObj->AddComponent<FreeCamMovement>();
+	pCameraObj->GetTransform()->SetWorldPosition(-10.0f, 5.0f, 0.0f);
+	pCameraObj->GetTransform()->SetWorldRotation(0.0f, 90.0f, 0.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
 
 	auto canvas{ scene.CreateGameObject("Canvas") };
@@ -90,7 +91,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 
 	auto pBox{ scene.CreateGameObject("Box") };
 	pBox->AddComponent<leap::SphereCollider>();
-	pBox->AddComponent<leap::Rigidbody>()->SetVelocity({ 0.0f, 10.0f, 0.0f});
+	pBox->AddComponent<leap::Rigidbody>()/*->SetVelocity({ 0.0f, 10.0f, 0.0f})*/;
 	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh->LoadMesh("Data/Engine/Models/sphere.obj");
 	pBoxMesh->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
@@ -107,7 +108,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 
 	auto pBox4{ scene.CreateGameObject("Box") };
 	pBox4->AddComponent<leap::BoxCollider>();
-	pBox4->AddComponent<leap::Rigidbody>()->SetVelocity({ 0.0f, 10.0f, 0.0f });
+	pBox4->AddComponent<leap::Rigidbody>()/*->SetVelocity({ 0.0f, 10.0f, 0.0f })*/;
 	auto pBoxMesh4{ pBox4->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh4->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBoxMesh4->LoadMesh("Data/Engine/Models/cube.obj");
