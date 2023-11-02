@@ -7,11 +7,12 @@
 
 #include <Debug.h>
 
-leap::physics::PhysXBoxShape::PhysXBoxShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial)
+leap::physics::PhysXBoxShape::PhysXBoxShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial)
 {
 	physx::PxBoxGeometry geo{ 0.5f, 0.5f, 0.5f };
 
 	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
+	m_pShape->userData = pOwner;
 }
 
 leap::physics::PhysXBoxShape::~PhysXBoxShape()
@@ -52,11 +53,12 @@ glm::vec3 leap::physics::PhysXBoxShape::GetRelativePosition()
 	return glm::vec3{ localPose.x, localPose.y, localPose.z };
 }
 
-leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial)
+leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial)
 {
 	physx::PxSphereGeometry geo{ 0.5f };
 
 	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
+	m_pShape->userData = pOwner;
 }
 
 leap::physics::PhysXSphereShape::~PhysXSphereShape()
@@ -95,12 +97,13 @@ void leap::physics::PhysXSphereShape::SetSize(const glm::vec3&)
 	Debug::LogWarning("PhysXEngine Warning: Cannot set size on a sphere shape");
 }
 
-leap::physics::PhysXCapsuleShape::PhysXCapsuleShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial)
+leap::physics::PhysXCapsuleShape::PhysXCapsuleShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial)
 {
 	physx::PxCapsuleGeometry geo{ 0.5f, 1.0f };
 
 	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
 	m_pShape->setLocalPose(physx::PxTransform{ {}, physx::PxQuat{ physx::PxHalfPi, physx::PxVec3{ 0.0f, 0.0f, 1.0f } } });
+	m_pShape->userData = pOwner;
 }
 
 leap::physics::PhysXCapsuleShape::~PhysXCapsuleShape()

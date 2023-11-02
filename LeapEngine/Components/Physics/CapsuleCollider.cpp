@@ -18,7 +18,7 @@ void leap::CapsuleCollider::SetupShape(physics::IPhysicsMaterial* pMaterial)
 	physics::IPhysics& physics{ ServiceLocator::GetPhysics() };
 
 	// Create shape and apply the size
-	m_pShape = physics.CreateShape(physics::EShape::Capsule, pMaterial);
+	m_pShape = physics.CreateShape(this, physics::EShape::Capsule, pMaterial);
 	m_pShape->SetRadius(m_Radius);
 	m_pShape->SetSize({ 1.0f, m_Height, 1.0f });
 }

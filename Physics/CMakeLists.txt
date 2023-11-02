@@ -5,7 +5,8 @@ add_library(PhysicsEngine STATIC
 "PhysX/PhysXObject.cpp" 
 "PhysX/PhysXShapes.cpp" 
 "Data/Rigidbody.cpp" 
-"PhysX/PhysXMaterial.cpp")
+"PhysX/PhysXMaterial.cpp" 
+"PhysX/PhysXSimulationCallbacks.cpp")
 
 set(PhysicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "")
 

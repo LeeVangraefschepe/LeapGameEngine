@@ -65,6 +65,11 @@ void leap::Collider::Move(const Rigidbody* pRigidbody)
 	physics.Get(m_pOwningObject)->AddShape(m_pShape.get());
 }
 
+void leap::Collider::NotifyCollision(Collider* pOther)
+{
+	OnCollision.Notify(CollisionCallback{ this, pOther });
+}
+
 void leap::Collider::SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial)
 {
 	m_pMaterial = pMaterial;

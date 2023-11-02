@@ -8,13 +8,18 @@
 #include "PhysXShapes.h"
 #include "PhysXObject.h"
 #include "PhysXMaterial.h"
+#include "PhysXSimulationCallbacks.h"
+#include "PhysXSimulationFilterShader.h"
 
 #include <algorithm>
 
 leap::physics::PhysXEngine::PhysXEngine()
     : m_pDefaultAllocatorCallback{ std::make_unique<physx::PxDefaultAllocator>() }
     , m_pDefaultErrorCallback{ std::make_unique<physx::PxDefaultErrorCallback>() }
+    , m_pSimulationCallbacks{ std::make_unique<PhysXSimulationCallbacks>() }
 {
+    m_pSimulationCallbacks->OnCollision.AddListener(this);
+
     // Create foundation
     m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pDefaultAllocatorCallback, *m_pDefaultErrorCallback);
     if (!m_pFoundation)
@@ -52,6 +57,8 @@ leap::physics::PhysXEngine::PhysXEngine()
 
 leap::physics::PhysXEngine::~PhysXEngine()
 {
+    m_pSimulationCallbacks->OnCollision.RemoveListener(this);
+
     m_pScene = nullptr;
     m_pObjects.clear();
 
@@ -92,8 +99,9 @@ void leap::physics::PhysXEngine::CreateScene()
 {
     physx::PxSceneDesc sceneDesc{ m_pPhysics->getTolerancesScale() };
     sceneDesc.gravity = physx::PxVec3{ 0.0f, -9.81f, 0.0f };
-    sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+    sceneDesc.filterShader = PhysXSimulationFilterShader;
     sceneDesc.cpuDispatcher = m_pDispatcher;
+    sceneDesc.simulationEventCallback = m_pSimulationCallbacks.get();
 
     physx::PxScene* pPhysXScene{ m_pPhysics->createScene(sceneDesc) };
 
@@ -110,7 +118,7 @@ leap::physics::IPhysicsObject* leap::physics::PhysXEngine::Get(void* pOwner)
     return m_pObjects[pOwner].get();
 }
 
-std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(physics::EShape shape, IPhysicsMaterial* pMaterial)
+std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(void* pOwner, physics::EShape shape, IPhysicsMaterial* pMaterial)
 {
     if (!pMaterial)
     {
@@ -120,11 +128,11 @@ std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(p
     switch (shape)
     {
     case EShape::Box:
-        return std::make_unique<PhysXBoxShape>(this, static_cast<PhysXMaterial*>(pMaterial));
+        return std::make_unique<PhysXBoxShape>(this, pOwner, static_cast<PhysXMaterial*>(pMaterial));
     case EShape::Sphere:
-        return std::make_unique<PhysXSphereShape>(this, static_cast<PhysXMaterial*>(pMaterial));
+        return std::make_unique<PhysXSphereShape>(this, pOwner, static_cast<PhysXMaterial*>(pMaterial));
     case EShape::Capsule:
-        return std::make_unique<PhysXCapsuleShape>(this, static_cast<PhysXMaterial*>(pMaterial));
+        return std::make_unique<PhysXCapsuleShape>(this, pOwner, static_cast<PhysXMaterial*>(pMaterial));
     }
 
     return nullptr;
@@ -133,6 +141,14 @@ std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(p
 std::shared_ptr<leap::physics::IPhysicsMaterial> leap::physics::PhysXEngine::CreateMaterial()
 {
     return std::make_shared<PhysXMaterial>(this);
+}
+
+void leap::physics::PhysXEngine::Notify(const PhysXSimulationCallbacks::CollisionEvent& e)
+{
+    for (int i{}; i < e.pFirstShapes.size(); ++i)
+    {
+        m_OnCollision.Notify(CollisionData{ e.pFirstShapes[i]->userData, e.pSecondShapes[i]->userData });
+    }
 }
 
 leap::physics::IPhysicsMaterial* leap::physics::PhysXEngine::GetDefaultMaterial()

@@ -7,10 +7,16 @@
 
 namespace leap
 {
+	namespace physics
+	{
+		struct CollisionData;
+	}
+
 	class PhysicsSync final
 	{
 	public:
 		static void SetTransform(void* pOwner, const glm::vec3& position, const glm::quat& rotation);
 		static std::pair<const glm::vec3&, const glm::quat&> GetTransform(void* pOwner);
+		static void OnCollision(const physics::CollisionData& collision);
 	};
 }

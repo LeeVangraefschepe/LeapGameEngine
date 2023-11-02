@@ -83,6 +83,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     auto& audio = ServiceLocator::GetAudio();
     auto& physics = ServiceLocator::GetPhysics();
     physics.SetSyncFunc(PhysicsSync::SetTransform, PhysicsSync::GetTransform);
+    physics.OnCollision().AddListener(PhysicsSync::OnCollision);
 
     while (!glfwWindowShouldClose(m_pWindow))
     {

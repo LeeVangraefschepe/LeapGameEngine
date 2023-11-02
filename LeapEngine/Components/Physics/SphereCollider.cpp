@@ -17,7 +17,7 @@ void leap::SphereCollider::SetupShape(physics::IPhysicsMaterial* pMaterial)
 	physics::IPhysics& physics{ ServiceLocator::GetPhysics() };
 
 	// Create shape
-	m_pShape = physics.CreateShape(physics::EShape::Sphere, pMaterial);
+	m_pShape = physics.CreateShape(this, physics::EShape::Sphere, pMaterial);
 
 	// Apply radius
 	const auto& scale{ GetTransform()->GetWorldScale() };

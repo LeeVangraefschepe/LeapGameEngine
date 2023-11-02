@@ -51,6 +51,12 @@
 #include <Components/Physics/BoxCollider.h>
 #include <Components/Physics/Rigidbody.h>
 #include <Components/Physics/SphereCollider.h>
+#include <Components/Physics/CapsuleCollider.h>
+
+#include <Interfaces/IPhysicsMaterial.h>
+#include <Interfaces/IPhysics.h>
+
+#include "../Components/PrintCollision.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -61,11 +67,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
-	pMainCamera->GetData()->SetFarPlane(1000.0f);
 	//pCameraObj->AddComponent<FreeCamMovement>();
-	pCameraObj->GetTransform()->SetWorldPosition(-10.0f, 5.0f, 0.0f);
-	pCameraObj->GetTransform()->SetWorldRotation(0.0f, 90.0f, 0.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
+	pCameraObj->GetTransform()->SetLocalPosition(-10.0f, 5.0f, 0.0f);
+	pCameraObj->GetTransform()->SetLocalRotation(0.0f, 90.0f, 0.0f);
 
 	auto canvas{ scene.CreateGameObject("Canvas") };
 	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
@@ -76,50 +81,50 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
-	//auto shadedMesh{ scene.CreateGameObject("Mesh") };
-	//leap::MeshRendererComponent* pShadedMeshRenderer{ shadedMesh->AddComponent<leap::MeshRendererComponent>() };
-	//pShadedMeshRenderer->LoadMesh("Data/plane.obj");
-	//pShadedMeshRenderer->SetMaterial(pTexturedMaterial);
-	//shadedMesh->GetTransform()->Scale(10.0f);
-	//shadedMesh->GetTransform()->SetLocalPosition(0, -1.0f, 0);
-
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
 
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	auto pBox{ scene.CreateGameObject("Box") };
+	auto pBox{ scene.CreateGameObject("Sphere") };
 	pBox->AddComponent<leap::SphereCollider>();
-	pBox->AddComponent<leap::Rigidbody>()/*->SetVelocity({ 0.0f, 10.0f, 0.0f})*/;
+	pBox->AddComponent<leap::Rigidbody>();
 	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh->LoadMesh("Data/Engine/Models/sphere.obj");
 	pBoxMesh->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBox->GetTransform()->Translate(0.0f, 0.0f, 0.0f);
 	pBox->GetTransform()->Rotate(45.0f, 0.0f, 0.0f);
+	pBox->AddComponent<PrintCollision>();
 
-	auto pBox3{ pBox->CreateChild("Box") };
-	pBox3->AddComponent<leap::BoxCollider>();
+	auto pBounceMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
+	pBounceMaterial->SetBounciness(1.0f);
+
+	auto pBox3{ pBox->CreateChild("Child Box") };
+	pBox3->AddComponent<leap::BoxCollider>()->SetMaterial(pBounceMaterial);;
 	auto pBoxMesh3{ pBox3->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh3->LoadMesh("Data/Engine/Models/cube.obj");
 	pBoxMesh3->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBox3->GetTransform()->Translate(0.0f, 3.0f, 0.0f);
 	pBox3->GetTransform()->SetLocalRotation(45.0f, 45.0f, 80.0f);
+	pBox3->AddComponent<PrintCollision>();
 
 	auto pBox4{ scene.CreateGameObject("Box") };
-	pBox4->AddComponent<leap::BoxCollider>();
-	pBox4->AddComponent<leap::Rigidbody>()/*->SetVelocity(0.0f, 10.0f, 0.0f)*/;
+	pBox4->AddComponent<leap::BoxCollider>()->SetMaterial(pBounceMaterial);
+	pBox4->AddComponent<leap::Rigidbody>();
 	auto pBoxMesh4{ pBox4->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh4->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBoxMesh4->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox4->GetTransform()->Translate(0.0f, 10.5f, 3.0f);
 	pBox4->GetTransform()->Rotate(10.0f, 0.0f, 0.0f);
+	pBox4->AddComponent<PrintCollision>();
 
-	auto pBox2{ scene.CreateGameObject("Box2") };
+	auto pBox2{ scene.CreateGameObject("Ground") };
 	pBox2->AddComponent<leap::BoxCollider>();
 	auto pBoxMesh2{ pBox2->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh2->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
 	pBox2->GetTransform()->Scale(20.0f, 1.0f, 20.0f);
+	pBox2->AddComponent<PrintCollision>();
 }

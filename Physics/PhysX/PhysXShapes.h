@@ -29,7 +29,7 @@ namespace leap::physics
 	class PhysXBoxShape final : public IPhysXShape
 	{
 	public:
-		PhysXBoxShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial);
+		PhysXBoxShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial);
 		virtual ~PhysXBoxShape();
 
 		virtual physx::PxShape& GetShape() override;
@@ -48,7 +48,7 @@ namespace leap::physics
 	class PhysXSphereShape final : public IPhysXShape
 	{
 	public:
-		PhysXSphereShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial);
+		PhysXSphereShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial);
 		virtual ~PhysXSphereShape();
 
 		virtual physx::PxShape& GetShape() override;
@@ -67,7 +67,7 @@ namespace leap::physics
 	class PhysXCapsuleShape final : public IPhysXShape
 	{
 	public:
-		PhysXCapsuleShape(PhysXEngine* pEngine, PhysXMaterial* pMaterial);
+		PhysXCapsuleShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial);
 		virtual ~PhysXCapsuleShape();
 
 		virtual physx::PxShape& GetShape() override;

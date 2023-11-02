@@ -4,8 +4,12 @@
 #include "../Interfaces/IPhysicsObject.h"
 #include "../Interfaces/IShape.h"
 
+#include "PhysXSimulationCallbacks.h"
+
 #include <memory>
 #include <unordered_map>
+
+#include <Observer.h>
 
 #include <vec3.hpp>
 #pragma warning(disable: 4201)
@@ -26,8 +30,9 @@ namespace leap::physics
 {
 	class IPhysicsScene;
 	class PhysXObject;
+	class PhysXSimulationCallbacks;
 
-	class PhysXEngine final : public IPhysics
+	class PhysXEngine final : public IPhysics, public Observer<PhysXSimulationCallbacks::CollisionEvent>
 	{
 	public:
 		PhysXEngine();
@@ -43,16 +48,21 @@ namespace leap::physics
 
 		virtual void CreateScene() override;
 		virtual IPhysicsObject* Get(void* pOwner) override;
-		virtual std::unique_ptr<IShape> CreateShape(EShape shape, IPhysicsMaterial* pMaterial = nullptr) override;
+		virtual std::unique_ptr<IShape> CreateShape(void* pOwner, EShape shape, IPhysicsMaterial* pMaterial = nullptr) override;
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override;
 
+		virtual Subject<CollisionData>& OnCollision() { return m_OnCollision; }
+
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
+
+		virtual void Notify(const PhysXSimulationCallbacks::CollisionEvent& e) override;
 
 	private:
 		IPhysicsMaterial* GetDefaultMaterial();
 
 		std::unique_ptr<physx::PxDefaultErrorCallback> m_pDefaultErrorCallback{};
 		std::unique_ptr<physx::PxDefaultAllocator> m_pDefaultAllocatorCallback{};
+		std::unique_ptr<PhysXSimulationCallbacks> m_pSimulationCallbacks{};
 
 		physx::PxFoundation* m_pFoundation{};
 		physx::PxPhysics* m_pPhysics{};
@@ -65,5 +75,6 @@ namespace leap::physics
 
 		std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> m_SyncGetFunc{};
 		std::function<void(void*, const glm::vec3&, const glm::quat&)> m_SyncSetFunc{};
+		Subject<CollisionData> m_OnCollision{};
 	};
 }
