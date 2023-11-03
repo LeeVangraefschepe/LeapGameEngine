@@ -57,6 +57,7 @@
 #include <Interfaces/IPhysics.h>
 
 #include "../Components/PrintCollision.h"
+#include "../Components/ApplyForces.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -87,27 +88,24 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
+	auto pSlideMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
+	pSlideMaterial->SetStaticFriction(0.1f);
+	pSlideMaterial->SetDynamicFriction(0.1f);
+
 	auto pBox{ scene.CreateGameObject("Sphere") };
-	pBox->AddComponent<leap::SphereCollider>();
-	pBox->AddComponent<leap::Rigidbody>();
+	pBox->AddComponent<leap::BoxCollider>()->SetMaterial(pSlideMaterial);
+	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
+	pBoxRb;
 	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh->LoadMesh("Data/Engine/Models/sphere.obj");
+	pBoxMesh->LoadMesh("Data/Engine/Models/cube.obj");
 	pBoxMesh->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBox->GetTransform()->Translate(0.0f, 0.0f, 0.0f);
 	pBox->GetTransform()->Rotate(45.0f, 0.0f, 0.0f);
 	pBox->AddComponent<PrintCollision>();
+	pBox->AddComponent<ApplyForces>();
 
 	auto pBounceMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
 	pBounceMaterial->SetBounciness(1.0f);
-
-	auto pBox3{ pBox->CreateChild("Child Box") };
-	pBox3->AddComponent<leap::BoxCollider>()->SetMaterial(pBounceMaterial);;
-	auto pBoxMesh3{ pBox3->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh3->LoadMesh("Data/Engine/Models/cube.obj");
-	pBoxMesh3->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBox3->GetTransform()->Translate(0.0f, 3.0f, 0.0f);
-	pBox3->GetTransform()->SetLocalRotation(45.0f, 45.0f, 80.0f);
-	pBox3->AddComponent<PrintCollision>();
 
 	auto pBox4{ scene.CreateGameObject("Box") };
 	pBox4->AddComponent<leap::BoxCollider>()->SetMaterial(pBounceMaterial);

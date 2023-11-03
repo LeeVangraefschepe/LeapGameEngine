@@ -5,6 +5,7 @@
 #include "PhysXScene.h"
 
 #include "../Data/Rigidbody.h"
+#include "../Data/ForceMode.h"
 
 #include <PxPhysics.h>
 #include <PxRigidActor.h>
@@ -205,6 +206,24 @@ void leap::physics::PhysXObject::UpdateRigidbody()
 		const glm::quat& rotation{ GetRotation() };
 
 		SetTransform(position + m_pRigidbody->GetTranslation(), m_pRigidbody->GetRotationDelta() * rotation);
+	}
+
+	auto& forces{ m_pRigidbody->GetForces() };
+	if(!forces.empty())
+	{
+		physx::PxRigidDynamic* pDynamic{static_cast<physx::PxRigidDynamic*>(m_pActor) };
+		for (const auto& forceInfo : forces)
+		{
+			const physx::PxForceMode::Enum mode{ static_cast<physx::PxForceMode::Enum>(forceInfo.mode) };
+			const physx::PxVec3 force{ forceInfo.value.x, forceInfo.value.y, forceInfo.value.z };
+
+			if(forceInfo.isTorque)
+				pDynamic->addTorque(force, mode);
+			else
+				pDynamic->addForce(force, mode);
+		}
+
+		forces.clear();
 	}
 
 	m_pRigidbody->ResetDirtyFlag();

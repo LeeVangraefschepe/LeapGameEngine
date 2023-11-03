@@ -9,7 +9,8 @@ add_executable(UnnamedAdventureGame
 	"Components/WindowManager.cpp"
 	"Components/AudioTester.cpp"
 	"Components/SineWaveTerrain.cpp"
-    "Components/PrintCollision.cpp")
+    "Components/PrintCollision.cpp"
+	"Components/ApplyForces.cpp")
 
 target_include_directories(
 	LeapEngine PUBLIC 

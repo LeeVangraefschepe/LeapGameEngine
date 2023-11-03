@@ -5,6 +5,10 @@
 #include "gtc/quaternion.hpp"
 #pragma warning(default: 4201)
 
+#include "../Data/Force.h"
+
+#include <vector>
+
 namespace leap::physics
 {
 	class Rigidbody
@@ -38,6 +42,10 @@ namespace leap::physics
 		const glm::quat& GetRotation() const { return m_Rotation; }
 		const glm::quat& GetRotationDelta() const { return m_RotationDelta; }
 
+		void AddForce(const glm::vec3& force, ForceMode mode);
+		void AddTorque(const glm::vec3& torque, ForceMode mode);
+		std::vector<Force>& GetForces() { return m_Forces; }
+
 		bool IsDirty() const;
 		RigidbodyFlag GetDirtyFlag() const;
 		void ResetDirtyFlag();
@@ -53,5 +61,6 @@ namespace leap::physics
 		glm::vec3 m_Translation{};
 		glm::quat m_RotationDelta{ 1.0f, 0.0f, 0.0f, 0.0f };
 		RigidbodyFlag m_DirtyFlag{ RigidbodyFlag::None };
+		std::vector<Force> m_Forces{};
 	};
 }

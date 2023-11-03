@@ -14,17 +14,13 @@
 
 void leap::Rigidbody::SetKinematic(bool isKinematic)
 {
-	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
-	if (!m_pRigidbody)  m_pRigidbody = new leap::physics::Rigidbody{};
-
+	CheckExistence();
 	m_pRigidbody->SetIsKinematic(isKinematic);
 }
 
 void leap::Rigidbody::SetVelocity(const glm::vec3& velocity)
 {
-	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
-	if (!m_pRigidbody) m_pRigidbody = new leap::physics::Rigidbody{};
-
+	CheckExistence();
 	m_pRigidbody->SetVelocity(velocity);
 }
 
@@ -35,60 +31,84 @@ void leap::Rigidbody::SetVelocity(float x, float y, float z)
 
 void leap::Rigidbody::SetMass(float mass)
 {
-	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
-	if (!m_pRigidbody) m_pRigidbody = new leap::physics::Rigidbody{};
-
+	CheckExistence();
 	m_pRigidbody->SetMass(mass);
 }
 
-void leap::Rigidbody::Translate(const glm::vec3& displacement) const
+void leap::Rigidbody::Translate(const glm::vec3& displacement)
 {
+	CheckExistence();
 	m_pRigidbody->Translate(displacement);
 }
 
-void leap::Rigidbody::Translate(float x, float y, float z) const
+void leap::Rigidbody::Translate(float x, float y, float z) 
 {
 	Translate({ x,y,z });
 }
 
-void leap::Rigidbody::SetPosition(const glm::vec3& position) const
+void leap::Rigidbody::SetPosition(const glm::vec3& position) 
 {
+	CheckExistence();
 	m_pRigidbody->SetPosition(position);
 }
 
-void leap::Rigidbody::SetPosition(float x, float y, float z) const
+void leap::Rigidbody::SetPosition(float x, float y, float z) 
 {
 	SetPosition({ x, y, z });
 }
 
-void leap::Rigidbody::Rotate(const glm::quat& rotationEpsilon) const
+void leap::Rigidbody::Rotate(const glm::quat& rotationEpsilon)
 {
+	CheckExistence();
 	m_pRigidbody->Rotate(rotationEpsilon);
 }
 
-void leap::Rigidbody::Rotate(const glm::vec3& rotationEpsilon, bool degrees) const
+void leap::Rigidbody::Rotate(const glm::vec3& rotationEpsilon, bool degrees)
 {
 	Rotate(Quaternion::FromEuler(rotationEpsilon, degrees));
 }
 
-void leap::Rigidbody::Rotate(float x, float y, float z, bool degrees) const
+void leap::Rigidbody::Rotate(float x, float y, float z, bool degrees)
 {
 	Rotate(Quaternion::FromEuler(x, y, z, degrees));
 }
 
-void leap::Rigidbody::SetRotation(const glm::quat& rotation) const
+void leap::Rigidbody::SetRotation(const glm::quat& rotation)
 {
+	CheckExistence();
 	m_pRigidbody->SetRotation(rotation);
 }
 
-void leap::Rigidbody::SetRotation(const glm::vec3& rotation, bool degrees) const
+void leap::Rigidbody::SetRotation(const glm::vec3& rotation, bool degrees)
 {
 	SetRotation(Quaternion::FromEuler(rotation, degrees));
 }
 
-void leap::Rigidbody::SetRotation(float x, float y, float z, bool degrees) const
+void leap::Rigidbody::SetRotation(float x, float y, float z, bool degrees)
 {
 	SetRotation(Quaternion::FromEuler(x, y, z, degrees));
+}
+
+void leap::Rigidbody::AddForce(const glm::vec3& force, physics::ForceMode mode)
+{
+	CheckExistence();
+	m_pRigidbody->AddForce(force, mode);
+}
+
+void leap::Rigidbody::AddForce(float x, float y, float z, physics::ForceMode mode)
+{
+	AddForce({ x,y,z }, mode);
+}
+
+void leap::Rigidbody::AddTorque(const glm::vec3& torque, physics::ForceMode mode)
+{
+	CheckExistence();
+	m_pRigidbody->AddTorque(torque, mode);
+}
+
+void leap::Rigidbody::AddTorque(float x, float y, float z, physics::ForceMode mode)
+{
+	AddTorque({ x,y,z }, mode);
 }
 
 void leap::Rigidbody::Awake()
@@ -118,6 +138,12 @@ void leap::Rigidbody::OnDestroy()
 {
 	// Remove the rigidbody
 	ServiceLocator::GetPhysics().Get(GetGameObject())->SetRigidbody(false);
+}
+
+void leap::Rigidbody::CheckExistence()
+{
+	// If no rigidbody exists (this function is called before awake), create a temporary rigidbody
+	if (!m_pRigidbody) m_pRigidbody = new leap::physics::Rigidbody{};
 }
 
 void leap::Rigidbody::ApplyShapes(GameObject* pParent) const

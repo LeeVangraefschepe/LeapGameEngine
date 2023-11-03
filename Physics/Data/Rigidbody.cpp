@@ -42,9 +42,19 @@ void leap::physics::Rigidbody::Rotate(const glm::quat& rotationDelta)
 	SetDirty(RigidbodyFlag::Rotate);
 }
 
+void leap::physics::Rigidbody::AddForce(const glm::vec3& force, leap::physics::ForceMode mode)
+{
+	m_Forces.emplace_back(Force{ force, false, mode });
+}
+
+void leap::physics::Rigidbody::AddTorque(const glm::vec3& torque, ForceMode mode)
+{
+	m_Forces.emplace_back(Force{ torque, true, mode });
+}
+
 bool leap::physics::Rigidbody::IsDirty() const
 {
-	return static_cast<unsigned int>(m_DirtyFlag) > 0;
+	return static_cast<unsigned int>(m_DirtyFlag) > 0 || !m_Forces.empty();
 }
 
 leap::physics::Rigidbody::RigidbodyFlag leap::physics::Rigidbody::GetDirtyFlag() const
