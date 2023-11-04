@@ -43,6 +43,7 @@ namespace leap::input
 		void RemoveCommand(Command* command);
 
 		void SetButtonBuffer(int size);
+		void Hide(bool value) const;
 
 		const glm::ivec2& GetDelta() const { return m_MouseDelta; }
 		const glm::ivec2& GetPos() const { return m_PrevMousePos; }
