@@ -62,9 +62,7 @@ namespace leap
         }
         T Value()
         {
-            auto val = std::move(handle.promise().value);
-            handle.promise().value = T{};
-            return std::move(val);
+            return std::move(handle.promise().value);
         }
     };
 }
