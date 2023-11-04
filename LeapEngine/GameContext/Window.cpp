@@ -54,6 +54,13 @@ void leap::Window::SetIcon(const std::string& path) const
 void leap::Window::SetWindowTitle(const std::string& text) const
 {
 	glfwSetWindowTitle(m_pWindow, text.c_str());
+	
+}
+
+void leap::Window::SetMinimized(bool value) const
+{
+	if (value) glfwIconifyWindow(m_pWindow);
+	else glfwRestoreWindow(m_pWindow);
 }
 
 void leap::Window::Update()
