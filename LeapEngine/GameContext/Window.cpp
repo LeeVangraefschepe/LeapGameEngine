@@ -63,6 +63,12 @@ void leap::Window::SetMinimized(bool value) const
 	else glfwRestoreWindow(m_pWindow);
 }
 
+void leap::Window::SetHiden(bool value) const
+{
+	if (value) glfwHideWindow(m_pWindow);
+	else glfwShowWindow(m_pWindow);
+}
+
 void leap::Window::Update()
 {
 	if (!m_WindowSizeDirty) return;

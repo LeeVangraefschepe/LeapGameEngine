@@ -25,6 +25,7 @@ namespace leap
 		void SetIcon(const std::string& path) const;
 		void SetWindowTitle(const std::string& text) const;
 		void SetMinimized(bool value) const;
+		void SetHiden(bool value) const;
 
 	private:
 		friend class GameContext;
