@@ -58,19 +58,13 @@ namespace leap
         }
         void Resume()
         {
-            Recalc();
+            handle();
         }
         T Value()
         {
             auto val = std::move(handle.promise().value);
             handle.promise().value = T{};
             return std::move(val);
-        }
-
-    private:
-        inline void Recalc()
-        {
-            handle();
         }
     };
 }
