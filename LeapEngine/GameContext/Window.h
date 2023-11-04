@@ -23,6 +23,7 @@ namespace leap
 		void SetFullScreen(bool value);
 		void SetResize(bool value) const;
 		void SetIcon(const std::string& path) const;
+		void SetWindowTitle(const std::string& text) const;
 
 	private:
 		friend class GameContext;

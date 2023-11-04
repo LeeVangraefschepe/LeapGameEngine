@@ -51,6 +51,11 @@ void leap::Window::SetIcon(const std::string& path) const
 	glfwSetWindowIcon(m_pWindow, 1, images);
 }
 
+void leap::Window::SetWindowTitle(const std::string& text) const
+{
+	glfwSetWindowTitle(m_pWindow, text.c_str());
+}
+
 void leap::Window::Update()
 {
 	if (!m_WindowSizeDirty) return;
