@@ -15,7 +15,6 @@ namespace leap
 	{
 	public:
 		LeapEngine(int width, int height, const std::string& title);
-		LeapEngine(int width, int height, const std::string& title, const std::string& iconPath);
 		~LeapEngine();
 		LeapEngine(const LeapEngine& other) = delete;
 		LeapEngine(LeapEngine&& other) = delete;

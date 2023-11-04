@@ -12,12 +12,11 @@
 
 #include "GameContext/GameContext.h"
 #include "GameContext/Timer.h"
+#include "GameContext/Window.h"
 #include "SceneGraph/SceneManager.h"
 
 leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
-    Debug::Log("LeapEngine Log: Engine created");
-
     /* Initialize the library */
     if (!glfwInit())
         Debug::LogError("LeapEngine Error: GLFW initialisation error");
@@ -33,12 +32,28 @@ leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 
     /* Make the window's context current */
     glfwMakeContextCurrent(m_pWindow);
-
     Debug::Log("LeapEngine Log: Window created successfully");
-}
 
-leap::LeapEngine::LeapEngine(int width, int height, const std::string& title, const std::string&) : LeapEngine(width, height, title)
-{
+    Debug::Log("LeapEngine Log: Linking window to the Input library");
+    input::InputManager::GetInstance().SetWindow(m_pWindow);
+
+    Debug::Log("LeapEngine Log: Linking window to the game context");
+    GameContext::GetInstance().CreateWindowWrapper(m_pWindow);
+
+    Debug::Log("LeapEngine Log: Registering default audio system (FMOD)");
+    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
+
+    Debug::Log("LeapEngine Log: Registering default renderer (DirectX)");
+    ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
+
+    m_pRenderer = &ServiceLocator::GetRenderer();
+    m_pRenderer->Initialize();
+
+    // Set default icon
+    Debug::Log("LeapEngine Log: Setting default window icon");
+    GameContext::GetInstance().GetWindow()->SetIcon("Data/Engine/Images/logo.png");
+
+    Debug::Log("LeapEngine Log: Engine is successfully constructed");
 }
 
 leap::LeapEngine::~LeapEngine()
@@ -50,21 +65,6 @@ void leap::LeapEngine::Run(int desiredFPS)
 {
     auto& input = input::InputManager::GetInstance();
     auto& gameContext = GameContext::GetInstance();
-
-    Debug::Log("LeapEngine Log: Linking window to the Input library");
-    input::InputManager::GetInstance().SetWindow(m_pWindow);
-
-    Debug::Log("LeapEngine Log: Linking window to the game context");
-    gameContext.CreateWindowWrapper(m_pWindow);
-
-    Debug::Log("LeapEngine Log: Registering default audio system (FMOD)");
-    ServiceLocator::RegisterAudioSystem<audio::FmodAudioSystem>();
-
-    Debug::Log("LeapEngine Log: Registering default renderer (DirectX)");
-    ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
-
-    m_pRenderer = &ServiceLocator::GetRenderer();
-    m_pRenderer->Initialize();
 
     Debug::Log("LeapEngine Log: Loading default scene");
     auto& sceneManager = SceneManager::GetInstance();

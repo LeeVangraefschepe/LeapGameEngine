@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #include "vec2.hpp"
 #include "Subject.h"
 #include "vec4.hpp"
@@ -20,6 +22,7 @@ namespace leap
 		bool IsFullScreen() const { return m_FullScreen; }
 		void SetFullScreen(bool value);
 		void SetResize(bool value) const;
+		void SetIcon(const std::string& path) const;
 
 	private:
 		friend class GameContext;

@@ -29,6 +29,7 @@ namespace leap::graphics
 		DirectXTexture& operator=(DirectXTexture&& other) = delete;
 
 		virtual void SetData(void* pData, unsigned int nrBytes) override;
+		virtual std::vector<unsigned char> GetData() override;
 		virtual glm::ivec2 GetSize() const override;
 
 		ID3D11ShaderResourceView* GetResource() const { return m_pSRV; };
@@ -47,6 +48,7 @@ namespace leap::graphics
 		static WICPixelFormatGUID ConvertWICToWIC(const WICPixelFormatGUID& wicFormatGUID);
 
 		ID3D11DeviceContext* m_pDeviceContext{};
+		ID3D11Device* m_pDevice{};
 
 		ID3D11Texture2D* m_pResource{};
 		ID3D11ShaderResourceView* m_pSRV{};

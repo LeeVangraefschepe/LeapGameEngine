@@ -3,6 +3,7 @@
 #include "glfw3.h"
 #include "../ServiceLocator/ServiceLocator.h"
 #include "Interfaces/IRenderer.h"
+#include "Interfaces/ITexture.h"
 
 const glm::ivec2& leap::Window::GetWindowSize() const
 {
@@ -38,6 +39,16 @@ void leap::Window::SetResize(bool value) const
 {
 	if (value) glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, GLFW_TRUE);
 	else glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, GLFW_FALSE);
+}
+
+void leap::Window::SetIcon(const std::string& path) const
+{
+	const auto texture = ServiceLocator::GetRenderer().CreateTexture(path);
+	auto data = texture->GetData();
+	GLFWimage images[1];
+	images[0] = GLFWimage{ texture->GetSize().x, texture->GetSize().y, data.data() };
+
+	glfwSetWindowIcon(m_pWindow, 1, images);
 }
 
 void leap::Window::Update()
