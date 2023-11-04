@@ -93,7 +93,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pSlideMaterial->SetDynamicFriction(0.1f);
 
 	auto pBox{ scene.CreateGameObject("Sphere") };
-	pBox->AddComponent<leap::BoxCollider>()->SetMaterial(pSlideMaterial);
+	auto pBoxColl{ pBox->AddComponent<leap::BoxCollider>() };
+	pBoxColl->SetMaterial(pSlideMaterial);
+	pBoxColl->SetTrigger(false);
 	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
 	pBoxRb;
 	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
@@ -103,6 +105,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBox->GetTransform()->Rotate(45.0f, 0.0f, 0.0f);
 	pBox->AddComponent<PrintCollision>();
 	pBox->AddComponent<ApplyForces>();
+	auto pBoxTrigger{ pBox->AddComponent<leap::BoxCollider>() };
+	pBoxTrigger->SetSize(3.0f);
+	pBoxTrigger->SetTrigger(true);
 
 	auto pBounceMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
 	pBounceMaterial->SetBounciness(1.0f);

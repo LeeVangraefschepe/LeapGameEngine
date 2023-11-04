@@ -9,11 +9,17 @@
 #include <Interfaces/IPhysics.h>
 #include <Interfaces/IPhysicsObject.h>
 
+void leap::Collider::BaseSetupShape()
+{
+	SetupShape(m_pMaterial.get());
+	m_pShape->SetTrigger(m_IsTrigger);
+}
+
 void leap::Collider::Awake()
 {
 	if (m_pOwningObject) return;
 
-	SetupShape(m_pMaterial.get());
+	BaseSetupShape();
 
 	physics::IPhysics& physics{ ServiceLocator::GetPhysics() };
 
@@ -53,7 +59,7 @@ void leap::Collider::Move(const Rigidbody* pRigidbody)
 
 	// Remove the shape from the previous owner
 	if (m_pOwningObject) physics.Get(m_pOwningObject)->RemoveShape(m_pShape.get());
-	else SetupShape(m_pMaterial.get());
+	else BaseSetupShape();
 
 	const glm::vec3 relativePosition{ (GetTransform()->GetWorldPosition() - pRigidbody->GetTransform()->GetWorldPosition()) * pRigidbody->GetTransform()->GetWorldRotation() };
 	const glm::quat relativeRotation{ glm::conjugate(pRigidbody->GetTransform()->GetWorldRotation()) * GetTransform()->GetWorldRotation() };
@@ -73,4 +79,11 @@ void leap::Collider::NotifyCollision(Collider* pOther)
 void leap::Collider::SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial)
 {
 	m_pMaterial = pMaterial;
+}
+
+void leap::Collider::SetTrigger(bool isTrigger)
+{
+	m_IsTrigger = isTrigger;
+
+	if (m_pShape) m_pShape->SetTrigger(isTrigger);
 }

@@ -24,6 +24,10 @@ namespace leap::physics
 		IPhysXShape& operator=(IPhysXShape&& other) = delete;
 
 		virtual physx::PxShape& GetShape() = 0;
+		virtual void SetTrigger(bool isTrigger) override;
+
+	protected:
+		physx::PxShape* m_pShape{};
 	};
 
 	class PhysXBoxShape final : public IPhysXShape
@@ -40,9 +44,6 @@ namespace leap::physics
 
 		virtual void SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation) override;
 		virtual glm::vec3 GetRelativePosition() override;
-
-	private:
-		physx::PxShape* m_pShape{};
 	};
 
 	class PhysXSphereShape final : public IPhysXShape
@@ -59,9 +60,6 @@ namespace leap::physics
 
 		virtual void SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation) override;
 		virtual glm::vec3 GetRelativePosition() override;
-
-	private:
-		physx::PxShape* m_pShape{};
 	};
 
 	class PhysXCapsuleShape final : public IPhysXShape
@@ -78,8 +76,5 @@ namespace leap::physics
 
 		virtual void SetRelativeTransform(const glm::vec3& position, const glm::quat& rotation) override;
 		virtual glm::vec3 GetRelativePosition() override;
-
-	private:
-		physx::PxShape* m_pShape{};
 	};
 }

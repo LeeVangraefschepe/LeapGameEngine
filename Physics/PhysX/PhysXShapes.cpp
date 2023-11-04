@@ -143,3 +143,9 @@ glm::vec3 leap::physics::PhysXCapsuleShape::GetRelativePosition()
 	const physx::PxVec3 localPose{ m_pShape->getLocalPose().p };
 	return glm::vec3{ localPose.x, localPose.y, localPose.z };
 }
+
+void leap::physics::IPhysXShape::SetTrigger(bool isTrigger)
+{
+	m_pShape->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, !isTrigger);
+	m_pShape->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, isTrigger);
+}

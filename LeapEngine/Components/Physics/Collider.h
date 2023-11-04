@@ -36,6 +36,7 @@ namespace leap
 		Collider& operator=(Collider&& other) = delete;
 
 		void SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial);
+		void SetTrigger(bool isTrigger);
 
 		Subject<CollisionCallback> OnCollision{};
 
@@ -45,6 +46,8 @@ namespace leap
 		std::unique_ptr<physics::IShape> m_pShape{};
 
 	private:
+		void BaseSetupShape();
+
 		friend PhysicsSync;
 
 		virtual void Awake() override;
@@ -55,6 +58,7 @@ namespace leap
 
 		GameObject* m_pOwningObject{};
 		std::shared_ptr<physics::IPhysicsMaterial> m_pMaterial{};
+		bool m_IsTrigger{};
 
 		friend Rigidbody;
 	};
