@@ -26,6 +26,14 @@ namespace leap
 		void SetWindowTitle(const std::string& text) const;
 		void SetMinimized(bool value) const;
 		void SetHiden(bool value) const;
+		void RequireAttention() const;
+		void SetPosition(const glm::ivec2& position) const;
+		void SetAspectRatio(const glm::ivec2& size) const;
+
+		// Warning this function overrides everything the SetLimitSize does.
+		void SetMinimumSize(const glm::ivec2& size) const;
+		void SetLimitSize(const glm::ivec2& min, const glm::ivec2& max) const;
+		void SetSize(const glm::ivec2& size) const;
 
 	private:
 		friend class GameContext;

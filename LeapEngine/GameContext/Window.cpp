@@ -54,7 +54,6 @@ void leap::Window::SetIcon(const std::string& path) const
 void leap::Window::SetWindowTitle(const std::string& text) const
 {
 	glfwSetWindowTitle(m_pWindow, text.c_str());
-	
 }
 
 void leap::Window::SetMinimized(bool value) const
@@ -67,6 +66,36 @@ void leap::Window::SetHiden(bool value) const
 {
 	if (value) glfwHideWindow(m_pWindow);
 	else glfwShowWindow(m_pWindow);
+}
+
+void leap::Window::RequireAttention() const
+{
+	glfwRequestWindowAttention(m_pWindow);
+}
+
+void leap::Window::SetPosition(const glm::ivec2& position) const
+{
+	glfwSetWindowPos(m_pWindow, position.x, position.y);
+}
+
+void leap::Window::SetAspectRatio(const glm::ivec2& size) const
+{
+	glfwSetWindowAspectRatio(m_pWindow, size.x, size.y);
+}
+
+void leap::Window::SetMinimumSize(const glm::ivec2& size) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, size.x, size.y, GLFW_DONT_CARE, GLFW_DONT_CARE);
+}
+
+void leap::Window::SetLimitSize(const glm::ivec2& min, const glm::ivec2& max) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, min.x, min.y, max.x, max.y);
+}
+
+void leap::Window::SetSize(const glm::ivec2& size) const
+{
+	glfwSetWindowSize(m_pWindow, size.x, size.y);
 }
 
 void leap::Window::Update()
