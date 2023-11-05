@@ -1,6 +1,13 @@
 # Game cmake
+message(${IsConsole})
+if (IsConsole)
+	else()
+	if(WIN32)
+		set(WIN32_EXECUTABLE WIN32)
+	endif()
+endif()
 
-add_executable(UnnamedAdventureGame
+add_executable(UnnamedAdventureGame ${WIN32_EXECUTABLE}
 	"main.cpp"
 	"Scenes/MainMenuScene.cpp"
 	"Components/Transformator.cpp"
