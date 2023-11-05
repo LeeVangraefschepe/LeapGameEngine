@@ -6,7 +6,7 @@
 
 namespace unag
 {
-	class PrintCollision final : public leap::Component, public leap::Observer<leap::Collider::CollisionCallback>
+	class PrintCollision final : public leap::Component
 	{
 	public:
 		PrintCollision() = default;
@@ -16,10 +16,46 @@ namespace unag
 		PrintCollision& operator=(const PrintCollision& other) = delete;
 		PrintCollision& operator=(PrintCollision&& other) = delete;
 
-		virtual void Notify(const leap::Collider::CollisionCallback& collision);
-
 	private:
+		class CollisionEnter final : public leap::Observer<leap::Collider::CollisionCallback>
+		{
+		public:
+			virtual void Notify(const leap::Collider::CollisionCallback& collision);
+		};
+		class CollisionStay final : public leap::Observer<leap::Collider::CollisionCallback>
+		{
+		public:
+			virtual void Notify(const leap::Collider::CollisionCallback& collision);
+		};
+		class CollisionExit final : public leap::Observer<leap::Collider::CollisionCallback>
+		{
+		public:
+			virtual void Notify(const leap::Collider::CollisionCallback& collision);
+		};
+		class TriggerEnter final : public leap::Observer<leap::Collider::CollisionCallback>
+		{
+		public:
+			virtual void Notify(const leap::Collider::CollisionCallback& collision);
+		};
+		class TriggerStay final : public leap::Observer<leap::Collider::CollisionCallback>
+		{
+		public:
+			virtual void Notify(const leap::Collider::CollisionCallback& collision);
+		};
+		class TriggerExit final : public leap::Observer<leap::Collider::CollisionCallback>
+		{
+		public:
+			virtual void Notify(const leap::Collider::CollisionCallback& collision);
+		};
+
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
+
+		CollisionEnter m_CollisionEnter{};
+		CollisionStay m_CollisionStay{};
+		CollisionExit m_CollisionExit{};
+		TriggerEnter m_TriggerEnter{};
+		TriggerStay m_TriggerStay{};
+		TriggerExit m_TriggerExit{};
 	};
 }

@@ -71,9 +71,30 @@ void leap::Collider::Move(const Rigidbody* pRigidbody)
 	physics.Get(m_pOwningObject)->AddShape(m_pShape.get());
 }
 
-void leap::Collider::NotifyCollision(Collider* pOther)
+void leap::Collider::NotifyCollisionEnter(Collider* pOther)
 {
-	OnCollision.Notify(CollisionCallback{ this, pOther });
+	OnCollisionEnter.Notify(CollisionCallback{ this, pOther });
+}
+void leap::Collider::NotifyCollisionStay(Collider* pOther)
+{
+	OnCollisionStay.Notify(CollisionCallback{ this, pOther });
+}
+void leap::Collider::NotifyCollisionExit(Collider* pOther)
+{
+	OnCollisionExit.Notify(CollisionCallback{ this, pOther });
+}
+
+void leap::Collider::NotifyTriggerEnter(Collider* pOther)
+{
+	OnTriggerEnter.Notify(CollisionCallback{ this, pOther });
+}
+void leap::Collider::NotifyTriggerStay(Collider* pOther)
+{
+	OnTriggerStay.Notify(CollisionCallback{ this, pOther });
+}
+void leap::Collider::NotifyTriggerExit(Collider* pOther)
+{
+	OnTriggerExit.Notify(CollisionCallback{ this, pOther });
 }
 
 void leap::Collider::SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial)

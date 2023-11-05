@@ -10,6 +10,7 @@
 #include "PhysXMaterial.h"
 #include "PhysXSimulationCallbacks.h"
 #include "PhysXSimulationFilterShader.h"
+#include "PhysXSimulationCallbacks.h"
 
 #include <algorithm>
 
@@ -17,8 +18,9 @@ leap::physics::PhysXEngine::PhysXEngine()
     : m_pDefaultAllocatorCallback{ std::make_unique<physx::PxDefaultAllocator>() }
     , m_pDefaultErrorCallback{ std::make_unique<physx::PxDefaultErrorCallback>() }
     , m_pSimulationCallbacks{ std::make_unique<PhysXSimulationCallbacks>() }
+    , m_pSimulationFilterCallback{ std::make_unique<PhysXSimulationFilterCallback>() } 
 {
-    m_pSimulationCallbacks->OnCollision.AddListener(this);
+    m_pSimulationFilterCallback->OnSimulationEvent.AddListener(this);
 
     // Create foundation
     m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pDefaultAllocatorCallback, *m_pDefaultErrorCallback);
@@ -57,7 +59,7 @@ leap::physics::PhysXEngine::PhysXEngine()
 
 leap::physics::PhysXEngine::~PhysXEngine()
 {
-    m_pSimulationCallbacks->OnCollision.RemoveListener(this);
+    m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener(this);
 
     m_pScene = nullptr;
     m_pObjects.clear();
@@ -93,6 +95,8 @@ void leap::physics::PhysXEngine::Update(float fixedDeltaTime)
     {
         pObject.second->Apply(m_SyncSetFunc, m_SyncGetFunc);
     }
+
+    m_pSimulationFilterCallback->NotifyStayingPairs();
 }
 
 void leap::physics::PhysXEngine::CreateScene()
@@ -102,6 +106,7 @@ void leap::physics::PhysXEngine::CreateScene()
     sceneDesc.filterShader = PhysXSimulationFilterShader;
     sceneDesc.cpuDispatcher = m_pDispatcher;
     sceneDesc.simulationEventCallback = m_pSimulationCallbacks.get();
+    sceneDesc.filterCallback = m_pSimulationFilterCallback.get();
 
     physx::PxScene* pPhysXScene{ m_pPhysics->createScene(sceneDesc) };
 
@@ -143,11 +148,40 @@ std::shared_ptr<leap::physics::IPhysicsMaterial> leap::physics::PhysXEngine::Cre
     return std::make_shared<PhysXMaterial>(this);
 }
 
-void leap::physics::PhysXEngine::Notify(const PhysXSimulationCallbacks::CollisionEvent& e)
+void leap::physics::PhysXEngine::Notify(const PhysXSimulationFilterCallback::SimulationEvent& e)
 {
-    for (int i{}; i < e.pFirstShapes.size(); ++i)
+    switch (e.type)
     {
-        m_OnCollision.Notify(CollisionData{ e.pFirstShapes[i]->userData, e.pSecondShapes[i]->userData });
+    case PhysXSimulationFilterCallback::SimulationEventType::OnCollisionEnter:
+    {
+        m_OnCollisionEnter.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        break;
+    }
+    case PhysXSimulationFilterCallback::SimulationEventType::OnCollisionStay:
+    {
+        m_OnCollisionStay.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        break;
+    }
+    case PhysXSimulationFilterCallback::SimulationEventType::OnCollissionExit:
+    {
+        m_OnCollisionExit.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        break;
+    }
+    case PhysXSimulationFilterCallback::SimulationEventType::OnTriggerEnter:
+    {
+        m_OnTriggerEnter.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        break;
+    }
+    case PhysXSimulationFilterCallback::SimulationEventType::OnTriggerStay:
+    {
+        m_OnTriggerStay.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        break;
+    }
+    case PhysXSimulationFilterCallback::SimulationEventType::OnTriggerExit:
+    {
+        m_OnTriggerExit.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        break;
+    }
     }
 }
 

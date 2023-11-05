@@ -41,5 +41,6 @@ namespace leap::physics
         virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform * poseBuffer, const physx::PxU32 count) override;
 
         Subject<CollisionEvent> OnCollision{};
+        Subject<CollisionEvent> OnTrigger{};
 	};
 }

@@ -7,6 +7,8 @@
 
 namespace leap
 {
+	class Collider;
+
 	namespace physics
 	{
 		struct CollisionData;
@@ -17,6 +19,20 @@ namespace leap
 	public:
 		static void SetTransform(void* pOwner, const glm::vec3& position, const glm::quat& rotation);
 		static std::pair<const glm::vec3&, const glm::quat&> GetTransform(void* pOwner);
-		static void OnCollision(const physics::CollisionData& collision);
+		static void OnCollisionEnter(const physics::CollisionData& collision);
+		static void OnCollisionStay(const physics::CollisionData& collision);
+		static void OnCollisionExit(const physics::CollisionData& collision);
+		static void OnTriggerEnter(const physics::CollisionData& collision);
+		static void OnTriggerStay(const physics::CollisionData& collision);
+		static void OnTriggerExit(const physics::CollisionData& collision);
+
+	private:
+		struct ColliderPair final
+		{
+			Collider* pFirst{};
+			Collider* pSecond{};
+		};
+
+		static ColliderPair GetColliders(const physics::CollisionData& collision);
 	};
 }

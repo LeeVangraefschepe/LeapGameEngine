@@ -4,7 +4,7 @@
 #include "../Interfaces/IPhysicsObject.h"
 #include "../Interfaces/IShape.h"
 
-#include "PhysXSimulationCallbacks.h"
+#include "PhysXSimulationFilterCallback.h"
 
 #include <memory>
 #include <unordered_map>
@@ -32,7 +32,7 @@ namespace leap::physics
 	class PhysXObject;
 	class PhysXSimulationCallbacks;
 
-	class PhysXEngine final : public IPhysics, public Observer<PhysXSimulationCallbacks::CollisionEvent>
+	class PhysXEngine final : public IPhysics, public Observer<PhysXSimulationFilterCallback::SimulationEvent>
 	{
 	public:
 		PhysXEngine();
@@ -51,11 +51,16 @@ namespace leap::physics
 		virtual std::unique_ptr<IShape> CreateShape(void* pOwner, EShape shape, IPhysicsMaterial* pMaterial = nullptr) override;
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override;
 
-		virtual Subject<CollisionData>& OnCollision() { return m_OnCollision; }
+		virtual Subject<CollisionData>& OnCollisionEnter() override { return m_OnCollisionEnter; }
+		virtual Subject<CollisionData>& OnCollisionStay() override { return m_OnCollisionStay; }
+		virtual Subject<CollisionData>& OnCollisionExit() override { return m_OnCollisionExit; }
+		virtual Subject<CollisionData>& OnTriggerEnter() override { return m_OnTriggerEnter; }
+		virtual Subject<CollisionData>& OnTriggerStay() override { return m_OnTriggerStay; }
+		virtual Subject<CollisionData>& OnTriggerExit() override { return m_OnTriggerExit; }
 
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
 
-		virtual void Notify(const PhysXSimulationCallbacks::CollisionEvent& e) override;
+		virtual void Notify(const PhysXSimulationFilterCallback::SimulationEvent& e) override;
 
 	private:
 		IPhysicsMaterial* GetDefaultMaterial();
@@ -63,6 +68,7 @@ namespace leap::physics
 		std::unique_ptr<physx::PxDefaultErrorCallback> m_pDefaultErrorCallback{};
 		std::unique_ptr<physx::PxDefaultAllocator> m_pDefaultAllocatorCallback{};
 		std::unique_ptr<PhysXSimulationCallbacks> m_pSimulationCallbacks{};
+		std::unique_ptr<PhysXSimulationFilterCallback> m_pSimulationFilterCallback{};
 
 		physx::PxFoundation* m_pFoundation{};
 		physx::PxPhysics* m_pPhysics{};
@@ -75,6 +81,12 @@ namespace leap::physics
 
 		std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> m_SyncGetFunc{};
 		std::function<void(void*, const glm::vec3&, const glm::quat&)> m_SyncSetFunc{};
-		Subject<CollisionData> m_OnCollision{};
+
+		Subject<CollisionData> m_OnCollisionEnter{};
+		Subject<CollisionData> m_OnCollisionStay{};
+		Subject<CollisionData> m_OnCollisionExit{};
+		Subject<CollisionData> m_OnTriggerEnter{};
+		Subject<CollisionData> m_OnTriggerStay{};
+		Subject<CollisionData> m_OnTriggerExit{};
 	};
 }
