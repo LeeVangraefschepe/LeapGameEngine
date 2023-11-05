@@ -1,10 +1,11 @@
 # Game cmake
-message(${IsConsole})
+if(DEFINED IsConsole)
 if (IsConsole)
 	else()
 	if(WIN32)
 		set(WIN32_EXECUTABLE WIN32)
 	endif()
+endif()
 endif()
 
 add_executable(UnnamedAdventureGame ${WIN32_EXECUTABLE}
