@@ -208,6 +208,15 @@ void leap::physics::PhysXObject::UpdateRigidbody()
 		SetTransform(position + m_pRigidbody->GetTranslation(), m_pRigidbody->GetRotationDelta() * rotation);
 	}
 
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Constraints))
+	{
+		for (const auto& constraint : m_pRigidbody->GetConstraints())
+		{
+			const auto physXFlag{ static_cast<physx::PxRigidDynamicLockFlag::Enum>(constraint.flag) };
+			static_cast<physx::PxRigidDynamic*>(m_pActor)->setRigidDynamicLockFlag(physXFlag, constraint.enabled);
+		}
+	}
+
 	auto& forces{ m_pRigidbody->GetForces() };
 	if(!forces.empty())
 	{

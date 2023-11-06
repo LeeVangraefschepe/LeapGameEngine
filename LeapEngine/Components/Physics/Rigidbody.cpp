@@ -35,6 +35,12 @@ void leap::Rigidbody::SetMass(float mass)
 	m_pRigidbody->SetMass(mass);
 }
 
+void leap::Rigidbody::SetConstraint(physics::Rigidbody::Constraint::Flag flag, bool enabled)
+{
+	CheckExistence();
+	m_pRigidbody->SetConstraint(flag, enabled);
+}
+
 void leap::Rigidbody::Translate(const glm::vec3& displacement)
 {
 	CheckExistence();

@@ -2,6 +2,8 @@
 
 #include "../Component.h"
 
+#include <Data/Rigidbody.h>
+
 #include <vec3.hpp>
 #pragma warning(disable: 4201)
 #include "gtc/quaternion.hpp"
@@ -11,11 +13,6 @@
 
 namespace leap
 {
-	namespace physics
-	{
-		class Rigidbody;
-	}
-
 	class Rigidbody final : public Component
 	{
 	public:
@@ -31,6 +28,7 @@ namespace leap
 		void SetVelocity(const glm::vec3& velocity);
 		void SetVelocity(float x, float y, float z);
 		void SetMass(float mass);
+		void SetConstraint(physics::Rigidbody::Constraint::Flag flag, bool enabled);
 
 		void Translate(const glm::vec3& displacement);
 		void Translate(float x, float y, float z);

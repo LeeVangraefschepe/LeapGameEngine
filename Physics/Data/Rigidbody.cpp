@@ -42,6 +42,24 @@ void leap::physics::Rigidbody::Rotate(const glm::quat& rotationDelta)
 	SetDirty(RigidbodyFlag::Rotate);
 }
 
+void leap::physics::Rigidbody::SetConstraint(Constraint::Flag flag, bool enabled)
+{
+	auto it{ std::find_if(begin(m_Constraints), end(m_Constraints), [flag](const auto& constraint) { return constraint.flag == flag; }) };
+
+	if (it == end(m_Constraints))
+	{
+		m_Constraints.emplace_back(Constraint{ flag, enabled });
+		SetDirty(RigidbodyFlag::Constraints);
+		return;
+	}
+
+	if (it->enabled != enabled)
+	{
+		it->enabled = enabled;
+		SetDirty(RigidbodyFlag::Constraints);
+	}
+}
+
 void leap::physics::Rigidbody::AddForce(const glm::vec3& force, leap::physics::ForceMode mode)
 {
 	m_Forces.emplace_back(Force{ force, false, mode });
