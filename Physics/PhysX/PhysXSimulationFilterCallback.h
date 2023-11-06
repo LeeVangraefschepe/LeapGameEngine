@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PhysXSimulationData.h"
+
 #include <PxFiltering.h>
 
 #include <map>
@@ -11,23 +13,6 @@ namespace leap::physics
 	class PhysXSimulationFilterCallback final : public physx::PxSimulationFilterCallback
 	{
 	public:
-		enum class SimulationEventType
-		{
-			OnTriggerEnter,
-			OnTriggerStay,
-			OnTriggerExit,
-			OnCollisionEnter,
-			OnCollisionStay,
-			OnCollissionExit
-		};
-
-		struct SimulationEvent final
-		{
-			SimulationEventType type{};
-			const physx::PxShape* pShape0{};
-			const physx::PxShape* pShape1{};
-		};
-
 		PhysXSimulationFilterCallback() = default;
 		virtual ~PhysXSimulationFilterCallback() = default;
 
@@ -55,13 +40,6 @@ namespace leap::physics
 		Subject<SimulationEvent> OnSimulationEvent{};
 
 	private:
-		struct SimulationPair final
-		{
-			const physx::PxShape* pShape0{};
-			const physx::PxShape* pShape1{};
-		};
-
 		std::map<int, SimulationPair> m_Collisions{};
-		std::map<int, SimulationPair> m_Triggers{};
 	};
 }

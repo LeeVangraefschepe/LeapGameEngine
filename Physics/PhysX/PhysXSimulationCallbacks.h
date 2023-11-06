@@ -1,6 +1,10 @@
 #pragma once
 
+#include "PhysXSimulationData.h"
+
 #include <PxSimulationEventCallback.h>
+
+#include <vector>
 
 #include <Subject.h>
 
@@ -12,19 +16,9 @@ namespace physx
 
 namespace leap::physics
 {
-    class PhysXEngine;
-
 	class PhysXSimulationCallbacks final : public physx::PxSimulationEventCallback
 	{
     public:
-        struct CollisionEvent final
-        {
-            physx::PxRigidActor* pFirst{};
-            std::vector<physx::PxShape*> pFirstShapes{};
-            physx::PxRigidActor* pSecond{};
-            std::vector<physx::PxShape*> pSecondShapes{};
-        };
-
         PhysXSimulationCallbacks() = default;
         virtual ~PhysXSimulationCallbacks() = default;
 
@@ -40,7 +34,11 @@ namespace leap::physics
         virtual void onTrigger(physx::PxTriggerPair * pairs, physx::PxU32 count) override;
         virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer, const physx::PxTransform * poseBuffer, const physx::PxU32 count) override;
 
-        Subject<CollisionEvent> OnCollision{};
-        Subject<CollisionEvent> OnTrigger{};
+        void NotifyStayingPairs();
+
+        Subject<SimulationEvent> OnSimulationEvent{};
+
+    private:
+        std::vector<SimulationPair> m_Triggers{};
 	};
 }

@@ -11,6 +11,7 @@
 #include "PhysXSimulationCallbacks.h"
 #include "PhysXSimulationFilterShader.h"
 #include "PhysXSimulationCallbacks.h"
+#include "../Data/SimulationEventData.h"
 
 #include <algorithm>
 
@@ -21,6 +22,7 @@ leap::physics::PhysXEngine::PhysXEngine()
     , m_pSimulationFilterCallback{ std::make_unique<PhysXSimulationFilterCallback>() } 
 {
     m_pSimulationFilterCallback->OnSimulationEvent.AddListener(this);
+    m_pSimulationCallbacks->OnSimulationEvent.AddListener(this);
 
     // Create foundation
     m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pDefaultAllocatorCallback, *m_pDefaultErrorCallback);
@@ -60,6 +62,7 @@ leap::physics::PhysXEngine::PhysXEngine()
 leap::physics::PhysXEngine::~PhysXEngine()
 {
     m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener(this);
+    m_pSimulationCallbacks->OnSimulationEvent.RemoveListener(this);
 
     m_pScene = nullptr;
     m_pObjects.clear();
@@ -96,7 +99,8 @@ void leap::physics::PhysXEngine::Update(float fixedDeltaTime)
         pObject.second->Apply(m_SyncSetFunc, m_SyncGetFunc);
     }
 
-    m_pSimulationFilterCallback->NotifyStayingPairs();
+    m_pSimulationFilterCallback->NotifyStayingPairs(); // OnCollisionStay
+    m_pSimulationCallbacks->NotifyStayingPairs(); // OnTriggerStay
 }
 
 void leap::physics::PhysXEngine::CreateScene()
@@ -148,36 +152,36 @@ std::shared_ptr<leap::physics::IPhysicsMaterial> leap::physics::PhysXEngine::Cre
     return std::make_shared<PhysXMaterial>(this);
 }
 
-void leap::physics::PhysXEngine::Notify(const PhysXSimulationFilterCallback::SimulationEvent& e)
+void leap::physics::PhysXEngine::Notify(const SimulationEvent& e)
 {
     switch (e.type)
     {
-    case PhysXSimulationFilterCallback::SimulationEventType::OnCollisionEnter:
+    case SimulationEventType::OnCollisionEnter:
     {
         m_OnCollisionEnter.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
-    case PhysXSimulationFilterCallback::SimulationEventType::OnCollisionStay:
+    case SimulationEventType::OnCollisionStay:
     {
         m_OnCollisionStay.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
-    case PhysXSimulationFilterCallback::SimulationEventType::OnCollissionExit:
+    case SimulationEventType::OnCollissionExit:
     {
         m_OnCollisionExit.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
-    case PhysXSimulationFilterCallback::SimulationEventType::OnTriggerEnter:
+    case SimulationEventType::OnTriggerEnter:
     {
         m_OnTriggerEnter.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
-    case PhysXSimulationFilterCallback::SimulationEventType::OnTriggerStay:
+    case SimulationEventType::OnTriggerStay:
     {
         m_OnTriggerStay.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
-    case PhysXSimulationFilterCallback::SimulationEventType::OnTriggerExit:
+    case SimulationEventType::OnTriggerExit:
     {
         m_OnTriggerExit.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;

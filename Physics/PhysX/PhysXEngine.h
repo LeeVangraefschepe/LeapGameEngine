@@ -32,7 +32,7 @@ namespace leap::physics
 	class PhysXObject;
 	class PhysXSimulationCallbacks;
 
-	class PhysXEngine final : public IPhysics, public Observer<PhysXSimulationFilterCallback::SimulationEvent>
+	class PhysXEngine final : public IPhysics, public Observer<SimulationEvent>
 	{
 	public:
 		PhysXEngine();
@@ -60,7 +60,7 @@ namespace leap::physics
 
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
 
-		virtual void Notify(const PhysXSimulationFilterCallback::SimulationEvent& e) override;
+		virtual void Notify(const SimulationEvent& e) override;
 
 	private:
 		IPhysicsMaterial* GetDefaultMaterial();

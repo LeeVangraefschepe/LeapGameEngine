@@ -9,22 +9,32 @@
 
 void unag::PrintCollision::Awake()
 {
-	GetGameObject()->GetComponent<leap::Collider>()->OnCollisionEnter.AddListener(&m_CollisionEnter);
-	GetGameObject()->GetComponent<leap::Collider>()->OnCollisionStay.AddListener(&m_CollisionStay);
-	GetGameObject()->GetComponent<leap::Collider>()->OnCollisionExit.AddListener(&m_CollisionExit);
-	GetGameObject()->GetComponent<leap::Collider>()->OnTriggerEnter.AddListener(&m_TriggerEnter);
-	GetGameObject()->GetComponent<leap::Collider>()->OnTriggerStay.AddListener(&m_TriggerStay);
-	GetGameObject()->GetComponent<leap::Collider>()->OnTriggerExit.AddListener(&m_TriggerExit);
+	std::vector<leap::Collider*> pColliders{ GetGameObject()->GetComponents<leap::Collider>() };
+
+	for (leap::Collider* pCollider : pColliders)
+	{
+		pCollider->OnCollisionEnter.AddListener(&m_CollisionEnter);
+		pCollider->OnCollisionStay.AddListener(&m_CollisionStay);
+		pCollider->OnCollisionExit.AddListener(&m_CollisionExit);
+		pCollider->OnTriggerEnter.AddListener(&m_TriggerEnter);
+		pCollider->OnTriggerStay.AddListener(&m_TriggerStay);
+		pCollider->OnTriggerExit.AddListener(&m_TriggerExit);
+	}
 }
 
 void unag::PrintCollision::OnDestroy()
 {
-	GetGameObject()->GetComponent<leap::Collider>()->OnCollisionEnter.RemoveListener(&m_CollisionEnter);
-	GetGameObject()->GetComponent<leap::Collider>()->OnCollisionStay.RemoveListener(&m_CollisionStay);
-	GetGameObject()->GetComponent<leap::Collider>()->OnCollisionExit.RemoveListener(&m_CollisionExit);
-	GetGameObject()->GetComponent<leap::Collider>()->OnTriggerEnter.RemoveListener(&m_TriggerEnter);
-	GetGameObject()->GetComponent<leap::Collider>()->OnTriggerStay.RemoveListener(&m_TriggerStay);
-	GetGameObject()->GetComponent<leap::Collider>()->OnTriggerExit.RemoveListener(&m_TriggerExit);
+	std::vector<leap::Collider*> pColliders{ GetGameObject()->GetComponents<leap::Collider>() };
+
+	for (leap::Collider* pCollider : pColliders)
+	{
+		pCollider->OnCollisionEnter.RemoveListener(&m_CollisionEnter);
+		pCollider->OnCollisionStay.RemoveListener(&m_CollisionStay);
+		pCollider->OnCollisionExit.RemoveListener(&m_CollisionExit);
+		pCollider->OnTriggerEnter.RemoveListener(&m_TriggerEnter);
+		pCollider->OnTriggerStay.RemoveListener(&m_TriggerStay);
+		pCollider->OnTriggerExit.RemoveListener(&m_TriggerExit);
+	}
 }
 
 void unag::PrintCollision::CollisionEnter::Notify(const leap::Collider::CollisionCallback& collision)

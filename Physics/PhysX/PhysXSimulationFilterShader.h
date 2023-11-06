@@ -12,7 +12,7 @@ namespace leap::physics
 		if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
 		{
 			pairFlags |= physx::PxPairFlag::eTRIGGER_DEFAULT;
-			return physx::PxFilterFlag::eCALLBACK;
+			return physx::PxFilterFlag::eDEFAULT;
 		}
 
 		pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
