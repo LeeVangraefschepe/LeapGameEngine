@@ -37,7 +37,7 @@ namespace leap::physics
 
 		void NotifyStayingPairs();
 
-		Subject<SimulationEvent> OnSimulationEvent{};
+		TSubject<SimulationEvent> OnSimulationEvent{};
 
 	private:
 		std::map<int, SimulationPair> m_Collisions{};

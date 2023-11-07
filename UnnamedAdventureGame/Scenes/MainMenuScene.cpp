@@ -58,6 +58,7 @@
 
 #include "../Components/PrintCollision.h"
 #include "../Components/ApplyForces.h"
+#include "../Components/ColliderScaler.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -111,18 +112,19 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBoxTrigger->SetSize(3.0f);
 	pBoxTrigger->SetTrigger(true);
 
-	auto pBox4{scene.CreateGameObject("Box")};
-	pBox4->AddComponent<leap::BoxCollider>()->SetMaterial(pBounceMaterial);
+	auto pBox4{ scene.CreateGameObject("Box") };
+	pBox4->AddComponent<leap::BoxCollider>()/*->SetMaterial(pBounceMaterial)*/;
 	pBox4->AddComponent<leap::Rigidbody>();
 	auto pBoxMesh4{ pBox4->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh4->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBoxMesh4->LoadMesh("Data/Engine/Models/cube.obj");
-	pBox4->GetTransform()->Translate(0.0f, 10.5f, 0.0f);
-	pBox4->GetTransform()->Rotate(10.0f, 0.0f, 0.0f);
+	pBox4->GetTransform()->Translate(0.0f, 3.0f, 0.0f);
+	pBox4->GetTransform()->Rotate(0.0f, 0.0f, 0.0f);
+	pBox4->AddComponent<ColliderScaler>();
 	//pBox4->AddComponent<PrintCollision>();
 
 	auto pBox2{ scene.CreateGameObject("Ground") };
-	pBox2->AddComponent<leap::BoxCollider>()->SetMaterial(pBounceMaterial);
+	pBox2->AddComponent<leap::BoxCollider>()/*->SetMaterial(pBounceMaterial)*/;
 	auto pBoxMesh2{ pBox2->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh2->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
 	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");

@@ -31,12 +31,12 @@ namespace leap::physics
 		virtual std::unique_ptr<IShape> CreateShape(void* pOwner, EShape shape, IPhysicsMaterial* pMaterial = nullptr) = 0;
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() = 0;
 
-		virtual Subject<CollisionData>& OnCollisionEnter() = 0;
-		virtual Subject<CollisionData>& OnCollisionStay() = 0;
-		virtual Subject<CollisionData>& OnCollisionExit() = 0;
-		virtual Subject<CollisionData>& OnTriggerEnter() = 0;
-		virtual Subject<CollisionData>& OnTriggerStay() = 0;
-		virtual Subject<CollisionData>& OnTriggerExit() = 0;
+		virtual TSubject<CollisionData>& OnCollisionEnter() = 0;
+		virtual TSubject<CollisionData>& OnCollisionStay() = 0;
+		virtual TSubject<CollisionData>& OnCollisionExit() = 0;
+		virtual TSubject<CollisionData>& OnTriggerEnter() = 0;
+		virtual TSubject<CollisionData>& OnTriggerStay() = 0;
+		virtual TSubject<CollisionData>& OnTriggerExit() = 0;
 	};
 
 	class DefaultPhysics final : public IPhysics
@@ -52,14 +52,14 @@ namespace leap::physics
 		virtual std::unique_ptr<IShape> CreateShape(void*, EShape, IPhysicsMaterial*) override { return nullptr; }
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override { return nullptr; }
 
-		virtual Subject<CollisionData>& OnCollisionEnter() override { return m_EmptyCollision; }
-		virtual Subject<CollisionData>& OnCollisionStay() override { return m_EmptyCollision; }
-		virtual Subject<CollisionData>& OnCollisionExit() override { return m_EmptyCollision; }
-		virtual Subject<CollisionData>& OnTriggerEnter() override { return m_EmptyCollision; }
-		virtual Subject<CollisionData>& OnTriggerStay() override { return m_EmptyCollision; }
-		virtual Subject<CollisionData>& OnTriggerExit() override { return m_EmptyCollision; }
+		virtual TSubject<CollisionData>& OnCollisionEnter() override { return m_EmptyCollision; }
+		virtual TSubject<CollisionData>& OnCollisionStay() override { return m_EmptyCollision; }
+		virtual TSubject<CollisionData>& OnCollisionExit() override { return m_EmptyCollision; }
+		virtual TSubject<CollisionData>& OnTriggerEnter() override { return m_EmptyCollision; }
+		virtual TSubject<CollisionData>& OnTriggerStay() override { return m_EmptyCollision; }
+		virtual TSubject<CollisionData>& OnTriggerExit() override { return m_EmptyCollision; }
 
 	private:
-		Subject<CollisionData> m_EmptyCollision{};
+		TSubject<CollisionData> m_EmptyCollision{};
 	};
 }

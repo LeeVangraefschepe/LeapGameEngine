@@ -17,32 +17,32 @@ namespace unag
 		PrintCollision& operator=(PrintCollision&& other) = delete;
 
 	private:
-		class CollisionEnter final : public leap::Observer<leap::Collider::CollisionCallback>
+		class CollisionEnter final : public leap::TObserver<leap::Collider::CollisionCallback>
 		{
 		public:
 			virtual void Notify(const leap::Collider::CollisionCallback& collision);
 		};
-		class CollisionStay final : public leap::Observer<leap::Collider::CollisionCallback>
+		class CollisionStay final : public leap::TObserver<leap::Collider::CollisionCallback>
 		{
 		public:
 			virtual void Notify(const leap::Collider::CollisionCallback& collision);
 		};
-		class CollisionExit final : public leap::Observer<leap::Collider::CollisionCallback>
+		class CollisionExit final : public leap::TObserver<leap::Collider::CollisionCallback>
 		{
 		public:
 			virtual void Notify(const leap::Collider::CollisionCallback& collision);
 		};
-		class TriggerEnter final : public leap::Observer<leap::Collider::CollisionCallback>
+		class TriggerEnter final : public leap::TObserver<leap::Collider::CollisionCallback>
 		{
 		public:
 			virtual void Notify(const leap::Collider::CollisionCallback& collision);
 		};
-		class TriggerStay final : public leap::Observer<leap::Collider::CollisionCallback>
+		class TriggerStay final : public leap::TObserver<leap::Collider::CollisionCallback>
 		{
 		public:
 			virtual void Notify(const leap::Collider::CollisionCallback& collision);
 		};
-		class TriggerExit final : public leap::Observer<leap::Collider::CollisionCallback>
+		class TriggerExit final : public leap::TObserver<leap::Collider::CollisionCallback>
 		{
 		public:
 			virtual void Notify(const leap::Collider::CollisionCallback& collision);

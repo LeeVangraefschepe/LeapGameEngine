@@ -43,11 +43,19 @@ void leap::Collider::Awake()
 
 		m_pShape->SetRelativeTransform(relativePosition, relativeRotation);
 	}
+
+	GetTransform()->OnScaleChanged.AddListener(this);
 }
 
 void leap::Collider::OnDestroy()
 {
 	ServiceLocator::GetPhysics().Get(m_pOwningObject)->RemoveShape(m_pShape.get());
+	GetTransform()->OnScaleChanged.RemoveListener(this);
+}
+
+void leap::Collider::Notify()
+{
+	RescaleShape();
 }
 
 void leap::Collider::Move(const Rigidbody* pRigidbody)

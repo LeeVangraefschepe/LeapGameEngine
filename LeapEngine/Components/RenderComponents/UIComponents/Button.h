@@ -23,7 +23,7 @@ namespace leap
 		Button& operator=(const Button& other) = delete;
 		Button& operator=(Button&& other) = delete;
 
-		Subject<Button> OnClicked{};
+		TSubject<Button> OnClicked{};
 
 		virtual glm::vec2 GetSize() override;
 		virtual glm::vec3 GetPosition() override;

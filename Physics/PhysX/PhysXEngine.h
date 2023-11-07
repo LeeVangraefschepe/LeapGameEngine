@@ -32,7 +32,7 @@ namespace leap::physics
 	class PhysXObject;
 	class PhysXSimulationCallbacks;
 
-	class PhysXEngine final : public IPhysics, public Observer<SimulationEvent>
+	class PhysXEngine final : public IPhysics, public TObserver<SimulationEvent>
 	{
 	public:
 		PhysXEngine();
@@ -51,12 +51,12 @@ namespace leap::physics
 		virtual std::unique_ptr<IShape> CreateShape(void* pOwner, EShape shape, IPhysicsMaterial* pMaterial = nullptr) override;
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override;
 
-		virtual Subject<CollisionData>& OnCollisionEnter() override { return m_OnCollisionEnter; }
-		virtual Subject<CollisionData>& OnCollisionStay() override { return m_OnCollisionStay; }
-		virtual Subject<CollisionData>& OnCollisionExit() override { return m_OnCollisionExit; }
-		virtual Subject<CollisionData>& OnTriggerEnter() override { return m_OnTriggerEnter; }
-		virtual Subject<CollisionData>& OnTriggerStay() override { return m_OnTriggerStay; }
-		virtual Subject<CollisionData>& OnTriggerExit() override { return m_OnTriggerExit; }
+		virtual TSubject<CollisionData>& OnCollisionEnter() override { return m_OnCollisionEnter; }
+		virtual TSubject<CollisionData>& OnCollisionStay() override { return m_OnCollisionStay; }
+		virtual TSubject<CollisionData>& OnCollisionExit() override { return m_OnCollisionExit; }
+		virtual TSubject<CollisionData>& OnTriggerEnter() override { return m_OnTriggerEnter; }
+		virtual TSubject<CollisionData>& OnTriggerStay() override { return m_OnTriggerStay; }
+		virtual TSubject<CollisionData>& OnTriggerExit() override { return m_OnTriggerExit; }
 
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
 
@@ -82,11 +82,11 @@ namespace leap::physics
 		std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> m_SyncGetFunc{};
 		std::function<void(void*, const glm::vec3&, const glm::quat&)> m_SyncSetFunc{};
 
-		Subject<CollisionData> m_OnCollisionEnter{};
-		Subject<CollisionData> m_OnCollisionStay{};
-		Subject<CollisionData> m_OnCollisionExit{};
-		Subject<CollisionData> m_OnTriggerEnter{};
-		Subject<CollisionData> m_OnTriggerStay{};
-		Subject<CollisionData> m_OnTriggerExit{};
+		TSubject<CollisionData> m_OnCollisionEnter{};
+		TSubject<CollisionData> m_OnCollisionStay{};
+		TSubject<CollisionData> m_OnCollisionExit{};
+		TSubject<CollisionData> m_OnTriggerEnter{};
+		TSubject<CollisionData> m_OnTriggerStay{};
+		TSubject<CollisionData> m_OnTriggerExit{};
 	};
 }

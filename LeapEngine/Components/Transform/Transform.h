@@ -8,6 +8,8 @@
 #include "gtc/quaternion.hpp"
 #pragma warning(default: 4201)
 
+#include <Subject.h>
+
 namespace leap
 {
 	class Transform final : public Component
@@ -68,6 +70,10 @@ namespace leap
 		const glm::vec3& GetRight();
 
 		void KeepWorldTransform(GameObject* pParent);
+
+		Subject OnPositionChanged{};
+		Subject OnRotationChanged{};
+		Subject OnScaleChanged{};
 
 	private:
 		enum class DirtyFlags

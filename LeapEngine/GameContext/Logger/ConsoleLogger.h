@@ -4,7 +4,7 @@
 #include "ILogger.h"
 namespace leap
 {
-	class ConsoleLogger final : Observer<Debug::LogInfo>, public ILogger
+	class ConsoleLogger final : TObserver<Debug::LogInfo>, public ILogger
 	{
 	public:
 		ConsoleLogger();

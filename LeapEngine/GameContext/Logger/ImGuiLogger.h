@@ -7,7 +7,7 @@
 
 namespace leap
 {
-	class ImGuiLogger final : Observer<Debug::LogInfo>, public ILogger
+	class ImGuiLogger final : TObserver<Debug::LogInfo>, public ILogger
 	{
 	public:
 		ImGuiLogger();

@@ -10,6 +10,8 @@
 void leap::SphereCollider::SetRadius(float radius)
 {
 	m_Radius = radius;
+
+	if (m_pShape) RescaleShape();
 }
 
 void leap::SphereCollider::SetupShape(physics::IPhysicsMaterial* pMaterial)
@@ -18,7 +20,11 @@ void leap::SphereCollider::SetupShape(physics::IPhysicsMaterial* pMaterial)
 
 	// Create shape
 	m_pShape = physics.CreateShape(this, physics::EShape::Sphere, pMaterial);
+	RescaleShape();
+}
 
+void leap::SphereCollider::RescaleShape()
+{
 	// Apply radius
 	const auto& scale{ GetTransform()->GetWorldScale() };
 	const float transformSize{ std::max(scale.x, std::max(scale.y, scale.z)) };

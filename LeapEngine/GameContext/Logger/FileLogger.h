@@ -7,7 +7,7 @@
 
 namespace leap
 {
-	class FileLogger final : Observer<Debug::LogInfo>, public ILogger
+	class FileLogger final : TObserver<Debug::LogInfo>, public ILogger
 	{
 	public:
 		FileLogger();

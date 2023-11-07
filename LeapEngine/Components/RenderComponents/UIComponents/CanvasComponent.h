@@ -9,7 +9,7 @@
 
 namespace leap
 {
-	class CanvasComponent final : public Component, public Observer<glm::ivec2>
+	class CanvasComponent final : public Component, public TObserver<glm::ivec2>
 	{
 	public:
 		enum class MatchMode
@@ -33,7 +33,7 @@ namespace leap
 		const glm::ivec2& GetReference() const { return m_ReferenceResolution; }
 		const glm::vec2& GetScale() const { return m_CurrentScale; }
 
-		Subject<glm::vec2> OnResolutionChanged{};
+		TSubject<glm::vec2> OnResolutionChanged{};
 
 	protected:
 		virtual void Awake() override;

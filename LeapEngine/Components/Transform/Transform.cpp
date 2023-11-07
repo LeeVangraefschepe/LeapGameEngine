@@ -412,6 +412,19 @@ void leap::Transform::SetDirty(DirtyFlags flag)
 		pChild->SetDirty(DirtyFlags::Translation);
 		pChild->SetDirty(DirtyFlags::DirectionVectors);
 	}
+
+	switch (flag)
+	{
+	case DirtyFlags::Translation:
+		OnPositionChanged.Notify();
+		break;
+	case DirtyFlags::Rotation:
+		OnRotationChanged.Notify();
+		break;
+	case DirtyFlags::Scale:
+		OnScaleChanged.Notify();
+		break;
+	}
 }
 
 void leap::Transform::KeepWorldTransform(GameObject* pParent)

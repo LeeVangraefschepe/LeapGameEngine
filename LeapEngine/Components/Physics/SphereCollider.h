@@ -19,6 +19,7 @@ namespace leap
 
 	private:
 		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) override;
+		virtual void RescaleShape() override;
 
 		float m_Radius{ 0.5f };
 	};

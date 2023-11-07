@@ -16,12 +16,17 @@ void leap::BoxCollider::SetupShape(physics::IPhysicsMaterial* pMaterial)
 
 	// Create shape and apply the size
 	m_pShape = physics.CreateShape(this, physics::EShape::Box, pMaterial);
-	m_pShape->SetSize(m_Size * GetTransform()->GetWorldScale());
+	RescaleShape();
+}
+
+void leap::BoxCollider::RescaleShape()
+{
+	if (m_pShape) m_pShape->SetSize(m_Size * GetTransform()->GetWorldScale());
 }
 
 void leap::BoxCollider::SetSize(const glm::vec3& size)
 {
-	m_Size = size;
+	SetSize(size.x, size.y, size.z);
 }
 
 void leap::BoxCollider::SetSize(float x, float y, float z)
@@ -29,11 +34,11 @@ void leap::BoxCollider::SetSize(float x, float y, float z)
 	m_Size.x = x;
 	m_Size.y = y;
 	m_Size.z = z;
+
+	if (m_pShape) m_pShape->SetSize(m_Size * GetTransform()->GetWorldScale());
 }
 
 void leap::BoxCollider::SetSize(float size)
 {
-	m_Size.x = size;
-	m_Size.y = size;
-	m_Size.z = size;
+	SetSize(size, size, size);
 }

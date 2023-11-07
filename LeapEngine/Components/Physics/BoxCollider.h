@@ -4,6 +4,8 @@
 
 #include <vec3.hpp>
 
+#include <Observer.h>
+
 namespace leap
 {
 	class BoxCollider final : public Collider
@@ -23,6 +25,7 @@ namespace leap
 
 	private:
 		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) override;
+		virtual void RescaleShape() override;
 
 		glm::vec3 m_Size{ 1.0f, 1.0f, 1.0f };
 	};

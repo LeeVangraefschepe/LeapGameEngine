@@ -4,6 +4,7 @@
 
 #include <Interfaces/IShape.h>
 #include <Subject.h>
+#include <Observer.h>
 
 #include <memory>
 
@@ -18,7 +19,7 @@ namespace leap
 		class IPhysicsMaterial;
 	}
 
-	class Collider : public Component
+	class Collider : public Component, public Observer
 	{
 	public:
 		struct CollisionCallback final
@@ -38,16 +39,17 @@ namespace leap
 		void SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial);
 		void SetTrigger(bool isTrigger);
 
-		Subject<CollisionCallback> OnCollisionEnter{};
-		Subject<CollisionCallback> OnCollisionStay{};
-		Subject<CollisionCallback> OnCollisionExit{};
+		TSubject<CollisionCallback> OnCollisionEnter{};
+		TSubject<CollisionCallback> OnCollisionStay{};
+		TSubject<CollisionCallback> OnCollisionExit{};
 
-		Subject<CollisionCallback> OnTriggerEnter{};
-		Subject<CollisionCallback> OnTriggerStay{};
-		Subject<CollisionCallback> OnTriggerExit{};
+		TSubject<CollisionCallback> OnTriggerEnter{};
+		TSubject<CollisionCallback> OnTriggerStay{};
+		TSubject<CollisionCallback> OnTriggerExit{};
 
 	protected:
 		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) = 0;
+		virtual void RescaleShape() = 0;
 
 		std::unique_ptr<physics::IShape> m_pShape{};
 
@@ -58,6 +60,8 @@ namespace leap
 
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
+
+		virtual void Notify() override;
 
 		void Move(const Rigidbody* pRigidbody);
 		void NotifyCollisionEnter(Collider* pOther);
