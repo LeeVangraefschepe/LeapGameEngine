@@ -100,6 +100,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBoxColl->SetMaterial(pBounceMaterial);
 	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
 	pBoxRb->SetVelocity(0.0f, 0.0f, 3.0f);
+	pBoxRb->SetAngularVelocity(0.0f, 100.0f, 0.0f);
 	pBoxRb->SetConstraint(leap::physics::Rigidbody::Constraint::Flag::RotationX, true);
 	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
 	pBoxMesh->LoadMesh("Data/Engine/Models/sphere.obj");

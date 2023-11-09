@@ -12,6 +12,12 @@ void leap::physics::Rigidbody::SetVelocity(const glm::vec3& velocity)
 	SetDirty(RigidbodyFlag::Velocity);
 }
 
+void leap::physics::Rigidbody::SetAngularVelocity(const glm::vec3& velocity)
+{
+	m_AngularVelocity = velocity;
+	SetDirty(RigidbodyFlag::AngularVelocity);
+}
+
 void leap::physics::Rigidbody::SetMass(float mass)
 {
 	m_Mass = mass;

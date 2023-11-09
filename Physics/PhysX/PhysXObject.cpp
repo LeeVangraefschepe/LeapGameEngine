@@ -186,6 +186,13 @@ void leap::physics::PhysXObject::UpdateRigidbody()
 		static_cast<physx::PxRigidDynamic*>(m_pActor)->setLinearVelocity(pxVelocity);
 	}
 
+	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::AngularVelocity))
+	{
+		const glm::vec3& velocity{ m_pRigidbody->GetAngularVelocity() };
+		const physx::PxVec3 pxVelocity{ velocity.x, velocity.y, velocity.z };
+		static_cast<physx::PxRigidDynamic*>(m_pActor)->setAngularVelocity(pxVelocity);
+	}
+
 	if (dirtyFlag & static_cast<unsigned int>(Rigidbody::RigidbodyFlag::Mass))
 	{
 		static_cast<physx::PxRigidDynamic*>(m_pActor)->setMass(m_pRigidbody->GetMass());

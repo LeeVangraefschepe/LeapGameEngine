@@ -29,6 +29,17 @@ void leap::Rigidbody::SetVelocity(float x, float y, float z)
 	SetVelocity(glm::vec3{ x,y,z });
 }
 
+void leap::Rigidbody::SetAngularVelocity(const glm::vec3& velocity)
+{
+	CheckExistence();
+	m_pRigidbody->SetAngularVelocity(velocity);
+}
+
+void leap::Rigidbody::SetAngularVelocity(float x, float y, float z)
+{
+	SetAngularVelocity(glm::vec3{x, y, z});
+}
+
 void leap::Rigidbody::SetMass(float mass)
 {
 	CheckExistence();

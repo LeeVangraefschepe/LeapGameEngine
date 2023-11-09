@@ -27,6 +27,8 @@ namespace leap
 		void SetKinematic(bool isKinematic);
 		void SetVelocity(const glm::vec3& velocity);
 		void SetVelocity(float x, float y, float z);
+		void SetAngularVelocity(const glm::vec3& velocity);
+		void SetAngularVelocity(float x, float y, float z);
 		void SetMass(float mass);
 		void SetConstraint(physics::Rigidbody::Constraint::Flag flag, bool enabled);
 

@@ -24,7 +24,8 @@ namespace leap::physics
 			Rotation = 16,
 			Translate = 32,
 			Rotate = 64,
-			Constraints = 128
+			Constraints = 128,
+			AngularVelocity = 256
 		};
 		struct Constraint
 		{
@@ -43,6 +44,7 @@ namespace leap::physics
 
 		void SetIsKinematic(bool isKinematic);
 		void SetVelocity(const glm::vec3& velocity);
+		void SetAngularVelocity(const glm::vec3& velocity);
 		void SetMass(float mass);
 		void SetPosition(const glm::vec3& position);
 		void Translate(const glm::vec3& translation);
@@ -52,6 +54,7 @@ namespace leap::physics
 
 		bool IsKinematic() const { return m_IsKinematic; }
 		const glm::vec3& GetVelocity() const { return m_Velocity; }
+		const glm::vec3& GetAngularVelocity() const { return m_AngularVelocity; }
 		float GetMass() const { return m_Mass; }
 		const glm::vec3& GetPosition() const { return m_Position; }
 		const glm::vec3& GetTranslation() const { return m_Translation; }
@@ -72,6 +75,7 @@ namespace leap::physics
 
 		bool m_IsKinematic{};
 		glm::vec3 m_Velocity{};
+		glm::vec3 m_AngularVelocity{};
 		float m_Mass{ 1.0f };
 		glm::vec3 m_Position{};
 		glm::quat m_Rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
