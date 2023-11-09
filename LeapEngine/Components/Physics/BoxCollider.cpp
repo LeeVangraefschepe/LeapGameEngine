@@ -4,7 +4,6 @@
 #include "../../SceneGraph/GameObject.h"
 
 #include "../Transform/Transform.h"
-#include "Rigidbody.h"
 
 #include <Interfaces/IPhysics.h>
 #include <Interfaces/IPhysicsObject.h>

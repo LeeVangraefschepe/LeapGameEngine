@@ -105,7 +105,7 @@ void leap::Collider::NotifyTriggerExit(Collider* pOther)
 	OnTriggerExit.Notify(CollisionCallback{ this, pOther });
 }
 
-void leap::Collider::SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial)
+void leap::Collider::SetMaterial(const std::shared_ptr<physics::IPhysicsMaterial>& pMaterial)
 {
 	m_pMaterial = pMaterial;
 }

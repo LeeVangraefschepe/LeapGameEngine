@@ -36,7 +36,7 @@ namespace leap
 		Collider& operator=(const Collider& other) = delete;
 		Collider& operator=(Collider&& other) = delete;
 
-		void SetMaterial(std::shared_ptr<physics::IPhysicsMaterial> pMaterial);
+		void SetMaterial(const std::shared_ptr<physics::IPhysicsMaterial>& pMaterial);
 		void SetTrigger(bool isTrigger);
 
 		TSubject<CollisionCallback> OnCollisionEnter{};

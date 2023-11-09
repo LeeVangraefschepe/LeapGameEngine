@@ -4,8 +4,6 @@
 
 #include <vec3.hpp>
 
-#include <Observer.h>
-
 namespace leap
 {
 	class BoxCollider final : public Collider

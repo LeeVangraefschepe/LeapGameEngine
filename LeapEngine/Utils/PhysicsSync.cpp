@@ -72,8 +72,8 @@ void leap::PhysicsSync::OnTriggerExit(const physics::CollisionData& collision)
 
 leap::PhysicsSync::ColliderPair leap::PhysicsSync::GetColliders(const physics::CollisionData& collision)
 {
-	Collider* pFirstCollider{ reinterpret_cast<Collider*>(collision.pFirst) };
-	Collider* pSecondCollider{ reinterpret_cast<Collider*>(collision.pSecond) };
+	Collider* pFirstCollider{ static_cast<Collider*>(collision.pFirst) };
+	Collider* pSecondCollider{ static_cast<Collider*>(collision.pSecond) };
 
 	return { pFirstCollider, pSecondCollider };
 }
