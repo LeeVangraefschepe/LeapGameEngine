@@ -11,7 +11,7 @@ add_executable(UnnamedAdventureGame
 	"Components/SineWaveTerrain.cpp"
     "Components/PrintCollision.cpp"
 	"Components/ApplyForces.cpp" 
-	"Components/ColliderScaler.cpp")
+	"Components/ColliderScaler.cpp" "Components/PrintVelocity.h" "Components/PrintVelocity.cpp")
 
 target_include_directories(
 	LeapEngine PUBLIC 

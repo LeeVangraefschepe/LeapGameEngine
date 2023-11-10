@@ -49,6 +49,12 @@ namespace leap
 		void AddTorque(const glm::vec3& torque, physics::ForceMode mode = physics::ForceMode::Force);
 		void AddTorque(float x, float y, float z, physics::ForceMode mode = physics::ForceMode::Force);
 
+		bool IsKinematic() const { return m_pRigidbody->IsKinematic(); }
+		const glm::vec3& GetVelocity() const;
+		const glm::vec3& GetAngularVelocity() const;
+		float GetMass() const { return m_pRigidbody->GetMass(); }
+		bool IsConstraint(physics::Rigidbody::Constraint::Flag flag, bool enabled) const;
+
 	private:
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
@@ -57,5 +63,7 @@ namespace leap
 		void ApplyShapes(GameObject* pParent) const;
 
 		physics::Rigidbody* m_pRigidbody{};
+
+		inline static glm::vec3 m_EmptyVector{};
 	};
 }

@@ -2,6 +2,8 @@
 
 #include "../Interfaces/IPhysicsObject.h"
 
+#include <Subject.h>
+
 #include <vector>
 #include <functional>
 #include <memory>
@@ -46,6 +48,8 @@ namespace leap::physics
 		void UpdateRigidbody();
 		void CalculateCenterOfMass() const;
 
+		void OnRigidBodyUpdateRequest();
+
 		std::vector<IPhysXShape*> m_pShapes{};
 		physx::PxRigidActor* m_pActor{};
 		void* m_pOwner{};
@@ -56,5 +60,6 @@ namespace leap::physics
 
 		bool m_IsObjectDirty{ true };
 		bool m_IsTransformDirty{ true };
+		bool m_NewFrame{ false };
 	};
 }

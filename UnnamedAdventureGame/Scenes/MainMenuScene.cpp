@@ -59,6 +59,7 @@
 #include "../Components/PrintCollision.h"
 #include "../Components/ApplyForces.h"
 #include "../Components/ColliderScaler.h"
+#include "../Components/PrintVelocity.h"
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -99,6 +100,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	auto pBoxColl{ pBox->AddComponent<leap::SphereCollider>() };
 	pBoxColl->SetMaterial(pBounceMaterial);
 	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
+	pBox->AddComponent<PrintVelocity>();
 	pBoxRb->SetVelocity(0.0f, 0.0f, 3.0f);
 	pBoxRb->SetAngularVelocity(0.0f, 100.0f, 0.0f);
 	pBoxRb->SetConstraint(leap::physics::Rigidbody::Constraint::Flag::RotationX, true);
@@ -131,5 +133,5 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
 	pBox2->GetTransform()->Scale(20.0f, 1.0f, 20.0f);
-	pBox2->AddComponent<PrintCollision>();
+	//pBox2->AddComponent<PrintCollision>();
 }

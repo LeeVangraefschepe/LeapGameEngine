@@ -29,6 +29,8 @@ leap::physics::PhysXObject::~PhysXObject()
 
 void leap::physics::PhysXObject::Update(PhysXEngine* pEngine, IPhysicsScene* pScene)
 {
+	m_NewFrame = true;
+
 	if (m_IsObjectDirty) UpdateObject(pEngine, pScene);
 	if (m_pRigidbody && m_pRigidbody->IsDirty()) UpdateRigidbody();
 	if (m_IsTransformDirty) UpdateTransform();
@@ -91,7 +93,7 @@ leap::physics::Rigidbody* leap::physics::PhysXObject::SetRigidbody(bool hasRigid
 		return nullptr;
 	}
 
-	if (m_pRigidbody == nullptr) m_pRigidbody = std::make_unique<Rigidbody>();
+	if (m_pRigidbody == nullptr) m_pRigidbody = std::make_unique<Rigidbody>([this]() { OnRigidBodyUpdateRequest(); });
 
 	return m_pRigidbody.get();
 }
@@ -250,4 +252,18 @@ void leap::physics::PhysXObject::CalculateCenterOfMass() const
 	physx::PxRigidDynamic* pRigidbody{ static_cast<physx::PxRigidDynamic*>(m_pActor) };
 
 	physx::PxRigidBodyExt::setMassAndUpdateInertia(*pRigidbody, pRigidbody->getMass());
+}
+
+void leap::physics::PhysXObject::OnRigidBodyUpdateRequest()
+{
+	if (!m_NewFrame) return;
+	m_NewFrame = false;
+
+	physx::PxRigidDynamic* pRigidbody{ static_cast<physx::PxRigidDynamic*>(m_pActor) };
+
+	const auto& physXVelocity{ pRigidbody->getLinearVelocity() };
+	m_pRigidbody->SetVelocityFromEngine({ physXVelocity.x, physXVelocity.y, physXVelocity.z });
+
+	const auto& physXAngularVelocity{ pRigidbody->getAngularVelocity() };
+	m_pRigidbody->SetAngularVelocityFromEngine({ physXAngularVelocity.x, physXAngularVelocity.y, physXAngularVelocity.z });
 }

@@ -128,6 +128,32 @@ void leap::Rigidbody::AddTorque(float x, float y, float z, physics::ForceMode mo
 	AddTorque({ x,y,z }, mode);
 }
 
+const glm::vec3& leap::Rigidbody::GetVelocity() const
+{
+	if (!m_pRigidbody) return m_EmptyVector;
+
+	return m_pRigidbody->GetVelocityFromEngine();
+}
+
+const glm::vec3& leap::Rigidbody::GetAngularVelocity() const
+{
+	if (!m_pRigidbody) return m_EmptyVector;
+
+	return m_pRigidbody->GetAngularVelocityFromEngine();
+}
+
+bool leap::Rigidbody::IsConstraint(physics::Rigidbody::Constraint::Flag flag, bool enabled) const
+{
+	if (!m_pRigidbody) return !enabled;
+
+	const auto& constraints{ m_pRigidbody->GetConstraints() };
+	const auto iterator{ std::find_if(begin(constraints), end(constraints), [flag](const auto& constraint) { return constraint.flag == flag; }) };
+	
+	if (iterator == end(constraints)) return !enabled;
+
+	return iterator->enabled == enabled;
+}
+
 void leap::Rigidbody::Awake()
 {
 	// Get the physics object for this gameobject
@@ -139,7 +165,7 @@ void leap::Rigidbody::Awake()
 	// If settings were set before awake, apply the settings and destroy the temp rigidbody
 	if (m_pRigidbody)
 	{
-		*pNewRigidbody = *m_pRigidbody;
+		*pNewRigidbody = std::move(*m_pRigidbody);
 		delete m_pRigidbody;
 	}
 	// Cache the rigidbody

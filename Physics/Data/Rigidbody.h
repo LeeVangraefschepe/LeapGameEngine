@@ -8,12 +8,23 @@
 #include "../Data/Force.h"
 
 #include <vector>
+#include <functional>
 
 namespace leap::physics
 {
+	class PhysXObject;
+
 	class Rigidbody
 	{
 	public:
+		Rigidbody() = default;
+		Rigidbody(const std::function<void()>& rigidbodyRequestFunc);
+
+		Rigidbody& operator=(const Rigidbody& other) = delete;
+		Rigidbody& operator=(Rigidbody&& other) noexcept;
+		Rigidbody(const Rigidbody& other) = delete;
+		Rigidbody(Rigidbody&& other) = delete;
+
 		enum class RigidbodyFlag
 		{
 			None = 0,
@@ -62,6 +73,9 @@ namespace leap::physics
 		const glm::quat& GetRotationDelta() const { return m_RotationDelta; }
 		const std::vector<Constraint> GetConstraints() { return m_Constraints; }
 
+		const glm::vec3& GetVelocityFromEngine();
+		const glm::vec3& GetAngularVelocityFromEngine();
+
 		void AddForce(const glm::vec3& force, ForceMode mode);
 		void AddTorque(const glm::vec3& torque, ForceMode mode);
 		std::vector<Force>& GetForces() { return m_Forces; }
@@ -71,6 +85,11 @@ namespace leap::physics
 		void ResetDirtyFlag();
 
 	private:
+		friend PhysXObject;
+
+		void SetVelocityFromEngine(const glm::vec3& velocity);
+		void SetAngularVelocityFromEngine(const glm::vec3& velocity);
+
 		void SetDirty(RigidbodyFlag flag);
 
 		bool m_IsKinematic{};
@@ -84,5 +103,7 @@ namespace leap::physics
 		RigidbodyFlag m_DirtyFlag{ RigidbodyFlag::None };
 		std::vector<Force> m_Forces{};
 		std::vector<Constraint> m_Constraints{};
+
+		std::function<void()> m_UpdateRequestFunc{};
 	};
 }
