@@ -1,15 +1,5 @@
 #include "CoroutineSystem.h"
 
-leap::CoroutineSystem* pCoroutineSystem{};
-
-void StartCoroutine(leap::Coroutine<>&& coroutine)
-{
-	// push into gameobject vector of coroutines
-	leap::IEnumerator ienum = coroutine.Value();
-	// Register to coroutine.
-	pCoroutineSystem->Register(&coroutine, std::move(ienum));
-}
-
 leap::CoroutineSystem::CoroutineSystem()
 {
 }

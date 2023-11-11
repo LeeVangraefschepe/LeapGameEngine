@@ -1,6 +1,7 @@
 #include "Component.h"
 
 #include "../SceneGraph/GameObject.h"
+#include "../GameContext/GameContext.h"
 
 leap::Transform* leap::Component::GetTransform() const
 {
@@ -31,6 +32,31 @@ void leap::Component::SetActive(bool isActive)
 bool leap::Component::IsActive() const
 {
 	return IsActiveWorld();
+}
+
+leap::Coroutine<>* leap::Component::StartCoroutine(leap::Coroutine<>&& coroutine)
+{
+	const auto& ref = m_pCoroutines.emplace_back(coroutine);
+	leap::IEnumerator ienum = ref.get()->Value();
+
+	GameContext::GetInstance().GetCoroutineSystem()->Register(ref.get(), std::move(ienum));
+	return ref.get();
+}
+
+bool leap::Component::StopCoroutine(leap::Coroutine<>* pCoroutine)
+{
+	auto it = std::find_if(m_pCoroutines.begin(), m_pCoroutines.end(), 
+		[&](const std::unique_ptr<Coroutine<>>& ref) 
+		{
+			return ref.get() == pCoroutine;
+		});
+
+	if (it == m_pCoroutines.end())
+	{
+		return false;
+	}
+	GameContext::GetInstance().GetCoroutineSystem()->Unregister(pCoroutine);
+	m_pCoroutines.erase(it);
 }
 
 void leap::Component::SetOwner(GameObject* pOwner)

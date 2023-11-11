@@ -1,4 +1,8 @@
 #pragma once
+#include "../Coroutines/Coroutine.h"
+
+#include <vector>
+#include <memory>
 
 namespace leap
 {
@@ -36,6 +40,9 @@ namespace leap
 		virtual void OnGUI() {}
 		virtual void OnDestroy() {}
 
+		Coroutine<>* StartCoroutine(Coroutine<>&& coroutine);
+		bool StopCoroutine(Coroutine<>* pCoroutine);
+
 	private:
 		friend GameObject;
 
@@ -72,6 +79,8 @@ namespace leap
 		};
 
 		unsigned char m_StateFlags{ static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame) };
+
+		std::vector<std::unique_ptr<Coroutine<>>> m_pCoroutines;
 
 		GameObject* m_pOwner{};
 	};
