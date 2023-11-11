@@ -73,7 +73,7 @@ leap::physics::PhysXEngine::~PhysXEngine()
     m_pFoundation->release();
 }
 
-void leap::physics::PhysXEngine::SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc)
+void leap::physics::PhysXEngine::SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<glm::vec3, glm::quat>(void*)> getFunc)
 {
     m_SyncGetFunc = getFunc;
     m_SyncSetFunc = setFunc;
@@ -115,6 +115,8 @@ void leap::physics::PhysXEngine::CreateScene()
     physx::PxScene* pPhysXScene{ m_pPhysics->createScene(sceneDesc) };
 
     m_pScene = std::make_unique<PhysXScene>(pPhysXScene);
+
+    m_pScene->SetEnabledDebugDrawing(m_IsDebugDrawingEnabled);
 }
 
 leap::physics::IPhysicsObject* leap::physics::PhysXEngine::Get(void* pOwner)
@@ -150,6 +152,17 @@ std::unique_ptr<leap::physics::IShape> leap::physics::PhysXEngine::CreateShape(v
 std::shared_ptr<leap::physics::IPhysicsMaterial> leap::physics::PhysXEngine::CreateMaterial()
 {
     return std::make_shared<PhysXMaterial>(this);
+}
+
+void leap::physics::PhysXEngine::SetEnabledDebugDrawing(bool isEnabled)
+{
+    if(m_pScene) m_pScene->SetEnabledDebugDrawing(isEnabled);
+    m_IsDebugDrawingEnabled = isEnabled;
+}
+
+std::vector<std::pair<glm::vec3, glm::vec3>> leap::physics::PhysXEngine::GetDebugDrawings()
+{
+    return m_pScene->GetDebugDrawings();
 }
 
 void leap::physics::PhysXEngine::Notify(const SimulationEvent& e)

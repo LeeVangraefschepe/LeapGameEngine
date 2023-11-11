@@ -29,6 +29,8 @@ namespace leap::graphics
 		const DirectXMeshDefinition& LoadMesh(const std::string& dataPath, ID3D11Device* pDevice);
 		const DirectXMeshDefinition& LoadMesh(const CustomMesh& mesh, ID3D11Device* pDevice);
 
+		void RemoveCustomMesh(ID3D11Buffer* pVertexBuffer);
+
 		void Reload(ID3D11Device* pDevice);
 
 	private:

@@ -43,13 +43,16 @@ namespace leap::physics
 		PhysXEngine& operator=(const PhysXEngine& other) = delete;
 		PhysXEngine& operator=(PhysXEngine&& other) = delete;
 
-		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc) override;
+		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<glm::vec3, glm::quat>(void*)> getFunc) override;
 		virtual void Update(float fixedDeltaTime) override;
 
 		virtual void CreateScene() override;
 		virtual IPhysicsObject* Get(void* pOwner) override;
 		virtual std::unique_ptr<IShape> CreateShape(void* pOwner, EShape shape, IPhysicsMaterial* pMaterial = nullptr) override;
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override;
+
+		virtual void SetEnabledDebugDrawing(bool isEnabled) override;
+		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() override;
 
 		virtual TSubject<CollisionData>& OnCollisionEnter() override { return m_OnCollisionEnter; }
 		virtual TSubject<CollisionData>& OnCollisionStay() override { return m_OnCollisionStay; }
@@ -80,7 +83,7 @@ namespace leap::physics
 		std::unordered_map<void*, std::unique_ptr<PhysXObject>> m_pObjects{};
 
 		std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> m_SyncGetFunc{};
-		std::function<void(void*, const glm::vec3&, const glm::quat&)> m_SyncSetFunc{};
+		std::function<void(void*, glm::vec3, glm::quat)> m_SyncSetFunc{};
 
 		TSubject<CollisionData> m_OnCollisionEnter{};
 		TSubject<CollisionData> m_OnCollisionStay{};
@@ -88,5 +91,7 @@ namespace leap::physics
 		TSubject<CollisionData> m_OnTriggerEnter{};
 		TSubject<CollisionData> m_OnTriggerStay{};
 		TSubject<CollisionData> m_OnTriggerExit{};
+
+		bool m_IsDebugDrawingEnabled{};
 	};
 }

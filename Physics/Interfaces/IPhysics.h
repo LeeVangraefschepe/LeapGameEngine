@@ -23,13 +23,16 @@ namespace leap::physics
 	public:
 		virtual ~IPhysics() = default;
 
-		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc) = 0;
+		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<glm::vec3, glm::quat>(void*)> getFunc) = 0;
 		virtual void Update(float fixedDeltaTime) = 0;
 
 		virtual void CreateScene() = 0;
 		virtual IPhysicsObject* Get(void* pOwner) = 0;
 		virtual std::unique_ptr<IShape> CreateShape(void* pOwner, EShape shape, IPhysicsMaterial* pMaterial = nullptr) = 0;
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() = 0;
+
+		virtual void SetEnabledDebugDrawing(bool isEnabled) = 0;
+		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() = 0;
 
 		virtual TSubject<CollisionData>& OnCollisionEnter() = 0;
 		virtual TSubject<CollisionData>& OnCollisionStay() = 0;
@@ -44,13 +47,16 @@ namespace leap::physics
 	public:
 		virtual ~DefaultPhysics() = default;
 
-		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>&, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)>) override {};
+		virtual void SetSyncFunc(const std::function<void(void*, const glm::vec3&, const glm::quat&)>&, const std::function<std::pair<glm::vec3, glm::quat>(void*)>) override {};
 		virtual void Update(float) override {}
 
 		virtual void CreateScene() override {}
 		virtual IPhysicsObject* Get(void*) override { return nullptr; }
 		virtual std::unique_ptr<IShape> CreateShape(void*, EShape, IPhysicsMaterial*) override { return nullptr; }
 		virtual std::shared_ptr<IPhysicsMaterial> CreateMaterial() override { return nullptr; }
+
+		virtual void SetEnabledDebugDrawing(bool) override {}
+		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() { return {}; }
 
 		virtual TSubject<CollisionData>& OnCollisionEnter() override { return m_EmptyCollision; }
 		virtual TSubject<CollisionData>& OnCollisionStay() override { return m_EmptyCollision; }

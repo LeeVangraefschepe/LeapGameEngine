@@ -24,6 +24,8 @@ struct ID3D11RenderTargetView;
 #include <memory>
 #include <unordered_map>
 
+#include "../Data/CustomMesh.h"
+
 class GLFWwindow;
 
 namespace leap::graphics
@@ -71,6 +73,9 @@ namespace leap::graphics
 		virtual ITexture* CreateTexture(const std::string& path) override;
 		virtual ITexture* CreateTexture(int width, int height) override;
 
+		// Debug rendering
+		virtual void DrawTriangles(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) override;
+
 	private:
 		void Release();
 		void ReloadDirectXEngine();
@@ -95,5 +100,8 @@ namespace leap::graphics
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};
 		DirectionalLight m_DirectionalLight{};
+
+		CustomMesh m_DebugDrawings{};
+		IMeshRenderer* m_pDebugRenderer{};
 	};
 }

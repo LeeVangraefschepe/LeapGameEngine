@@ -77,7 +77,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     const auto timer = gameContext.GetTimer();
     sceneManager.LoadScene(0);
 
-    const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
+    const int frameTimeNs{ 1'000'000'000 / desiredFPS };
     float fixedTotalTime{};
 
     auto& audio = ServiceLocator::GetAudio();
@@ -89,6 +89,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     physics.OnTriggerEnter().AddListener(PhysicsSync::OnTriggerEnter);
     physics.OnTriggerStay().AddListener(PhysicsSync::OnTriggerStay);
     physics.OnTriggerExit().AddListener(PhysicsSync::OnTriggerExit);
+    physics.SetEnabledDebugDrawing(true);
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
@@ -121,14 +122,18 @@ void leap::LeapEngine::Run(int desiredFPS)
         sceneManager.OnGUI();
         gameContext.OnGUI();
 
+        m_pRenderer->DrawTriangles(physics.GetDebugDrawings());
         m_pRenderer->Draw();
         glfwSwapBuffers(m_pWindow);
 
         sceneManager.OnFrameEnd();
 
-        //Sleep to sync back with desired fps
-        const auto sleepTimeMs = frameTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
+        // Wait to sync back with desired fps
+        long long curFrameTimeNs{};
+        do
+        {
+            curFrameTimeNs = (std::chrono::high_resolution_clock::now() - currentTime).count();
+        } while (frameTimeNs - curFrameTimeNs > 0);
     }
 
     sceneManager.UnloadScene();

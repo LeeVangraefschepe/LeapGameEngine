@@ -9,17 +9,20 @@
 
 void leap::PhysicsSync::SetTransform(void* pOwner, const glm::vec3& position, const glm::quat& rotation)
 {
-	Transform* pTransform{ reinterpret_cast<GameObject*>(pOwner)->GetTransform() };
+	Transform* pTransform{ static_cast<GameObject*>(pOwner)->GetTransform() };
 
 	pTransform->SetWorldPosition(position);
 	pTransform->SetWorldRotation(rotation);
 }
 
-std::pair<const glm::vec3&, const glm::quat&> leap::PhysicsSync::GetTransform(void* pOwner)
+std::pair<glm::vec3, glm::quat> leap::PhysicsSync::GetTransform(void* pOwner)
 {
-	Transform* pTransform{ reinterpret_cast<GameObject*>(pOwner)->GetTransform() };
+	Transform* pTransform{ static_cast<GameObject*>(pOwner)->GetTransform() };
 
-	return std::make_pair<const glm::vec3&, const glm::quat&>(pTransform->GetWorldPosition(), pTransform->GetWorldRotation());
+	const glm::vec3& position{ pTransform->GetWorldPosition() };
+	const glm::quat& rotation{ pTransform->GetWorldRotation() };
+
+	return std::make_pair(position, rotation);
 }
 
 void leap::PhysicsSync::OnCollisionEnter(const physics::CollisionData& collision)

@@ -15,8 +15,6 @@
 #include <PxScene.h>
 #include <extensions/PxRigidBodyExt.h>
 
-#include <Debug.h>
-
 leap::physics::PhysXObject::PhysXObject(void* pOwner)
 	: m_pOwner{ pOwner }
 {
