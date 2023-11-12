@@ -7,74 +7,44 @@
 
 #include <sstream>
 
-void unag::PrintCollision::Awake()
-{
-	std::vector<leap::Collider*> pColliders{ GetGameObject()->GetComponents<leap::Collider>() };
-
-	for (leap::Collider* pCollider : pColliders)
-	{
-		pCollider->OnCollisionEnter.AddListener(&m_CollisionEnter);
-		pCollider->OnCollisionStay.AddListener(&m_CollisionStay);
-		pCollider->OnCollisionExit.AddListener(&m_CollisionExit);
-		pCollider->OnTriggerEnter.AddListener(&m_TriggerEnter);
-		pCollider->OnTriggerStay.AddListener(&m_TriggerStay);
-		pCollider->OnTriggerExit.AddListener(&m_TriggerExit);
-	}
-}
-
-void unag::PrintCollision::OnDestroy()
-{
-	std::vector<leap::Collider*> pColliders{ GetGameObject()->GetComponents<leap::Collider>() };
-
-	for (leap::Collider* pCollider : pColliders)
-	{
-		pCollider->OnCollisionEnter.RemoveListener(&m_CollisionEnter);
-		pCollider->OnCollisionStay.RemoveListener(&m_CollisionStay);
-		pCollider->OnCollisionExit.RemoveListener(&m_CollisionExit);
-		pCollider->OnTriggerEnter.RemoveListener(&m_TriggerEnter);
-		pCollider->OnTriggerStay.RemoveListener(&m_TriggerStay);
-		pCollider->OnTriggerExit.RemoveListener(&m_TriggerExit);
-	}
-}
-
-void unag::PrintCollision::CollisionEnter::Notify(const leap::Collider::CollisionCallback& collision)
+void unag::PrintCollision::OnCollisionEnter(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
-	ss << "Collision enter between " << collision.pCollider->GetGameObject()->GetName() << " and " << collision.pOther->GetGameObject()->GetName();
+	ss << "Collision enter between " << pCollider->GetGameObject()->GetName() << " and " << pOther->GetGameObject()->GetName();
 	leap::Debug::Log(ss.str());
 }
 
-void unag::PrintCollision::CollisionStay::Notify(const leap::Collider::CollisionCallback& collision)
+void unag::PrintCollision::OnCollisionStay(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
-	ss << "Collision stay between " << collision.pCollider->GetGameObject()->GetName() << " and " << collision.pOther->GetGameObject()->GetName();
+	ss << "Collision stay between " << pCollider->GetGameObject()->GetName() << " and " << pOther->GetGameObject()->GetName();
 	leap::Debug::Log(ss.str());
 }
 
-void unag::PrintCollision::CollisionExit::Notify(const leap::Collider::CollisionCallback& collision)
+void unag::PrintCollision::OnCollisionExit(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
-	ss << "Collision exit between " << collision.pCollider->GetGameObject()->GetName() << " and " << collision.pOther->GetGameObject()->GetName();
+	ss << "Collision exit between " << pCollider->GetGameObject()->GetName() << " and " << pOther->GetGameObject()->GetName();
 	leap::Debug::Log(ss.str());
 }
 
-void unag::PrintCollision::TriggerEnter::Notify(const leap::Collider::CollisionCallback& collision)
+void unag::PrintCollision::OnTriggerEnter(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
-	ss << "Trigger enter between " << collision.pCollider->GetGameObject()->GetName() << " and " << collision.pOther->GetGameObject()->GetName();
+	ss << "Trigger enter between " << pCollider->GetGameObject()->GetName() << " and " << pOther->GetGameObject()->GetName();
 	leap::Debug::Log(ss.str());
 }
 
-void unag::PrintCollision::TriggerStay::Notify(const leap::Collider::CollisionCallback& collision)
+void unag::PrintCollision::OnTriggerStay(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
-	ss << "Trigger stay between " << collision.pCollider->GetGameObject()->GetName() << " and " << collision.pOther->GetGameObject()->GetName();
+	ss << "Trigger stay between " << pCollider->GetGameObject()->GetName() << " and " << pOther->GetGameObject()->GetName();
 	leap::Debug::Log(ss.str());
 }
 
-void unag::PrintCollision::TriggerExit::Notify(const leap::Collider::CollisionCallback& collision)
+void unag::PrintCollision::OnTriggerExit(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
-	ss << "Trigger exit between " << collision.pCollider->GetGameObject()->GetName() << " and " << collision.pOther->GetGameObject()->GetName();
+	ss << "Trigger exit between " << pCollider->GetGameObject()->GetName() << " and " << pOther->GetGameObject()->GetName();
 	leap::Debug::Log(ss.str());
 }

@@ -390,4 +390,40 @@ void leap::GameObject::OnDestroy() const
 		pChild->OnDestroy();
 	}
 }
+
+void leap::GameObject::OnCollisionEnter(Collider* pCollider, Collider* pOther) const
+{
+	// Delegate OnCollisionEnter method to the components
+	for (const auto& pComponent : m_pComponents) pComponent->OnCollisionEnter(pCollider, pOther);
+}
+
+void leap::GameObject::OnCollisionStay(Collider* pCollider, Collider* pOther) const
+{
+	// Delegate OnCollisionStay method to the components
+	for (const auto& pComponent : m_pComponents) pComponent->OnCollisionStay(pCollider, pOther);
+}
+
+void leap::GameObject::OnCollisionExit(Collider* pCollider, Collider* pOther) const
+{
+	// Delegate OnCollisionExit method to the components
+	for (const auto& pComponent : m_pComponents) pComponent->OnCollisionExit(pCollider, pOther);
+}
+
+void leap::GameObject::OnTriggerEnter(Collider* pCollider, Collider* pOther) const
+{
+	// Delegate OnTriggerEnter method to the components
+	for (const auto& pComponent : m_pComponents) pComponent->OnTriggerEnter(pCollider, pOther);
+}
+
+void leap::GameObject::OnTriggerStay(Collider* pCollider, Collider* pOther) const
+{
+	// Delegate OnTriggerStay method to the components
+	for (const auto& pComponent : m_pComponents) pComponent->OnTriggerStay(pCollider, pOther);
+}
+
+void leap::GameObject::OnTriggerExit(Collider* pCollider, Collider* pOther) const
+{
+	// Delegate OnTriggerExit method to the components
+	for (const auto& pComponent : m_pComponents) pComponent->OnTriggerExit(pCollider, pOther);
+}
 #pragma endregion

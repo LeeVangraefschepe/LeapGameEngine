@@ -79,32 +79,6 @@ void leap::Collider::Move(const Rigidbody* pRigidbody)
 	physics.Get(m_pOwningObject)->AddShape(m_pShape.get());
 }
 
-void leap::Collider::NotifyCollisionEnter(Collider* pOther)
-{
-	OnCollisionEnter.Notify(CollisionCallback{ this, pOther });
-}
-void leap::Collider::NotifyCollisionStay(Collider* pOther)
-{
-	OnCollisionStay.Notify(CollisionCallback{ this, pOther });
-}
-void leap::Collider::NotifyCollisionExit(Collider* pOther)
-{
-	OnCollisionExit.Notify(CollisionCallback{ this, pOther });
-}
-
-void leap::Collider::NotifyTriggerEnter(Collider* pOther)
-{
-	OnTriggerEnter.Notify(CollisionCallback{ this, pOther });
-}
-void leap::Collider::NotifyTriggerStay(Collider* pOther)
-{
-	OnTriggerStay.Notify(CollisionCallback{ this, pOther });
-}
-void leap::Collider::NotifyTriggerExit(Collider* pOther)
-{
-	OnTriggerExit.Notify(CollisionCallback{ this, pOther });
-}
-
 void leap::Collider::SetMaterial(const std::shared_ptr<physics::IPhysicsMaterial>& pMaterial)
 {
 	m_pMaterial = pMaterial;
@@ -115,4 +89,9 @@ void leap::Collider::SetTrigger(bool isTrigger)
 	m_IsTrigger = isTrigger;
 
 	if (m_pShape) m_pShape->SetTrigger(isTrigger);
+}
+
+leap::Rigidbody* leap::Collider::GetRigidbody() const
+{
+	return m_pOwningObject->GetComponent<Rigidbody>();
 }

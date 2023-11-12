@@ -2,6 +2,7 @@
 
 #include "../Components/Transform/Transform.h"
 #include "../Components/Physics/Collider.h"
+#include "../Components/Physics/Rigidbody.h"
 
 #include "../SceneGraph/GameObject.h"
 
@@ -29,48 +30,138 @@ void leap::PhysicsSync::OnCollisionEnter(const physics::CollisionData& collision
 {
 	const auto colliders{ GetColliders(collision) };
 
-	colliders.pFirst->NotifyCollisionEnter(colliders.pSecond);
-	colliders.pSecond->NotifyCollisionEnter(colliders.pFirst);
+	if (auto pRbFirst{ colliders.pFirst->GetRigidbody() }; pRbFirst)
+	{
+		pRbFirst->GetGameObject()->OnCollisionEnter(colliders.pFirst, colliders.pSecond);
+	}
+	else
+	{
+		colliders.pFirst->GetGameObject()->OnCollisionEnter(colliders.pFirst, colliders.pSecond);
+	}
+
+	if (auto pRbSecond{ colliders.pSecond->GetRigidbody() }; pRbSecond)
+	{
+		pRbSecond->GetGameObject()->OnCollisionEnter(colliders.pSecond, colliders.pFirst);
+	}
+	else
+	{
+		colliders.pSecond->GetGameObject()->OnCollisionEnter(colliders.pSecond, colliders.pFirst);
+	}
 }
 
 void leap::PhysicsSync::OnCollisionStay(const physics::CollisionData& collision)
 {
 	const auto colliders{ GetColliders(collision) };
 
-	colliders.pFirst->NotifyCollisionStay(colliders.pSecond);
-	colliders.pSecond->NotifyCollisionStay(colliders.pFirst);
+	if (auto pRbFirst{ colliders.pFirst->GetRigidbody() }; pRbFirst)
+	{
+		pRbFirst->GetGameObject()->OnCollisionStay(colliders.pFirst, colliders.pSecond);
+	}
+	else
+	{
+		colliders.pFirst->GetGameObject()->OnCollisionStay(colliders.pFirst, colliders.pSecond);
+	}
+
+	if (auto pRbSecond{ colliders.pSecond->GetRigidbody() }; pRbSecond)
+	{
+		pRbSecond->GetGameObject()->OnCollisionStay(colliders.pSecond, colliders.pFirst);
+	}
+	else
+	{
+		colliders.pSecond->GetGameObject()->OnCollisionStay(colliders.pSecond, colliders.pFirst);
+	}
 }
 
 void leap::PhysicsSync::OnCollisionExit(const physics::CollisionData& collision)
 {
 	const auto colliders{ GetColliders(collision) };
 
-	colliders.pFirst->NotifyCollisionExit(colliders.pSecond);
-	colliders.pSecond->NotifyCollisionExit(colliders.pFirst);
+	if (auto pRbFirst{ colliders.pFirst->GetRigidbody() }; pRbFirst)
+	{
+		pRbFirst->GetGameObject()->OnCollisionExit(colliders.pFirst, colliders.pSecond);
+	}
+	else
+	{
+		colliders.pFirst->GetGameObject()->OnCollisionExit(colliders.pFirst, colliders.pSecond);
+	}
+
+	if (auto pRbSecond{ colliders.pSecond->GetRigidbody() }; pRbSecond)
+	{
+		pRbSecond->GetGameObject()->OnCollisionExit(colliders.pSecond, colliders.pFirst);
+	}
+	else
+	{
+		colliders.pSecond->GetGameObject()->OnCollisionExit(colliders.pSecond, colliders.pFirst);
+	}
 }
 
 void leap::PhysicsSync::OnTriggerEnter(const physics::CollisionData& collision)
 {
 	const auto colliders{ GetColliders(collision) };
 
-	colliders.pFirst->NotifyTriggerEnter(colliders.pSecond);
-	colliders.pSecond->NotifyTriggerEnter(colliders.pFirst);
+	if (auto pRbFirst{ colliders.pFirst->GetRigidbody() }; pRbFirst)
+	{
+		pRbFirst->GetGameObject()->OnTriggerEnter(colliders.pFirst, colliders.pSecond);
+	}
+	else
+	{
+		colliders.pFirst->GetGameObject()->OnTriggerEnter(colliders.pFirst, colliders.pSecond);
+	}
+
+	if (auto pRbSecond{ colliders.pSecond->GetRigidbody() }; pRbSecond)
+	{
+		pRbSecond->GetGameObject()->OnTriggerEnter(colliders.pSecond, colliders.pFirst);
+	}
+	else
+	{
+		colliders.pSecond->GetGameObject()->OnTriggerEnter(colliders.pSecond, colliders.pFirst);
+	}
 }
 
 void leap::PhysicsSync::OnTriggerStay(const physics::CollisionData& collision)
 {
 	const auto colliders{ GetColliders(collision) };
 
-	colliders.pFirst->NotifyTriggerStay(colliders.pSecond);
-	colliders.pSecond->NotifyTriggerStay(colliders.pFirst);
+	if (auto pRbFirst{ colliders.pFirst->GetRigidbody() }; pRbFirst)
+	{
+		pRbFirst->GetGameObject()->OnTriggerStay(colliders.pFirst, colliders.pSecond);
+	}
+	else
+	{
+		colliders.pFirst->GetGameObject()->OnTriggerStay(colliders.pFirst, colliders.pSecond);
+	}
+
+	if (auto pRbSecond{ colliders.pSecond->GetRigidbody() }; pRbSecond)
+	{
+		pRbSecond->GetGameObject()->OnTriggerStay(colliders.pSecond, colliders.pFirst);
+	}
+	else
+	{
+		colliders.pSecond->GetGameObject()->OnTriggerStay(colliders.pSecond, colliders.pFirst);
+	}
 }
 
 void leap::PhysicsSync::OnTriggerExit(const physics::CollisionData& collision)
 {
 	const auto colliders{ GetColliders(collision) };
 
-	colliders.pFirst->NotifyTriggerExit(colliders.pSecond);
-	colliders.pSecond->NotifyTriggerExit(colliders.pFirst);
+	if (auto pRbFirst{ colliders.pFirst->GetRigidbody() }; pRbFirst)
+	{
+		pRbFirst->GetGameObject()->OnTriggerExit(colliders.pFirst, colliders.pSecond);
+	}
+	else
+	{
+		colliders.pFirst->GetGameObject()->OnTriggerExit(colliders.pFirst, colliders.pSecond);
+	}
+
+	if (auto pRbSecond{ colliders.pSecond->GetRigidbody() }; pRbSecond)
+	{
+		pRbSecond->GetGameObject()->OnTriggerExit(colliders.pSecond, colliders.pFirst);
+	}
+	else
+	{
+		colliders.pSecond->GetGameObject()->OnTriggerExit(colliders.pSecond, colliders.pFirst);
+	}
 }
 
 leap::PhysicsSync::ColliderPair leap::PhysicsSync::GetColliders(const physics::CollisionData& collision)

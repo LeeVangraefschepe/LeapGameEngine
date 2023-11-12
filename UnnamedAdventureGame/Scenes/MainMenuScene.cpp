@@ -100,7 +100,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	auto pBoxColl{ pBox->AddComponent<leap::SphereCollider>() };
 	pBoxColl->SetMaterial(pBounceMaterial);
 	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
-	pBox->AddComponent<PrintVelocity>();
+	//pBox->AddComponent<PrintVelocity>();
 	pBoxRb->SetVelocity(0.0f, 0.0f, 3.0f);
 	pBoxRb->SetAngularVelocity(0.0f, 100.0f, 0.0f);
 	pBoxRb->SetConstraint(leap::physics::Rigidbody::Constraint::Flag::RotationX, true);
@@ -110,7 +110,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBox->GetTransform()->Translate(0.0f, 2.0f, 0.0f);
 	pBox->GetTransform()->Rotate(0.0f, 0.0f, 0.0f);
 	//pBox->AddComponent<PrintCollision>();
-	pBox->AddComponent<ApplyForces>();
+	//pBox->AddComponent<ApplyForces>();
 	auto pBoxTrigger{ pBox->AddComponent<leap::BoxCollider>() };
 	pBoxTrigger->SetSize(3.0f);
 	pBoxTrigger->SetTrigger(true);
@@ -133,5 +133,5 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
 	pBox2->GetTransform()->Scale(20.0f, 1.0f, 20.0f);
-	//pBox2->AddComponent<PrintCollision>();
+	pBox2->AddComponent<PrintCollision>();
 }

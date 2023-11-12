@@ -39,13 +39,7 @@ namespace leap
 		void SetMaterial(const std::shared_ptr<physics::IPhysicsMaterial>& pMaterial);
 		void SetTrigger(bool isTrigger);
 
-		TSubject<CollisionCallback> OnCollisionEnter{};
-		TSubject<CollisionCallback> OnCollisionStay{};
-		TSubject<CollisionCallback> OnCollisionExit{};
-
-		TSubject<CollisionCallback> OnTriggerEnter{};
-		TSubject<CollisionCallback> OnTriggerStay{};
-		TSubject<CollisionCallback> OnTriggerExit{};
+		Rigidbody* GetRigidbody() const;
 
 	protected:
 		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) = 0;
@@ -64,12 +58,6 @@ namespace leap
 		virtual void Notify() override;
 
 		void Move(const Rigidbody* pRigidbody);
-		void NotifyCollisionEnter(Collider* pOther);
-		void NotifyCollisionStay(Collider* pOther);
-		void NotifyCollisionExit(Collider* pOther);
-		void NotifyTriggerEnter(Collider* pOther);
-		void NotifyTriggerStay(Collider* pOther);
-		void NotifyTriggerExit(Collider* pOther);
 
 		GameObject* m_pOwningObject{};
 		std::shared_ptr<physics::IPhysicsMaterial> m_pMaterial{};
