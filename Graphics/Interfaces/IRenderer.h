@@ -57,7 +57,7 @@ namespace leap::graphics
 		virtual ITexture* CreateTexture(int width, int height) = 0;
 
 		// Debug rendering
-		virtual void DrawTriangles(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) = 0;
+		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines) = 0;
 	};
 
 	class DefaultRenderer final : public IRenderer
@@ -95,6 +95,6 @@ namespace leap::graphics
 		virtual ITexture* CreateTexture(int, int) override { return nullptr; }
 
 		// Debug rendering
-		virtual void DrawTriangles(const std::vector<std::pair<glm::vec3, glm::vec3>>&) override {}
+		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>&) override {}
 	};
 }

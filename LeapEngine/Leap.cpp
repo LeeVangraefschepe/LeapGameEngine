@@ -122,7 +122,7 @@ void leap::LeapEngine::Run(int desiredFPS)
         sceneManager.OnGUI();
         gameContext.OnGUI();
 
-        m_pRenderer->DrawTriangles(physics.GetDebugDrawings());
+        m_pRenderer->DrawLines(physics.GetDebugDrawings());
         m_pRenderer->Draw();
         glfwSwapBuffers(m_pWindow);
 

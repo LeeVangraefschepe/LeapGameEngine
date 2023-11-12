@@ -158,7 +158,7 @@ leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(int width
 	return pTextureRaw;
 }
 
-void leap::graphics::DirectXEngine::DrawTriangles(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines)
+void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines)
 {
 	unsigned int index{ static_cast<unsigned int>(m_DebugDrawings.GetIndexBuffer().size()) };
 	for (const auto& line : lines)
