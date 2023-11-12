@@ -25,7 +25,7 @@ namespace leap
 		void SetIcon(const std::string& path) const;
 		void SetWindowTitle(const std::string& text) const;
 		void SetMinimized(bool value) const;
-		void SetHiden(bool value) const;
+		void SetHidden(bool value) const;
 		void RequireAttention() const;
 		void SetPosition(const glm::ivec2& position) const;
 		void SetAspectRatio(const glm::ivec2& size) const;
