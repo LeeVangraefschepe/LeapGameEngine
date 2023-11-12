@@ -3,6 +3,7 @@
 #include "glfw3.h"
 #include "../ServiceLocator/ServiceLocator.h"
 #include "Interfaces/IRenderer.h"
+#include "Interfaces/ITexture.h"
 
 const glm::ivec2& leap::Window::GetWindowSize() const
 {
@@ -34,6 +35,114 @@ void leap::Window::SetFullScreen(bool value)
 	}
 }
 
+void leap::Window::SetResize(bool value) const
+{
+	if (value) glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, GLFW_TRUE);
+	else glfwSetWindowAttrib(m_pWindow, GLFW_RESIZABLE, GLFW_FALSE);
+}
+
+void leap::Window::SetIcon(const std::string& path) const
+{
+	const auto texture = ServiceLocator::GetRenderer().CreateTexture(path);
+	auto data = texture->GetData();
+	GLFWimage images[1];
+	images[0] = GLFWimage{ texture->GetSize().x, texture->GetSize().y, data.data() };
+
+	glfwSetWindowIcon(m_pWindow, 1, images);
+}
+
+void leap::Window::SetWindowTitle(const std::string& text) const
+{
+	glfwSetWindowTitle(m_pWindow, text.c_str());
+}
+
+void leap::Window::SetMinimized(bool value) const
+{
+	if (value) glfwIconifyWindow(m_pWindow);
+	else glfwRestoreWindow(m_pWindow);
+}
+
+void leap::Window::SetHidden(bool value) const
+{
+	if (value) glfwHideWindow(m_pWindow);
+	else glfwShowWindow(m_pWindow);
+}
+
+void leap::Window::RequireAttention() const
+{
+	glfwRequestWindowAttention(m_pWindow);
+}
+
+void leap::Window::SetPosition(const glm::ivec2& position) const
+{
+	SetPosition(position.x, position.y);
+}
+
+void leap::Window::SetPosition(int x, int y) const
+{
+	glfwSetWindowPos(m_pWindow, x, y);
+}
+
+void leap::Window::SetAspectRatio(const glm::ivec2& size) const
+{
+	SetAspectRatio(size.x, size.y);
+}
+
+void leap::Window::SetAspectRatio(int x, int y) const
+{
+	glfwSetWindowAspectRatio(m_pWindow, x, y);
+}
+
+void leap::Window::SetMinimumSize(const glm::ivec2& size) const
+{
+	SetMinimumSize(size.x, size.y);
+}
+
+void leap::Window::SetMinimumSize(int x, int y) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, x, y, GLFW_DONT_CARE, GLFW_DONT_CARE);
+}
+
+void leap::Window::SetMaximumSize(const glm::ivec2& size) const
+{
+	SetMaximumSize(size.x, size.y);
+}
+
+void leap::Window::SetMaximumSize(int x, int y) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, x, y);
+}
+
+void leap::Window::SetLimitSize(const glm::ivec2& min, const glm::ivec2& max) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, min.x, min.y, max.x, max.y);
+}
+
+void leap::Window::SetLimitSize(int minX, int minY, const glm::ivec2& max) const
+{
+	SetLimitSize({ minX,minY }, max);
+}
+
+void leap::Window::SetLimitSize(const glm::ivec2& min, int maxX, int maxY) const
+{
+	SetLimitSize(min, { maxX, maxY });
+}
+
+void leap::Window::SetLimitSize(int minX, int minY, int maxX, int maxY) const
+{
+	SetLimitSize({ minX, minY }, { maxX, maxY });
+}
+
+void leap::Window::SetSize(const glm::ivec2& size) const
+{
+	SetSize(size.x, size.y);
+}
+
+void leap::Window::SetSize(int x, int y) const
+{
+	glfwSetWindowSize(m_pWindow, x, y);
+}
+
 void leap::Window::Update()
 {
 	if (!m_WindowSizeDirty) return;
@@ -51,7 +160,7 @@ leap::Window::Window(GLFWwindow* pWindow) : m_pWindow(pWindow)
 
 void leap::Window::window_size_callback(GLFWwindow*, int width, int height)
 {
-	if (width < FLT_EPSILON || height < FLT_EPSILON) return;
+	if (width < 1 || height < 1) return;
 
 	const auto self = GameContext::GetInstance().GetWindow();
 
