@@ -17,7 +17,10 @@ add_executable(UnnamedAdventureGame ${WIN32_EXECUTABLE}
 	"Components/WindowManager.cpp"
 	"Components/AudioTester.cpp"
 	"Components/SineWaveTerrain.cpp"
-)
+    "Components/PrintCollision.cpp"
+	"Components/ApplyForces.cpp" 
+	"Components/ColliderScaler.cpp" 
+	"Components/PrintVelocity.cpp")
 
 target_include_directories(
 	LeapEngine PUBLIC 
@@ -39,6 +42,11 @@ target_link_libraries(
 	EngineUtils)
 target_include_directories(UnnamedAdventureGame PUBLIC ${LeapEngineIncludeDir})
 target_link_libraries(UnnamedAdventureGame PUBLIC LeapEngine ${GLFW_LIBRARY_DIR})
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_include_directories(UnnamedAdventureGame PUBLIC ${VLD_INCLUDE_DIR})
+	target_link_libraries(UnnamedAdventureGame PUBLIC ${VLD_LIBRARY_DIR})
+endif()
 
 # Copies used for .exe
 add_custom_command(TARGET UnnamedAdventureGame PRE_LINK

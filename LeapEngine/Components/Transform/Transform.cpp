@@ -2,6 +2,8 @@
 
 #include "../../SceneGraph/GameObject.h"
 
+#include <Quaternion.h>
+
 #pragma region WorldTransform
 void leap::Transform::SetWorldPosition(const glm::vec3& position)
 {
@@ -29,13 +31,13 @@ void leap::Transform::SetWorldPosition(float x, float y, float z)
 }
 
 void leap::Transform::SetWorldRotation(const glm::vec3& rotation, bool degrees)
-{
-	SetWorldRotation(glm::quat{ degrees ? glm::radians(rotation) : rotation });
+{	
+	SetWorldRotation(rotation.x, rotation.y, rotation.z, degrees);
 }
 
 void leap::Transform::SetWorldRotation(float x, float y, float z, bool degrees)
 {
-	SetWorldRotation(glm::vec3{ x, y, z }, degrees);
+	SetWorldRotation(Quaternion::FromEuler(x, y, z, degrees));
 }
 
 void leap::Transform::SetWorldRotation(const glm::quat& rotation)
@@ -50,7 +52,7 @@ void leap::Transform::SetWorldRotation(const glm::quat& rotation)
 
 	// Apply the inverse transformation to the desired world position
 	m_LocalRotation = invParentWorldRotation * rotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	m_LocalRotationEuler = Quaternion::ToEuler(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -104,8 +106,8 @@ void leap::Transform::SetLocalPosition(float x, float y, float z)
 
 void leap::Transform::SetLocalRotation(const glm::vec3& rotation, bool degrees)
 {
-	m_LocalRotation = glm::quat{ degrees ? glm::radians(rotation) : rotation };
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	m_LocalRotation = Quaternion::FromEuler(rotation, degrees);
+	m_LocalRotationEuler = degrees ? glm::radians(rotation) : rotation;
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -119,7 +121,7 @@ void leap::Transform::SetLocalRotation(float x, float y, float z, bool degrees)
 void leap::Transform::SetLocalRotation(const glm::quat& rotation)
 {
 	m_LocalRotation = rotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	m_LocalRotationEuler = Quaternion::ToEuler(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -170,24 +172,18 @@ void leap::Transform::Translate(float xDelta, float yDelta, float zDelta)
 
 void leap::Transform::Rotate(const glm::vec3& rotationDelta, bool degrees)
 {
-	const glm::quat quaternionDelta{ degrees ? glm::radians(rotationDelta) : rotationDelta };
-
-	m_LocalRotation = quaternionDelta * m_LocalRotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
-
-	SetDirty(DirtyFlags::Rotation);
-	SetDirty(DirtyFlags::DirectionVectors);
+	Rotate(Quaternion::FromEuler(rotationDelta, degrees));
 }
 
 void leap::Transform::Rotate(float xDelta, float yDelta, float zDelta, bool degrees)
 {
-	Rotate(glm::vec3{ xDelta, yDelta, zDelta }, degrees);
+	Rotate(Quaternion::FromEuler(xDelta, yDelta, zDelta, degrees));
 }
 
 void leap::Transform::Rotate(const glm::quat& rotationDelta)
 {
 	m_LocalRotation = rotationDelta * m_LocalRotation;
-	m_LocalRotationEuler = glm::eulerAngles(m_LocalRotation);
+	m_LocalRotationEuler = Quaternion::ToEuler(m_LocalRotation);
 
 	SetDirty(DirtyFlags::Rotation);
 	SetDirty(DirtyFlags::DirectionVectors);
@@ -363,7 +359,7 @@ void leap::Transform::UpdateRotation()
 
 	// Calculate world rotation
 	m_WorldRotation = parentWorldRotation * m_LocalRotation;
-	m_WorldRotationEuler = glm::eulerAngles(m_WorldRotation);
+	m_WorldRotationEuler = Quaternion::ToEuler(m_WorldRotation);
 
 	// Disable the rotation dirty flag
 	m_IsDirty &= ~static_cast<unsigned int>(DirtyFlags::Rotation);
@@ -414,6 +410,20 @@ void leap::Transform::SetDirty(DirtyFlags flag)
 		pChild->SetDirty(DirtyFlags::Rotation);
 		pChild->SetDirty(DirtyFlags::Scale);
 		pChild->SetDirty(DirtyFlags::Translation);
+		pChild->SetDirty(DirtyFlags::DirectionVectors);
+	}
+
+	switch (flag)
+	{
+	case DirtyFlags::Translation:
+		OnPositionChanged.Notify();
+		break;
+	case DirtyFlags::Rotation:
+		OnRotationChanged.Notify();
+		break;
+	case DirtyFlags::Scale:
+		OnScaleChanged.Notify();
+		break;
 	}
 }
 
@@ -439,5 +449,5 @@ void leap::Transform::KeepWorldTransform(GameObject* pParent)
 	// Calculate the new local positions that keep the world space transform depending on the given parent 
 	SetLocalPosition(inverseParentRotation * (inverseParentScale * (worldPosition - parentPosition)));
 	SetLocalRotation(deltaRotation * worldRotation);
-	SetLocalRotation(worldScale * inverseParentScale);
+	SetLocalScale(worldScale * inverseParentScale);
 }

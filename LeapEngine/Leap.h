@@ -25,6 +25,5 @@ namespace leap
 
 	private:
 		GLFWwindow* m_pWindow{};
-		leap::graphics::IRenderer* m_pRenderer{};
 	};
 }

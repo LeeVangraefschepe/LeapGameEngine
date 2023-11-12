@@ -57,7 +57,7 @@ void unag::FreeCamMovement::Start()
 			const auto deltaTime = leap::GameContext::GetInstance().GetTimer()->GetDeltaTime();
 			constexpr float mouseSpeed = 15.f;
 
-			GetTransform()->Rotate(mouseDelta.y * deltaTime * mouseSpeed, mouseDelta.x * deltaTime * mouseSpeed, 0.0f);
+			GetTransform()->Rotate(mouseDelta.y * deltaTime * mouseSpeed, 0.0f, 0.0f);
 			GetGameObject()->GetParent()->GetTransform()->Rotate(0.0f, mouseDelta.x * deltaTime * mouseSpeed, 0.0f);
 		});
 	mouse->AddCommand(command.get(), leap::input::InputManager::InputType::EventRepeat, leap::input::Mouse::Button::LeftButton);

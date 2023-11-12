@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+
 #include "GameObject.h"
 
 namespace leap
@@ -30,6 +31,6 @@ namespace leap
 		void OnGUI() const;
 		void OnFrameEnd() const;
 
-		std::unique_ptr<GameObject> m_RootObject;
+		std::unique_ptr<GameObject> m_pRootObject{};
 	};
 }

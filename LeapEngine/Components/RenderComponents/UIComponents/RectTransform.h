@@ -11,7 +11,7 @@ namespace leap
 {
 	class CanvasComponent;
 
-	class RectTransform final : public Component, Observer<glm::vec2>
+	class RectTransform final : public Component, TObserver<glm::vec2>
 	{
 	public:
 		RectTransform() = default;

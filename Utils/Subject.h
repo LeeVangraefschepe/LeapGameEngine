@@ -7,7 +7,6 @@
 
 namespace leap
 {
-	template <class T>
 	class Subject
 	{
 	public:
@@ -20,22 +19,70 @@ namespace leap
 			}
 		}
 
-		void AddListener(Observer<T>* observer)
+		void AddListener(Observer* observer)
 		{
 			m_Observers.push_back(observer);
 		}
-		void AddListener(const std::function<void(const T&)>& callback)
+		void AddListener(void(*pCallback)())
 		{
-			m_Functions.push_back(callback);
+			m_Functions.push_back(pCallback);
 		}
-		void RemoveListener(Observer<T>* observer)
+		void RemoveListener(Observer* observer)
 		{
 			const auto& it{ std::find(begin(m_Observers), end(m_Observers), observer) };
 			if (it != end(m_Observers)) m_Observers.erase(it);
 		}
-		void RemoveListener(const std::function<void(const T&)>& callback)
+		void RemoveListener(void(*pCallback)())
 		{
-			const auto& it{ std::find(begin(m_Functions), end(m_Functions), callback) };
+			const auto& it{ std::find(begin(m_Functions), end(m_Functions), pCallback) };
+			if (it != end(m_Functions)) m_Functions.erase(it);
+		}
+
+		void Notify()
+		{
+			for (const auto& observer : m_Observers)
+			{
+				observer->Notify();
+			}
+			for (const auto& function : m_Functions)
+			{
+				function();
+			}
+		}
+	private:
+		std::vector<Observer*> m_Observers{};
+		std::vector<void(*)()> m_Functions{};
+	};
+
+	template <class T>
+	class TSubject
+	{
+	public:
+		TSubject() = default;
+		~TSubject()
+		{
+			for (auto& observer : m_Observers)
+			{
+				observer->OnSubjectDestroy();
+			}
+		}
+
+		void AddListener(TObserver<T>* observer)
+		{
+			m_Observers.push_back(observer);
+		}
+		void AddListener(void(*pCallback)(const T&))
+		{
+			m_Functions.push_back(pCallback);
+		}
+		void RemoveListener(TObserver<T>* observer)
+		{
+			const auto& it{ std::find(begin(m_Observers), end(m_Observers), observer) };
+			if (it != end(m_Observers)) m_Observers.erase(it);
+		}
+		void RemoveListener(void(*pCallback)(const T&))
+		{
+			const auto& it{ std::find(begin(m_Functions), end(m_Functions), pCallback) };
 			if (it != end(m_Functions)) m_Functions.erase(it);
 		}
 
@@ -51,7 +98,7 @@ namespace leap
 			}
 		}
 	private:
-		std::vector<Observer<T>*> m_Observers{};
-		std::vector<std::function<void(const T&)>> m_Functions{};
+		std::vector<TObserver<T>*> m_Observers{};
+		std::vector<void(*)(const T&)> m_Functions{};
 	};
 }

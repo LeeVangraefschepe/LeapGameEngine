@@ -29,6 +29,8 @@
 #include "../ImGui/imgui_impl_glfw.h"
 #include "imgui_impl_dx11.h"
 
+#include "../Data/CustomMesh.h"
+
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 	Debug::Log("DirectXRenderer Log: Created DirectX engine");
@@ -46,6 +48,10 @@ void leap::graphics::DirectXEngine::Initialize()
 
 	Debug::Log("DirectXRenderer Log: Creating default material with ID \"Default\"");
 	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default");
+
+	Debug::Log("DirectXRenderer Log: Creating debug renderer");
+	m_pDebugRenderer = CreateMeshRenderer();
+	m_pDebugRenderer->SetIsLineRenderer(true);
 
 	m_IsInitialized = true;
 	Debug::Log("DirectXRenderer Log: Successfully initialized DirectX engine");
@@ -150,6 +156,18 @@ leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(int width
 	m_pUniqueTextures.emplace_back(std::move(pTexture));
 
 	return pTextureRaw;
+}
+
+void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines)
+{
+	unsigned int index{ static_cast<unsigned int>(m_DebugDrawings.GetIndexBuffer().size()) };
+	for (const auto& line : lines)
+	{
+		m_DebugDrawings.AddVertex(line.first);
+		m_DebugDrawings.AddVertex(line.second);
+		m_DebugDrawings.AddIndex(index++);
+		m_DebugDrawings.AddIndex(index++);
+	}
 }
 
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
@@ -342,6 +360,12 @@ void leap::graphics::DirectXEngine::Draw()
 
 	if (m_pCamera)
 	{
+		if (!m_DebugDrawings.GetIndexBuffer().empty())
+		{
+			m_pDebugRenderer->LoadMesh(m_DebugDrawings);
+			m_DebugDrawings.Clear();
+		}
+
 		RenderCameraView();
 	}
 	else

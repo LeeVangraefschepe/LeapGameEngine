@@ -28,6 +28,14 @@ const leap::graphics::DirectXMeshLoader::DirectXMeshDefinition& leap::graphics::
 	return m_CustomMeshes[m_CustomMeshes.size() - 1];
 }
 
+void leap::graphics::DirectXMeshLoader::RemoveCustomMesh(ID3D11Buffer* pVertexBuffer)
+{
+	auto meshIt{ std::find_if(begin(m_CustomMeshes), end(m_CustomMeshes), [pVertexBuffer](const auto& mesh) { return mesh.vertexBuffer == pVertexBuffer; }) };
+	meshIt->vertexBuffer->Release();
+	meshIt->indexBuffer->Release();
+	m_CustomMeshes.erase(meshIt);
+}
+
 void leap::graphics::DirectXMeshLoader::Reload(ID3D11Device* pDevice)
 {
 	for (auto& mesh : m_Meshes)

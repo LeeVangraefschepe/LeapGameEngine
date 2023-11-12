@@ -13,7 +13,7 @@ namespace leap
 		class Camera;
 	}
 
-	class CameraComponent final : public Component, Observer<glm::ivec2>
+	class CameraComponent final : public Component, TObserver<glm::ivec2>
 	{
 	public:
 		CameraComponent();

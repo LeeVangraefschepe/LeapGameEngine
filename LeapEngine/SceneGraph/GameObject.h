@@ -10,6 +10,8 @@ namespace leap
 {
 	class Transform;
 	class Scene;
+	class Collider;
+	class PhysicsSync;
 
 	class GameObject final
 	{
@@ -59,6 +61,7 @@ namespace leap
 		Transform* GetTransform() const;
 	private:
 		friend Scene;
+		friend PhysicsSync;
 
 		void OnEnable() const;
 		void OnDisable() const;
@@ -67,6 +70,12 @@ namespace leap
 		void LateUpdate() const;
 		void OnGUI() const;
 		void OnDestroy() const;
+		void OnCollisionEnter(Collider* pCollider, Collider* pOther) const;
+		void OnCollisionStay(Collider* pCollider, Collider* pOther) const;
+		void OnCollisionExit(Collider* pCollider, Collider* pOther) const;
+		void OnTriggerEnter(Collider* pCollider, Collider* pOther) const;
+		void OnTriggerStay(Collider* pCollider, Collider* pOther) const;
+		void OnTriggerExit(Collider* pCollider, Collider* pOther) const;
 
 		const char* GetRawName() const { return m_Name; };
 
@@ -173,7 +182,7 @@ namespace leap
 
 		for (const auto& pComponent : m_pComponents)
 		{
-			if (dynamic_cast<T*>(pComponent.get()) != nullptr) pComponents.emplace_back(pComponent.get());
+			if (dynamic_cast<T*>(pComponent.get()) != nullptr) pComponents.emplace_back(static_cast<T*>(pComponent.get()));
 		}
 
 		return pComponents;

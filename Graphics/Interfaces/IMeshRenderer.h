@@ -21,5 +21,6 @@ namespace leap::graphics
 		virtual void SetTransform(const glm::mat4x4& transform) = 0;
 		virtual void LoadMesh(const std::string& filePath) = 0;
 		virtual void LoadMesh(const CustomMesh& mesh) = 0;
+		virtual void SetIsLineRenderer(bool isLineRenderer) = 0;
 	};
 }

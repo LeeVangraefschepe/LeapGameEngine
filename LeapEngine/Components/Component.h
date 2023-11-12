@@ -4,6 +4,7 @@ namespace leap
 {
 	class GameObject;
 	class Transform;
+	class Collider;
 
 	class Component
 	{
@@ -35,6 +36,31 @@ namespace leap
 		virtual void LateUpdate() {}
 		virtual void OnGUI() {}
 		virtual void OnDestroy() {}
+
+		/// <summary>
+		/// The first parameter is the collider linked to this component, the second parameter is the incoming collider.
+		/// </summary>
+		virtual void OnCollisionEnter(Collider* /*pCollider*/, Collider* /*pOther*/) {}
+		/// <summary>
+		/// The first parameter is the collider linked to this component, the second parameter is the incoming collider.
+		/// </summary>
+		virtual void OnCollisionStay(Collider* /*pCollider*/, Collider* /*pOther*/) {}
+		/// <summary>
+		/// The first parameter is the collider linked to this component, the second parameter is the incoming collider.
+		/// </summary>
+		virtual void OnCollisionExit(Collider* /*pCollider*/, Collider* /*pOther*/) {}
+		/// <summary>
+		/// The first parameter is the collider linked to this component, the second parameter is the incoming collider.
+		/// </summary>
+		virtual void OnTriggerEnter(Collider* /*pCollider*/, Collider* /*pOther*/) {}
+		/// <summary>
+		/// The first parameter is the collider linked to this component, the second parameter is the incoming collider.
+		/// </summary>
+		virtual void OnTriggerStay(Collider* /*pCollider*/, Collider* /*pOther*/) {}
+		/// <summary>
+		/// The first parameter is the collider linked to this component, the second parameter is the incoming collider.
+		/// </summary>
+		virtual void OnTriggerExit(Collider* /*pCollider*/, Collider* /*pOther*/) {}
 
 	private:
 		friend GameObject;

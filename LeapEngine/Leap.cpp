@@ -6,6 +6,7 @@
 #include "ServiceLocator/ServiceLocator.h"
 #include "FMOD/FmodAudioSystem.h"
 #include "DirectX/DirectXEngine.h"
+#include "PhysX/PhysXEngine.h"
 
 #include "Debug.h"
 #include <glfw3.h>
@@ -14,6 +15,8 @@
 #include "GameContext/Timer.h"
 #include "GameContext/Window.h"
 #include "SceneGraph/SceneManager.h"
+
+#include "Utils/PhysicsSync.h"
 
 leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 {
@@ -46,8 +49,10 @@ leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
     Debug::Log("LeapEngine Log: Registering default renderer (DirectX)");
     ServiceLocator::RegisterRenderer<graphics::DirectXEngine>(m_pWindow);
 
-    m_pRenderer = &ServiceLocator::GetRenderer();
-    m_pRenderer->Initialize();
+    Debug::Log("LeapEngine Log: Registering default physics (PhysX)");
+    ServiceLocator::RegisterPhysics<physics::PhysXEngine>();
+
+    ServiceLocator::GetRenderer().Initialize();
 
     // Set default icon
     Debug::Log("LeapEngine Log: Setting default window icon");
@@ -63,18 +68,27 @@ leap::LeapEngine::~LeapEngine()
 
 void leap::LeapEngine::Run(int desiredFPS)
 {
-    auto& input = input::InputManager::GetInstance();
-    auto& gameContext = GameContext::GetInstance();
+    auto& input{ input::InputManager::GetInstance() };
+    auto& gameContext{ GameContext::GetInstance() };
 
     Debug::Log("LeapEngine Log: Loading default scene");
     auto& sceneManager = SceneManager::GetInstance();
     const auto timer = gameContext.GetTimer();
     sceneManager.LoadScene(0);
 
-    const float frameTimeMs{ static_cast<float>(100) / static_cast<float>(desiredFPS) };
+    const int frameTimeNs{ 1'000'000'000 / desiredFPS };
     float fixedTotalTime{};
 
-    auto& audio = ServiceLocator::GetAudio();
+    auto& audio{ ServiceLocator::GetAudio() };
+    auto& physics{ ServiceLocator::GetPhysics() };
+    physics.SetSyncFunc(PhysicsSync::SetTransform, PhysicsSync::GetTransform);
+    physics.OnCollisionEnter().AddListener(PhysicsSync::OnCollisionEnter);
+    physics.OnCollisionStay().AddListener(PhysicsSync::OnCollisionStay);
+    physics.OnCollisionExit().AddListener(PhysicsSync::OnCollisionExit);
+    physics.OnTriggerEnter().AddListener(PhysicsSync::OnTriggerEnter);
+    physics.OnTriggerStay().AddListener(PhysicsSync::OnTriggerStay);
+    physics.OnTriggerExit().AddListener(PhysicsSync::OnTriggerExit);
+    auto& renderer{ ServiceLocator::GetRenderer() };
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
@@ -94,6 +108,7 @@ void leap::LeapEngine::Run(int desiredFPS)
         {
             fixedTotalTime -= fixedInterval;
             sceneManager.FixedUpdate();
+            physics.Update(fixedInterval);
         }
 
         sceneManager.Update();
@@ -102,18 +117,22 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         sceneManager.LateUpdate();
 
-        m_pRenderer->GuiDraw();
+        renderer.GuiDraw();
         sceneManager.OnGUI();
         gameContext.OnGUI();
 
-        m_pRenderer->Draw();
+        renderer.DrawLines(physics.GetDebugDrawings());
+        renderer.Draw();
         glfwSwapBuffers(m_pWindow);
 
         sceneManager.OnFrameEnd();
 
-        //Sleep to sync back with desired fps
-        const auto sleepTimeMs = frameTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
+        // Wait to sync back with desired fps
+        long long curFrameTimeNs{};
+        do
+        {
+            curFrameTimeNs = (std::chrono::high_resolution_clock::now() - currentTime).count();
+        } while (frameTimeNs - curFrameTimeNs > 0);
     }
 
     sceneManager.UnloadScene();

@@ -34,6 +34,8 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pDevice);
 	if (!m_pVertexBuffer || !m_pIndexBuffer)
 	{
+		if (m_IsLineRenderer) return;
+
 		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
 		pMaterial = defaults.GetMaterialError(m_pDevice);
 		defaults.GetMeshError(m_pDevice, vertexSize, pVertexBuffer, pIndexBuffer, nrIndices);
@@ -45,7 +47,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	pDXMaterial->SetWorldMatrix(m_Transform);
 
 	// Set primitive topology
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pDeviceContext->IASetPrimitiveTopology(m_IsLineRenderer ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set input layout
 	m_pDeviceContext->IASetInputLayout(pDXMaterial->GetInputLayout());
@@ -93,6 +95,12 @@ void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
 
 	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh(filePath, m_pDevice) };
 
+	if (m_HasCustomMesh)
+	{
+		DirectXMeshLoader::GetInstance().RemoveCustomMesh(m_pVertexBuffer);
+	}
+
+	m_HasCustomMesh = false;
 	m_VertexSize = mesh.vertexSize;
 	m_pVertexBuffer = mesh.vertexBuffer;
 	m_pIndexBuffer = mesh.indexBuffer;
@@ -103,10 +111,21 @@ void leap::graphics::DirectXMeshRenderer::LoadMesh(const CustomMesh& mesh)
 {
 	const DirectXMeshLoader::DirectXMeshDefinition& directXMesh{ DirectXMeshLoader::GetInstance().LoadMesh(mesh, m_pDevice) };
 
+	if (m_HasCustomMesh)
+	{
+		DirectXMeshLoader::GetInstance().RemoveCustomMesh(m_pVertexBuffer);
+	}
+
+	m_HasCustomMesh = true;
 	m_VertexSize = directXMesh.vertexSize;
 	m_pVertexBuffer = directXMesh.vertexBuffer;
 	m_pIndexBuffer = directXMesh.indexBuffer;
 	m_NrIndices = directXMesh.nrIndices;
+}
+
+void leap::graphics::DirectXMeshRenderer::SetIsLineRenderer(bool isLineRenderer)
+{
+	m_IsLineRenderer = isLineRenderer;
 }
 
 void leap::graphics::DirectXMeshRenderer::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
