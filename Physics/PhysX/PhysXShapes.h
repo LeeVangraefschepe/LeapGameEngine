@@ -16,14 +16,14 @@ namespace leap::physics
 	{
 	public:
 		IPhysXShape() = default;
-		virtual ~IPhysXShape() = default;
+		virtual ~IPhysXShape();
 
 		IPhysXShape(const IPhysXShape& other) = delete;
 		IPhysXShape(IPhysXShape&& other) = delete;
 		IPhysXShape& operator=(const IPhysXShape& other) = delete;
 		IPhysXShape& operator=(IPhysXShape&& other) = delete;
 
-		virtual physx::PxShape& GetShape() = 0;
+		physx::PxShape& GetShape();
 		virtual void SetTrigger(bool isTrigger) override;
 
 	protected:
@@ -34,9 +34,7 @@ namespace leap::physics
 	{
 	public:
 		PhysXBoxShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial);
-		virtual ~PhysXBoxShape();
-
-		virtual physx::PxShape& GetShape() override;
+		virtual ~PhysXBoxShape() = default;
 
 		virtual void SetSize(const glm::vec3& size) override;
 		virtual void SetRadius(float radius) override;
@@ -50,9 +48,7 @@ namespace leap::physics
 	{
 	public:
 		PhysXSphereShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial);
-		virtual ~PhysXSphereShape();
-
-		virtual physx::PxShape& GetShape() override;
+		virtual ~PhysXSphereShape() = default;
 
 		virtual void SetSize(const glm::vec3& size) override;
 		virtual void SetRadius(float radius) override;
@@ -66,9 +62,7 @@ namespace leap::physics
 	{
 	public:
 		PhysXCapsuleShape(PhysXEngine* pEngine, void* pOwner, PhysXMaterial* pMaterial);
-		virtual ~PhysXCapsuleShape();
-
-		virtual physx::PxShape& GetShape() override;
+		virtual ~PhysXCapsuleShape() = default;
 
 		virtual void SetSize(const glm::vec3& size) override;
 		virtual void SetRadius(float radius) override;

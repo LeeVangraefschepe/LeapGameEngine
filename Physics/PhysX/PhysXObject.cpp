@@ -5,14 +5,11 @@
 #include "PhysXScene.h"
 
 #include "../Data/Rigidbody.h"
-#include "../Data/ForceMode.h"
 
 #include <PxPhysics.h>
 #include <PxRigidActor.h>
 #include <PxRigidStatic.h>
 #include <PxRigidDynamic.h>
-#include <PxRigidActor.h>
-#include <PxScene.h>
 #include <extensions/PxRigidBodyExt.h>
 
 leap::physics::PhysXObject::PhysXObject(void* pOwner)
@@ -36,11 +33,11 @@ void leap::physics::PhysXObject::Update(PhysXEngine* pEngine, IPhysicsScene* pSc
 	if (!IsValid()) static_cast<PhysXScene*>(pScene)->RemoveActor(m_pActor);
 }
 
-void leap::physics::PhysXObject::Apply(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc)
+void leap::physics::PhysXObject::Apply(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc) const
 {
 	if (m_pRigidbody == nullptr)
 	{
-		auto transformPair{ getFunc(m_pOwner) };
+		const auto transformPair{ getFunc(m_pOwner) };
 
 		const physx::PxVec3 position{ transformPair.first.x, transformPair.first.y, transformPair.first.z };
 		const physx::PxQuat rotation{ transformPair.second.x, transformPair.second.y, transformPair.second.z, transformPair.second.w };

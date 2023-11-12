@@ -2,8 +2,6 @@
 
 #include "../Interfaces/IPhysicsObject.h"
 
-#include <Subject.h>
-
 #include <vector>
 #include <functional>
 #include <memory>
@@ -31,7 +29,7 @@ namespace leap::physics
 		virtual ~PhysXObject();
 
 		void Update(PhysXEngine* pEngine, IPhysicsScene* pScene);
-		void Apply(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc);
+		void Apply(const std::function<void(void*, const glm::vec3&, const glm::quat&)>& setFunc, const std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> getFunc) const;
 
 		virtual void AddShape(IShape* pShape) override;
 		virtual void RemoveShape(IShape* pShape) override;

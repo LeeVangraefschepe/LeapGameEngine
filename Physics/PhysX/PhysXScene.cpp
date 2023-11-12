@@ -35,21 +35,19 @@ std::vector<std::pair<glm::vec3, glm::vec3>> leap::physics::PhysXScene::GetDebug
 	for (physx::PxU32 i = 0; i < rb.getNbLines(); i++)
 	{
 		const physx::PxDebugLine& line = pLines[i];
-		debugDrawings.emplace_back(std::make_pair(
-			glm::vec3{ line.pos0.x, line.pos0.y, line.pos0.z },
-			glm::vec3{ line.pos1.x, line.pos1.y, line.pos1.z }
-		));
+		debugDrawings.emplace_back(glm::vec3{ line.pos0.x, line.pos0.y, line.pos0.z },
+								   glm::vec3{ line.pos1.x, line.pos1.y, line.pos1.z });
 	}
 
 	return debugDrawings;
 }
 
-void leap::physics::PhysXScene::AddActor(physx::PxRigidActor* pActor)
+void leap::physics::PhysXScene::AddActor(physx::PxRigidActor* pActor) const
 {
 	m_pScene->addActor(*pActor);
 }
 
-void leap::physics::PhysXScene::RemoveActor(physx::PxRigidActor* pActor)
+void leap::physics::PhysXScene::RemoveActor(physx::PxRigidActor* pActor) const
 {
 	m_pScene->removeActor(*pActor);
 }

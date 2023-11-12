@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Interfaces/IPhysics.h"
-#include "../Interfaces/IPhysicsObject.h"
 #include "../Interfaces/IShape.h"
 
 #include "PhysXSimulationFilterCallback.h"
@@ -29,6 +28,7 @@ namespace physx
 namespace leap::physics
 {
 	class IPhysicsScene;
+	class IPhysicsMaterial;
 	class PhysXObject;
 	class PhysXSimulationCallbacks;
 

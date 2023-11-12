@@ -1,9 +1,5 @@
 #include "PhysXSimulationCallbacks.h"
 
-#include <Debug.h>
-#include <thread>
-#include <iostream>
-
 void leap::physics::PhysXSimulationCallbacks::onConstraintBreak(physx::PxConstraintInfo* /*constraints*/, physx::PxU32 /*count*/)
 {
 }

@@ -71,7 +71,7 @@ namespace leap::physics
 		const glm::vec3& GetTranslation() const { return m_Translation; }
 		const glm::quat& GetRotation() const { return m_Rotation; }
 		const glm::quat& GetRotationDelta() const { return m_RotationDelta; }
-		const std::vector<Constraint> GetConstraints() { return m_Constraints; }
+		const std::vector<Constraint>& GetConstraints() { return m_Constraints; }
 
 		const glm::vec3& GetVelocityFromEngine();
 		const glm::vec3& GetAngularVelocityFromEngine();

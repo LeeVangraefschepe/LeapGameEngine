@@ -25,8 +25,8 @@ namespace leap::physics
 		virtual void SetEnabledDebugDrawing(bool isEnabled) override;
 		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() override;
 
-		void AddActor(physx::PxRigidActor* pActor);
-		void RemoveActor(physx::PxRigidActor* pActor);
+		void AddActor(physx::PxRigidActor* pActor) const;
+		void RemoveActor(physx::PxRigidActor* pActor) const;
 
 	private:
 		physx::PxScene* m_pScene{};

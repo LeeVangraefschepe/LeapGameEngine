@@ -15,16 +15,6 @@ leap::physics::PhysXBoxShape::PhysXBoxShape(PhysXEngine* pEngine, void* pOwner, 
 	m_pShape->userData = pOwner;
 }
 
-leap::physics::PhysXBoxShape::~PhysXBoxShape()
-{
-	m_pShape->release();
-}
-
-physx::PxShape& leap::physics::PhysXBoxShape::GetShape()
-{
-	return *m_pShape;
-}
-
 void leap::physics::PhysXBoxShape::SetSize(const glm::vec3& size)
 {
 	m_pShape->setGeometry(physx::PxBoxGeometry{ size.x / 2.0f, size.y / 2.0f, size.z / 2.0f });
@@ -59,16 +49,6 @@ leap::physics::PhysXSphereShape::PhysXSphereShape(PhysXEngine* pEngine, void* pO
 
 	m_pShape = pEngine->GetPhysics()->createShape(geo, pMaterial->GetInternalMaterial(), true);
 	m_pShape->userData = pOwner;
-}
-
-leap::physics::PhysXSphereShape::~PhysXSphereShape()
-{
-	m_pShape->release();
-}
-
-physx::PxShape& leap::physics::PhysXSphereShape::GetShape()
-{
-	return *m_pShape;
 }
 
 void leap::physics::PhysXSphereShape::SetRadius(float radius)
@@ -106,16 +86,6 @@ leap::physics::PhysXCapsuleShape::PhysXCapsuleShape(PhysXEngine* pEngine, void* 
 	m_pShape->userData = pOwner;
 }
 
-leap::physics::PhysXCapsuleShape::~PhysXCapsuleShape()
-{
-	m_pShape->release();
-}
-
-physx::PxShape& leap::physics::PhysXCapsuleShape::GetShape()
-{
-	return *m_pShape;
-}
-
 void leap::physics::PhysXCapsuleShape::SetSize(const glm::vec3& size)
 {
 	m_pShape->setGeometry(physx::PxCapsuleGeometry{ m_pShape->getGeometry().capsule().radius, size.y / 2.0f });
@@ -142,6 +112,16 @@ glm::vec3 leap::physics::PhysXCapsuleShape::GetRelativePosition()
 {
 	const physx::PxVec3 localPose{ m_pShape->getLocalPose().p };
 	return glm::vec3{ localPose.x, localPose.y, localPose.z };
+}
+
+leap::physics::IPhysXShape::~IPhysXShape()
+{
+	m_pShape->release();
+}
+
+physx::PxShape& leap::physics::IPhysXShape::GetShape()
+{
+	return *m_pShape;
 }
 
 void leap::physics::IPhysXShape::SetTrigger(bool isTrigger)

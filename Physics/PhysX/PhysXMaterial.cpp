@@ -4,8 +4,6 @@
 #include <PxPhysics.h>
 #include <PxMaterial.h>
 
-#include <Debug.h>
-
 leap::physics::PhysXMaterial::PhysXMaterial(PhysXEngine* pEngine)
 	: m_pMaterial{ pEngine->GetPhysics()->createMaterial(0.6f, 0.6f, 0.0f) }
 {
