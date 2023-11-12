@@ -75,17 +75,42 @@ void leap::Window::RequireAttention() const
 
 void leap::Window::SetPosition(const glm::ivec2& position) const
 {
-	glfwSetWindowPos(m_pWindow, position.x, position.y);
+	SetPosition(position.x, position.y);
+}
+
+void leap::Window::SetPosition(int x, int y) const
+{
+	glfwSetWindowPos(m_pWindow, x, y);
 }
 
 void leap::Window::SetAspectRatio(const glm::ivec2& size) const
 {
-	glfwSetWindowAspectRatio(m_pWindow, size.x, size.y);
+	SetAspectRatio(size.x, size.y);
+}
+
+void leap::Window::SetAspectRatio(int x, int y) const
+{
+	glfwSetWindowAspectRatio(m_pWindow, x, y);
 }
 
 void leap::Window::SetMinimumSize(const glm::ivec2& size) const
 {
-	glfwSetWindowSizeLimits(m_pWindow, size.x, size.y, GLFW_DONT_CARE, GLFW_DONT_CARE);
+	SetMinimumSize(size.x, size.y);
+}
+
+void leap::Window::SetMinimumSize(int x, int y) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, x, y, GLFW_DONT_CARE, GLFW_DONT_CARE);
+}
+
+void leap::Window::SetMaximumSize(const glm::ivec2& size) const
+{
+	SetMaximumSize(size.x, size.y);
+}
+
+void leap::Window::SetMaximumSize(int x, int y) const
+{
+	glfwSetWindowSizeLimits(m_pWindow, GLFW_DONT_CARE, GLFW_DONT_CARE, x, y);
 }
 
 void leap::Window::SetLimitSize(const glm::ivec2& min, const glm::ivec2& max) const
@@ -93,9 +118,29 @@ void leap::Window::SetLimitSize(const glm::ivec2& min, const glm::ivec2& max) co
 	glfwSetWindowSizeLimits(m_pWindow, min.x, min.y, max.x, max.y);
 }
 
+void leap::Window::SetLimitSize(int minX, int minY, const glm::ivec2& max) const
+{
+	SetLimitSize({ minX,minY }, max);
+}
+
+void leap::Window::SetLimitSize(const glm::ivec2& min, int maxX, int maxY) const
+{
+	SetLimitSize(min, { maxX, maxY });
+}
+
+void leap::Window::SetLimitSize(int minX, int minY, int maxX, int maxY) const
+{
+	SetLimitSize({ minX, minY }, { maxX, maxY });
+}
+
 void leap::Window::SetSize(const glm::ivec2& size) const
 {
-	glfwSetWindowSize(m_pWindow, size.x, size.y);
+	SetSize(size.x, size.y);
+}
+
+void leap::Window::SetSize(int x, int y) const
+{
+	glfwSetWindowSize(m_pWindow, x, y);
 }
 
 void leap::Window::Update()

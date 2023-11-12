@@ -27,13 +27,30 @@ namespace leap
 		void SetMinimized(bool value) const;
 		void SetHidden(bool value) const;
 		void RequireAttention() const;
+
 		void SetPosition(const glm::ivec2& position) const;
+		void SetPosition(int x, int y) const;
+
 		void SetAspectRatio(const glm::ivec2& size) const;
+		void SetAspectRatio(int x, int y) const;
 
 		// Warning this function overrides everything the SetLimitSize does.
 		void SetMinimumSize(const glm::ivec2& size) const;
+		// Warning this function overrides everything the SetLimitSize does.
+		void SetMinimumSize(int x, int y) const;
+
+		// Warning this function overrides everything the SetLimitSize does.
+		void SetMaximumSize(const glm::ivec2& size) const;
+		// Warning this function overrides everything the SetLimitSize does.
+		void SetMaximumSize(int x, int y) const;
+
 		void SetLimitSize(const glm::ivec2& min, const glm::ivec2& max) const;
+		void SetLimitSize(int minX, int minY, const glm::ivec2& max) const;
+		void SetLimitSize(const glm::ivec2& min, int maxX, int maxY) const;
+		void SetLimitSize(int minX, int minY, int maxX, int maxY) const;
+
 		void SetSize(const glm::ivec2& size) const;
+		void SetSize(int x, int y) const;
 
 	private:
 		friend class GameContext;
