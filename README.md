@@ -1,9 +1,9 @@
-[![Build Status](https://github.com/LeeVangraefschepe/LeapEngine/actions/workflows/cmake.yml/badge.svg)](#)
-[![GitHub Release](https://img.shields.io/github/v/release/LeeVangraefschepe/LeapEngine?logo=github&sort=semver)](#)
-<a href="#"><img alt="ViewCount" src="https://views.whatilearened.today/views/github/LeeVangraefschepe/LeapEngine.svg"></a>
+[![Build Status](https://github.com/LeeVangraefschepe/LeapGameEngine/actions/workflows/cmake.yml/badge.svg)](#)
+[![GitHub Release](https://img.shields.io/github/v/release/LeeVangraefschepe/LeapGameEngine?logo=github&sort=semver)](#)
+<a href="#"><img alt="ViewCount" src="https://views.whatilearened.today/views/github/LeeVangraefschepe/LeapGameEngine"></a>
 
 ## Introduction
-Leap Engine is an open-source 3D component-based C++20 game engine.  
+Leap Game Engine is an open-source 3D component-based C++20 game engine.  
 Everyone is free to send us pull-requests with new features!
 
 The engine is founded by two people:
