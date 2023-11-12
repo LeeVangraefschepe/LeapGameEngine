@@ -131,4 +131,6 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
+
+	leap::GameContext::GetInstance().GetWindow()->SetResize(false);
 }

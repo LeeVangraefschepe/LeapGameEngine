@@ -15,6 +15,12 @@ void leap::input::Mouse::SetButtonBuffer(int size)
 	m_pressedButtons.resize(size, static_cast<Button>(-1));
 }
 
+void leap::input::Mouse::Hide(bool value) const
+{
+	if (value) glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	else glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
 void leap::input::Mouse::AddCommand(Command* command, InputManager::InputType type, Button button)
 {
 	if (!m_mouseCommands.contains(type))

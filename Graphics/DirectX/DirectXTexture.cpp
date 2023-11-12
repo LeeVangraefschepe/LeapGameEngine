@@ -11,13 +11,13 @@
 #include "Debug.h"
 
 leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, int width, int height)
-	: m_pDeviceContext{ pDeviceContext }
+	: m_pDeviceContext{ pDeviceContext }, m_pDevice{pDevice}
 {
 	LoadTexture(pDevice, width, height);
 }
 
 leap::graphics::DirectXTexture::DirectXTexture(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& path)
-	: m_pDeviceContext{ pDeviceContext }
+	: m_pDeviceContext{ pDeviceContext }, m_pDevice{ pDevice }
 {
 	LoadTexture(pDevice, path);
 }
@@ -33,6 +33,40 @@ void leap::graphics::DirectXTexture::SetData(void* pData, unsigned int nrBytes)
 	m_pDeviceContext->UpdateSubresource(m_pResource, 0, nullptr, pData, nrBytes / GetSize().x, nrBytes);
 }
 
+std::vector<unsigned char> leap::graphics::DirectXTexture::GetData()
+{
+	D3D11_TEXTURE2D_DESC desc{};
+	m_pResource->GetDesc(&desc);
+	desc.Usage = D3D11_USAGE_STAGING;
+	desc.CPUAccessFlags |= D3D11_CPU_ACCESS_READ;
+	desc.BindFlags = 0;
+
+	ID3D11Texture2D* pStagingTexture{};
+	if (const HRESULT result{ m_pDevice->CreateTexture2D(&desc, nullptr, &pStagingTexture) }; FAILED(result) || !pStagingTexture)
+	{
+		Debug::LogError("DirectXEngine Error: Cannot create staging texture");
+		return std::vector<unsigned char>{};
+	}
+
+	m_pDeviceContext->CopyResource(pStagingTexture, m_pResource);
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource{};
+	if (const HRESULT result{ m_pDeviceContext->Map(pStagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource) }; FAILED(result))
+	{
+		Debug::LogError("DirectXEngine Error: Cannot map texture");
+	}
+
+	const unsigned int nrBytes{ mappedResource.DepthPitch };
+
+	std::vector<unsigned char> data(nrBytes);
+	memcpy(data.data(), mappedResource.pData, nrBytes);
+
+	m_pDeviceContext->Unmap(pStagingTexture, 0);
+	pStagingTexture->Release();
+
+	return data;
+}
+
 glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
 {
 	D3D11_TEXTURE2D_DESC desc{};
@@ -43,6 +77,7 @@ glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
 void leap::graphics::DirectXTexture::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& path)
 {
 	m_pDeviceContext = pDeviceContext;
+	m_pDevice = pDevice;
 
 	if (m_pResource) m_pResource->Release();
 	if (m_pSRV) m_pSRV->Release();
