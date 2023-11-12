@@ -4,6 +4,8 @@
 #include "../ServiceLocator/ServiceLocator.h"
 #include "Interfaces/IRenderer.h"
 #include "Interfaces/ITexture.h"
+#include <fstream>
+#include "Debug.h"
 
 const glm::ivec2& leap::Window::GetWindowSize() const
 {
@@ -156,6 +158,31 @@ leap::Window::Window(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 	glfwSetWindowSizeCallback(m_pWindow, window_size_callback);
 	glfwGetWindowSize(m_pWindow, &m_WindowSize.x, &m_WindowSize.y);
+
+	// Try and open binary default icon
+	if (std::ifstream file("Data/Engine/Images/logo.bin", std::ios::binary); file.is_open())
+	{
+		// Read size image
+		glm::ivec2 sizeImage;
+		file.read(reinterpret_cast<char*>(&sizeImage), sizeof(sizeImage));
+
+		// Read the size of the vector data the file
+		size_t size;
+		file.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+		// Read the vector data from the file
+		std::vector<unsigned char> data(size);
+		file.read(reinterpret_cast<char*>(data.data()), size * sizeof(unsigned char));
+
+		// Close the file
+		file.close();
+
+		// Apply data for application icon
+		GLFWimage images[1];
+		images[0] = GLFWimage{ sizeImage.x, sizeImage.y, data.data() };
+		glfwSetWindowIcon(m_pWindow, 1, images);
+	}
+	else Debug::LogWarning("Default icon (Data/Engine/Images/logo.bin) failed to open");
 }
 
 void leap::Window::window_size_callback(GLFWwindow*, int width, int height)
