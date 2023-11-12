@@ -52,8 +52,7 @@ leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
     Debug::Log("LeapEngine Log: Registering default physics (PhysX)");
     ServiceLocator::RegisterPhysics<physics::PhysXEngine>();
 
-    m_pRenderer = &ServiceLocator::GetRenderer();
-    m_pRenderer->Initialize();
+    ServiceLocator::GetRenderer().Initialize();
 
     // Set default icon
     Debug::Log("LeapEngine Log: Setting default window icon");
@@ -69,8 +68,8 @@ leap::LeapEngine::~LeapEngine()
 
 void leap::LeapEngine::Run(int desiredFPS)
 {
-    auto& input = input::InputManager::GetInstance();
-    auto& gameContext = GameContext::GetInstance();
+    auto& input{ input::InputManager::GetInstance() };
+    auto& gameContext{ GameContext::GetInstance() };
 
     Debug::Log("LeapEngine Log: Loading default scene");
     auto& sceneManager = SceneManager::GetInstance();
@@ -80,8 +79,8 @@ void leap::LeapEngine::Run(int desiredFPS)
     const int frameTimeNs{ 1'000'000'000 / desiredFPS };
     float fixedTotalTime{};
 
-    auto& audio = ServiceLocator::GetAudio();
-    auto& physics = ServiceLocator::GetPhysics();
+    auto& audio{ ServiceLocator::GetAudio() };
+    auto& physics{ ServiceLocator::GetPhysics() };
     physics.SetSyncFunc(PhysicsSync::SetTransform, PhysicsSync::GetTransform);
     physics.OnCollisionEnter().AddListener(PhysicsSync::OnCollisionEnter);
     physics.OnCollisionStay().AddListener(PhysicsSync::OnCollisionStay);
@@ -89,7 +88,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     physics.OnTriggerEnter().AddListener(PhysicsSync::OnTriggerEnter);
     physics.OnTriggerStay().AddListener(PhysicsSync::OnTriggerStay);
     physics.OnTriggerExit().AddListener(PhysicsSync::OnTriggerExit);
-    physics.SetEnabledDebugDrawing(true);
+    auto& renderer{ ServiceLocator::GetRenderer() };
 
     while (!glfwWindowShouldClose(m_pWindow))
     {
@@ -118,12 +117,12 @@ void leap::LeapEngine::Run(int desiredFPS)
 
         sceneManager.LateUpdate();
 
-        m_pRenderer->GuiDraw();
+        renderer.GuiDraw();
         sceneManager.OnGUI();
         gameContext.OnGUI();
 
-        m_pRenderer->DrawLines(physics.GetDebugDrawings());
-        m_pRenderer->Draw();
+        renderer.DrawLines(physics.GetDebugDrawings());
+        renderer.Draw();
         glfwSwapBuffers(m_pWindow);
 
         sceneManager.OnFrameEnd();
