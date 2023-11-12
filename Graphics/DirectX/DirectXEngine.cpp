@@ -363,7 +363,7 @@ void leap::graphics::DirectXEngine::Draw()
 		if (!m_DebugDrawings.GetIndexBuffer().empty())
 		{
 			m_pDebugRenderer->LoadMesh(m_DebugDrawings);
-			m_DebugDrawings = {}; // Reset debug renderer
+			m_DebugDrawings.Clear();
 		}
 
 		RenderCameraView();
