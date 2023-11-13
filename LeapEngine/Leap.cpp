@@ -18,7 +18,7 @@
 
 #include "Utils/PhysicsSync.h"
 
-leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
+leap::LeapEngine::LeapEngine(int width, int height, const char* title)
 {
     /* Initialize the library */
     if (!glfwInit())
@@ -26,7 +26,7 @@ leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
 
     /* Create a windowed mode window and its OpenGL context */
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    m_pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    m_pWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!m_pWindow)
     {
         glfwTerminate();
@@ -52,12 +52,6 @@ leap::LeapEngine::LeapEngine(int width, int height, const std::string& title)
     Debug::Log("LeapEngine Log: Registering default physics (PhysX)");
     ServiceLocator::RegisterPhysics<physics::PhysXEngine>();
 
-    ServiceLocator::GetRenderer().Initialize();
-
-    // Set default icon
-    Debug::Log("LeapEngine Log: Setting default window icon");
-    GameContext::GetInstance().GetWindow()->SetIcon("Data/Engine/Images/logo.png");
-
     Debug::Log("LeapEngine Log: Engine is successfully constructed");
 }
 
@@ -66,8 +60,13 @@ leap::LeapEngine::~LeapEngine()
     Debug::Log("LeapEngine Log: Engine destroyed");
 }
 
-void leap::LeapEngine::Run(int desiredFPS)
+void leap::LeapEngine::Run(const std::function<void()>& afterInitialize, int desiredFPS)
 {
+    auto& renderer{ ServiceLocator::GetRenderer() };
+    renderer.Initialize();
+
+    afterInitialize();
+
     auto& input{ input::InputManager::GetInstance() };
     auto& gameContext{ GameContext::GetInstance() };
 
@@ -88,7 +87,7 @@ void leap::LeapEngine::Run(int desiredFPS)
     physics.OnTriggerEnter().AddListener(PhysicsSync::OnTriggerEnter);
     physics.OnTriggerStay().AddListener(PhysicsSync::OnTriggerStay);
     physics.OnTriggerExit().AddListener(PhysicsSync::OnTriggerExit);
-    auto& renderer{ ServiceLocator::GetRenderer() };
+    
 
     while (!glfwWindowShouldClose(m_pWindow))
     {

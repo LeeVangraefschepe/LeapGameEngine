@@ -1,6 +1,5 @@
 #pragma once
-#include <memory>
-#include <string>
+#include <functional>
 
 class GLFWwindow;
 
@@ -14,14 +13,14 @@ namespace leap
 	class LeapEngine final
 	{
 	public:
-		LeapEngine(int width, int height, const std::string& title);
+		explicit LeapEngine(int width, int height, const char* title);
 		~LeapEngine();
 		LeapEngine(const LeapEngine& other) = delete;
 		LeapEngine(LeapEngine&& other) = delete;
 		LeapEngine& operator=(const LeapEngine& other) = delete;
 		LeapEngine& operator=(LeapEngine&& other) = delete;
 
-		void Run(int desiredFPS);
+		void Run(const std::function<void()>& afterInitialize, int desiredFPS);
 
 	private:
 		GLFWwindow* m_pWindow{};
