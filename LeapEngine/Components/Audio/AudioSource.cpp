@@ -123,9 +123,11 @@ bool leap::AudioSource::IsPlaying() const
 void leap::AudioSource::Awake()
 {
 	if (m_PlayOnAwake) Play();
+
+	GetTransform()->OnPositionChanged.AddListener(this);
 }
 
-void leap::AudioSource::Update()
+void leap::AudioSource::Notify()
 {
 	// Only update if there is a 3D sound playing
 	if (!IsPlaying() || !m_Is3DSound) return;
@@ -135,6 +137,8 @@ void leap::AudioSource::Update()
 
 void leap::AudioSource::OnDestroy()
 {
+	GetTransform()->OnPositionChanged.RemoveListener(this);
+
 	if (!IsPlaying()) return;
 
 	Stop();
