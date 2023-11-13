@@ -9,6 +9,10 @@
 #include "../../GameContext/GameContext.h"
 #include "../../GameContext/Window.h"
 
+#include <functional>
+
+#include <Debug.h>
+
 leap::CameraComponent::CameraComponent()
 {
 	const auto window = GameContext::GetInstance().GetWindow();
@@ -27,12 +31,28 @@ void leap::CameraComponent::Notify(const glm::ivec2& data)
 	m_pCamera->SetAspectRatio(data);
 }
 
+void leap::CameraComponent::Awake()
+{
+	GetTransform()->OnPositionChanged.AddListener(this);
+	GetTransform()->OnRotationChanged.AddListener(this);
+
+	UpdateTransform();
+}
+
 void leap::CameraComponent::OnDestroy()
 {
 	GameContext::GetInstance().GetWindow()->RemoveListener(this);
+
+	GetTransform()->OnPositionChanged.RemoveListener(this);
+	GetTransform()->OnRotationChanged.RemoveListener(this);
 }
 
-void leap::CameraComponent::LateUpdate()
+void leap::CameraComponent::Notify()
+{
+	UpdateTransform();
+}
+
+void leap::CameraComponent::UpdateTransform() const
 {
 	// Only update the internal camera data if the camera is currently active
 	if (ServiceLocator::GetRenderer().GetCamera() != m_pCamera.get()) return;

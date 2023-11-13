@@ -13,7 +13,7 @@ namespace leap
 		class Camera;
 	}
 
-	class CameraComponent final : public Component, TObserver<glm::ivec2>
+	class CameraComponent final : public Component, TObserver<glm::ivec2>, Observer
 	{
 	public:
 		CameraComponent();
@@ -29,11 +29,13 @@ namespace leap
 		void SetAsActiveCamera(bool active) const;
 		graphics::Camera* GetData() const { return m_pCamera.get(); }
 
-	protected:
-		virtual void OnDestroy() override;
-		virtual void LateUpdate() override;
-
 	private:
+		virtual void Awake() override;
+		virtual void OnDestroy() override;
+		virtual void Notify() override;
+
+		void UpdateTransform() const;
+
 		std::unique_ptr<graphics::Camera> m_pCamera{};
 	};
 }
