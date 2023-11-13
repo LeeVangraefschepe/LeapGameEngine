@@ -60,10 +60,12 @@ leap::LeapEngine::~LeapEngine()
     Debug::Log("LeapEngine Log: Engine destroyed");
 }
 
-void leap::LeapEngine::Run(int desiredFPS)
+void leap::LeapEngine::Run(const std::function<void()>& afterInitialize, int desiredFPS)
 {
     auto& renderer{ ServiceLocator::GetRenderer() };
     renderer.Initialize();
+
+    afterInitialize();
 
     auto& input{ input::InputManager::GetInstance() };
     auto& gameContext{ GameContext::GetInstance() };
