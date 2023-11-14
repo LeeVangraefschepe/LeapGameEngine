@@ -5,6 +5,7 @@
 #include "../Data/Vertex.h"
 
 #include "mat4x4.hpp"
+#include <Matrix.h>
 
 #include <vector>
 #include <memory>
@@ -50,7 +51,7 @@ namespace leap::graphics
 		ID3D11Device* m_pDevice{};
 		ID3D11DeviceContext* m_pDeviceContext{};
 
-		glm::mat4x4 m_Transform{ 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+		glm::mat4x4 m_Transform{ Matrix::Identity4x4() };
 
 		unsigned int m_VertexSize{};
 		ID3D11Buffer* m_pVertexBuffer{};

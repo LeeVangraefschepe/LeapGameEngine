@@ -5,6 +5,7 @@
 #include <Observer.h>
 
 #include <vec2.hpp>
+#include <Vector2.h>
 #include <vec3.hpp>
 
 namespace leap
@@ -55,7 +56,7 @@ namespace leap
 		glm::vec2 m_ReferenceSize{ 100.0f, 100.0f };
 		glm::vec2 m_Size{ 100.0f, 100.0f };
 
-		glm::vec2 m_ReferencePosition{ 0, 0 };
+		glm::vec2 m_ReferencePosition{ Vector2::Zero() };
 
 		float m_Depth{};
 	};

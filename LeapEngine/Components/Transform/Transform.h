@@ -7,6 +7,8 @@
 #pragma warning(disable: 4201)
 #include "gtc/quaternion.hpp"
 #pragma warning(default: 4201)
+#include <Vector3.h>
+#include <Quaternion.h>
 
 #include <Subject.h>
 
@@ -95,17 +97,17 @@ namespace leap
 		glm::vec3 m_LocalPosition{};
 		glm::vec3 m_WorldPosition{};
 
-		glm::quat m_LocalRotation{ 1.0, 0.0, 0.0, 0.0 };
+		glm::quat m_LocalRotation{ Quaternion::Identity() };
 		glm::vec3 m_LocalRotationEuler{};
-		glm::quat m_WorldRotation{ 1.0, 0.0, 0.0, 0.0 };
+		glm::quat m_WorldRotation{ Quaternion::Identity() };
 		glm::vec3 m_WorldRotationEuler{};
 
-		glm::vec3 m_LocalScale{ 1.0f, 1.0f, 1.0f };
-		glm::vec3 m_WorldScale{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_LocalScale{ Vector3::One() };
+		glm::vec3 m_WorldScale{ Vector3::One() };
 
-		glm::vec3 m_Forward{ 0.0f, 0.0f, 1.0f };
-		glm::vec3 m_Up{ 0.0f, 1.0f, 0.0f };
-		glm::vec3 m_Right{ 1.0f, 0.0f, 0.0f };
+		glm::vec3 m_Forward{ Vector3::Forward() };
+		glm::vec3 m_Up{ Vector3::Up() };
+		glm::vec3 m_Right{ Vector3::Right() };
 
 		unsigned int m_IsDirty{ static_cast<unsigned int>(DirtyFlags::Translation) | static_cast<unsigned int>(DirtyFlags::Rotation) | static_cast<unsigned int>(DirtyFlags::Scale) };
 	};
