@@ -1,5 +1,7 @@
 #include "Rigidbody.h"
 
+#include <Quaternion.h>
+
 leap::physics::Rigidbody::Rigidbody(const std::function<void()>& rigidbodyRequestFunc)
 	: m_UpdateRequestFunc{ rigidbodyRequestFunc }
 {
@@ -133,7 +135,7 @@ leap::physics::Rigidbody::RigidbodyFlag leap::physics::Rigidbody::GetDirtyFlag()
 void leap::physics::Rigidbody::ResetDirtyFlag()
 {
 	m_DirtyFlag = RigidbodyFlag::None;
-	m_RotationDelta = { 1.0f, 0.0f, 0.0f, 0.0f };
+	m_RotationDelta = Quaternion::Identity();
 	m_Translation = {};
 }
 
