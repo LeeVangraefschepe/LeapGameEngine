@@ -75,6 +75,7 @@ namespace leap::graphics
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) override;
+		virtual void DrawLine(const glm::vec3& start, const glm::vec3& end) override;
 
 	private:
 		void Release();
