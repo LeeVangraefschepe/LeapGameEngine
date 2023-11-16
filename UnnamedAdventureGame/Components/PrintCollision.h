@@ -17,6 +17,8 @@ namespace unag
 		PrintCollision& operator=(PrintCollision&& other) = delete;
 
 	private:
+		virtual void Start() override;
+		virtual void Update() override;
 		virtual void OnCollisionEnter(leap::Collider* pCollider, leap::Collider* pOther) override;
 		virtual void OnCollisionStay(leap::Collider* pCollider, leap::Collider* pOther) override;
 		virtual void OnCollisionExit(leap::Collider* pCollider, leap::Collider* pOther) override;

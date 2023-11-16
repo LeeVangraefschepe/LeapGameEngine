@@ -165,6 +165,11 @@ std::vector<std::pair<glm::vec3, glm::vec3>> leap::physics::PhysXEngine::GetDebu
     return m_pScene->GetDebugDrawings();
 }
 
+bool leap::physics::PhysXEngine::Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo)
+{
+    return m_pScene->Raycast(start, direction, distance, hitInfo);
+}
+
 void leap::physics::PhysXEngine::Notify(const SimulationEvent& e)
 {
     switch (e.type)

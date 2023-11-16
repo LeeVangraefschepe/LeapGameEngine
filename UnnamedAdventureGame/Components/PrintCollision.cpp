@@ -7,6 +7,30 @@
 
 #include <sstream>
 
+#include <ServiceLocator/ServiceLocator.h>
+#include <Interfaces/IRenderer.h>
+
+#include <Utils/Physics.h>
+
+void unag::PrintCollision::Start()
+{
+	leap::RaycastHitInfo hit{};
+	if (leap::Physics::Raycast({ 0.0f, 5.0f, 0.0f }, { 0.0f, -1.0f, 0.0f }, 10.0f, hit))
+	{
+		leap::Debug::Log(std::string(hit.pCollider->GetGameObject()->GetName()) + " " + std::to_string(hit.point.y) + " " + std::to_string(hit.normal.y));
+	}
+}
+
+void unag::PrintCollision::Update()
+{
+	leap::ServiceLocator::GetRenderer().DrawLine({ 0.0f, 5.0f, 0.0f }, { 0.0f, -5.0f, 0.0f });
+	leap::RaycastHitInfo hit{};
+	if (leap::Physics::Raycast({ 0.0f, 5.0f, 0.0f }, { 0.0f, -1.0f, 0.0f }, 10.0f, hit))
+	{
+		leap::Debug::Log(std::string(hit.pCollider->GetGameObject()->GetName()) + " " + std::to_string(hit.point.y) + " " + std::to_string(hit.normal.y));
+	}
+}
+
 void unag::PrintCollision::OnCollisionEnter(leap::Collider* pCollider, leap::Collider* pOther)
 {
 	std::stringstream ss{};
