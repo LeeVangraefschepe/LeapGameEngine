@@ -20,5 +20,10 @@ namespace leap
 		Physics() = delete;
 
 		static bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHitInfo& hitInfo);
+		static bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance);
+		// Calls raycast using FLT_MAX as distance
+		static bool Raycast(const glm::vec3& start, const glm::vec3& direction, RaycastHitInfo& hitInfo);
+		// Calls raycast using FLT_MAX as distance
+		static bool Raycast(const glm::vec3& start, const glm::vec3& direction);
 	};
 }

@@ -18,3 +18,20 @@ bool leap::Physics::Raycast(const glm::vec3& start, const glm::vec3& direction, 
 
 	return succes;
 }
+
+bool leap::Physics::Raycast(const glm::vec3& start, const glm::vec3& direction, float distance)
+{
+	RaycastHitInfo temp{};
+	return Raycast(start, direction, distance, temp);
+}
+
+bool leap::Physics::Raycast(const glm::vec3& start, const glm::vec3& direction, RaycastHitInfo& hitInfo)
+{
+	return Raycast(start, direction, FLT_MAX, hitInfo);
+}
+
+bool leap::Physics::Raycast(const glm::vec3& start, const glm::vec3& direction)
+{
+	RaycastHitInfo temp{};
+	return Raycast(start, direction, FLT_MAX, temp);
+}
