@@ -222,7 +222,7 @@ namespace leap
 	template<class T>
 	inline void GameObject::RemoveComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
 		if (ComponentID == TransformComponentID)
@@ -237,13 +237,18 @@ namespace leap
 	template<class T>
 	inline void GameObject::RemoveComponent(T* pComponent)
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		// TODO: Don't let the user destroy the transform component
+		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		if (ComponentID == TransformComponentID)
+		{
+			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
+			return;
+		}
 
 		// Don't try to remove a component that is not on this gameobject
-		if (std::find_if(begin(m_pComponents), end(m_pComponents), [](const auto& pComponent)
-			{ return pComponent.get() == pComponent; }) == end(m_pComponents))
+		if (std::find_if(begin(m_pComponents), end(m_pComponents), [](const ComponentInfo& CInfo)
+			{ return CInfo.pComponent.get() == pComponent; }) == end(m_pComponents))
 		{
 			return;
 		}
