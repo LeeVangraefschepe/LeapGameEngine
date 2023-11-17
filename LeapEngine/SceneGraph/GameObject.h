@@ -158,6 +158,8 @@ namespace leap
 
 		ComponentInfo& CInfo{ m_pComponentsToAdd.emplace_back(std::make_unique<T>(), ComponentID) };
 
+		CInfo.pComponent->SetOwner(this);
+
 		return static_cast<T*>(CInfo.pComponent.get());
 	}
 
