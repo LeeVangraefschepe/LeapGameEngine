@@ -43,7 +43,12 @@ namespace leap
         };
 
         Handle_type handle;
+        bool IsValid() const { return m_IsValid; }
 
+        Coroutine()
+            :m_IsValid{false}
+        {
+        }
         Coroutine(Handle_type h)
             :handle(h)
         {
@@ -64,5 +69,8 @@ namespace leap
         {
             return std::move(handle.promise().value);
         }
+
+    private:
+        bool m_IsValid{ true };
     };
 }

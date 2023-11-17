@@ -2,6 +2,15 @@
 
 #include "../SceneGraph/GameObject.h"
 #include "../GameContext/GameContext.h"
+#include "../Coroutines/CoroutineSystem.h"
+
+leap::Component::Component()
+{
+}
+
+leap::Component::~Component()
+{
+}
 
 leap::Transform* leap::Component::GetTransform() const
 {
@@ -36,19 +45,33 @@ bool leap::Component::IsActive() const
 
 leap::Coroutine<>* leap::Component::StartCoroutine(leap::Coroutine<>&& coroutine)
 {
-	const auto& ref = m_pCoroutines.emplace_back(coroutine);
-	leap::IEnumerator ienum = ref.get()->Value();
+	auto findIt = std::find_if(m_pCoroutines.begin(), m_pCoroutines.end(), 
+		[](const leap::Coroutine<>& cor) 
+		{ 
+			return cor.IsValid(); 
+		}
+	);
+	if (findIt != m_pCoroutines.end())
+	{
+		*findIt = coroutine;
+		leap::IEnumerator ienum = findIt->Value();
+		GameContext::GetInstance().GetCoroutineSystem()->Register(findIt._Ptr, std::move(ienum));
+		return findIt._Ptr;
+	}
 
-	GameContext::GetInstance().GetCoroutineSystem()->Register(ref.get(), std::move(ienum));
-	return ref.get();
+	auto& ref = m_pCoroutines.emplace_back(coroutine);
+	leap::IEnumerator ienum = ref.Value();
+
+	GameContext::GetInstance().GetCoroutineSystem()->Register(&ref, std::move(ienum));
+	return &ref;
 }
 
 bool leap::Component::StopCoroutine(leap::Coroutine<>* pCoroutine)
 {
 	auto it = std::find_if(m_pCoroutines.begin(), m_pCoroutines.end(), 
-		[&](const std::unique_ptr<Coroutine<>>& ref) 
+		[&](const Coroutine<>& ref) 
 		{
-			return ref.get() == pCoroutine;
+			return &ref == pCoroutine;
 		});
 
 	if (it == m_pCoroutines.end())
@@ -56,7 +79,8 @@ bool leap::Component::StopCoroutine(leap::Coroutine<>* pCoroutine)
 		return false;
 	}
 	GameContext::GetInstance().GetCoroutineSystem()->Unregister(pCoroutine);
-	m_pCoroutines.erase(it);
+	*it = Coroutine();
+	return true;
 }
 
 void leap::Component::SetOwner(GameObject* pOwner)

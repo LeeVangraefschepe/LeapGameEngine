@@ -12,8 +12,8 @@ namespace leap
 	class Component
 	{
 	public:
-		Component() = default;
-		virtual ~Component() = default;
+		Component();
+		virtual ~Component();
 
 		Component(const Component& other) = delete;
 		Component(Component&& other) = delete;
@@ -80,7 +80,7 @@ namespace leap
 
 		unsigned char m_StateFlags{ static_cast<unsigned char>(StateFlags::IsActiveLocalNextFrame) };
 
-		std::vector<std::unique_ptr<Coroutine<>>> m_pCoroutines;
+		std::vector<Coroutine<>> m_pCoroutines;
 
 		GameObject* m_pOwner{};
 	};
