@@ -147,6 +147,8 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
+		// TODO: Cant have multiple transform components, but should have multiple of other components
+
 		const auto IsComponentIDPresent = [](const std::vector<ComponentInfo>& Components, const int ID)->bool
 			{
 				return std::find_if(Components.cbegin(), Components.cend(), [ID](const ComponentInfo& CInfo)->bool
@@ -176,13 +178,20 @@ namespace leap
 	template<class T>
 	inline T* GameObject::GetComponent() const
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		const auto iterator{ std::find_if(begin(m_pComponents), end(m_pComponents), [](const auto& pComponent) { return dynamic_cast<T*>(pComponent.get()) != nullptr; }) };
+		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
 
-		if (iterator == end(m_pComponents)) return nullptr;
+		const auto iterator
+		{
+			std::find_if(m_pComponents.begin(), m_pComponents.end(),
+			[ComponentID](const ComponentInfo& CInfo)
+			{
+				return ComponentID == CInfo.ID;
+			})
+		};
 
-		return static_cast<T*>(iterator->get());
+		return iterator != m_pComponents.end() ? iterator->pComponent.get() : nullptr;
 	}
 
 	template<class T>
