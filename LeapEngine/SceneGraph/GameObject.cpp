@@ -7,6 +7,11 @@
 leap::GameObject::GameObject(const char* name)
 	: m_Name{ name }
 {
+	if (TransformComponentID == -1)
+	{
+		TransformComponentID = GOutils::GenerateComponentID<Transform>();
+	}
+
 	m_pTransform = AddComponent<Transform>();
 }
 

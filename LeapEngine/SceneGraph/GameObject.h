@@ -23,6 +23,8 @@ namespace leap
 			int ID;
 		};
 
+		inline static int TransformComponentID{ -1 };
+
 	public:
 		GameObject(const char* name);
 		~GameObject() = default;
@@ -147,20 +149,10 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		// TODO: Cant have multiple transform components, but should have multiple of other components
-
-		const auto IsComponentIDPresent = [](const std::vector<ComponentInfo>& Components, const int ID)->bool
-			{
-				return std::find_if(Components.cbegin(), Components.cend(), [ID](const ComponentInfo& CInfo)->bool
-					{
-						return ID == CInfo.ID;
-					}) != Components.cend();
-			};
-
 		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
-		if (IsComponentIDPresent(m_pComponents, ComponentID) || IsComponentIDPresent(m_pComponentsToAdd, ComponentID))
+		if (ComponentID == TransformComponentID && HasComponent<T>())
 		{
-			Debug::LogError("LeapEngine Error: GameObject::AddComponent() > Can't add identical component types");
+			Debug::LogError("LeapEngine Error: GameObject::AddComponent() > Can't add multiple Transforms");
 			return nullptr;
 		}
 
