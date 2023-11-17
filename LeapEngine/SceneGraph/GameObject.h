@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Components/Component.h"
+#include "Debug.h"
+#include "GameObjectUtils.h"
 
 #include <string>
 #include <memory>
@@ -15,6 +17,12 @@ namespace leap
 
 	class GameObject final
 	{
+		struct ComponentInfo
+		{
+			std::unique_ptr<Component> pComponent;
+			int ID;
+		};
+
 	public:
 		GameObject(const char* name);
 		~GameObject() = default;
@@ -130,29 +138,33 @@ namespace leap
 		std::vector<std::unique_ptr<GameObject>> m_pChildrenToAdd{};
 		std::vector<std::unique_ptr<GameObject>> m_pChildren{};
 
-		std::vector<std::unique_ptr<Component>> m_pComponentsToAdd{};
-		std::vector<std::unique_ptr<Component>> m_pComponents{};
+		std::vector<ComponentInfo> m_pComponentsToAdd{};
+		std::vector<ComponentInfo> m_pComponents{};
 	};
 
 	template<class T>
 	inline T* GameObject::AddComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		// TODO: Don't let the user add multiple Transform components
+		const auto IsComponentIDPresent = [](const std::vector<ComponentInfo>& Components, const int ID)->bool
+			{
+				return std::find_if(Components.cbegin(), Components.cend(), [ID](const ComponentInfo& CInfo)->bool
+					{
+						return ID == CInfo.ID;
+					}) != Components.cend();
+			};
 
-		// Create a new component and set its variables
-		auto pComponent{ std::make_unique<T>() };
-		pComponent->SetOwner(this);
+		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		if (IsComponentIDPresent(m_pComponents, ComponentID) || IsComponentIDPresent(m_pComponentsToAdd, ComponentID))
+		{
+			Debug::LogError("LeapEngine Error: GameObject::AddComponent() > Can't add identical component types");
+			return nullptr;
+		}
 
-		// Get the raw ptr from the new component
-		T* pRawComponent{ pComponent.get() };
+		ComponentInfo& CInfo{ m_pComponentsToAdd.emplace_back(std::make_unique<T>(), ComponentID) };
 
-		// Add the new component to the container for components of the next frame
-		m_pComponentsToAdd.emplace_back(std::move(pComponent));
-
-		// Return the raw ptr of the new component
-		return pRawComponent;
+		return CInfo.pComponent.get();
 	}
 
 	template<class T>

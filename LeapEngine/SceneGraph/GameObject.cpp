@@ -2,7 +2,6 @@
 
 #include "../Components/Transform/Transform.h"
 
-#include "Debug.h"
 #include "SceneManager.h"
 
 leap::GameObject::GameObject(const char* name)
