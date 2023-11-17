@@ -1,6 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <string_view>
+
+#ifdef max
+#undef max
+#endif
 
 namespace leap::GOutils
 {
@@ -15,11 +20,6 @@ namespace leap::GOutils
 			return __PRETTY_FUNCTION__;
 			#endif
 		}
-
-		constexpr size_t Max(const size_t A, const size_t B)
-		{
-			return A < B ? B : A;
-		}
 	}
 
 	// Reference for TypeName: https://stackoverflow.com/questions/35941045/can-i-obtain-c-type-names-in-a-constexpr-way
@@ -30,7 +30,7 @@ namespace leap::GOutils
 
 		constexpr size_t endOfType{ wrappedName.find_last_of('>') };
 		// I would use std::max, but it doesn't work for some inexplicable reason
-		constexpr size_t beginOfType{ Detail::Max(wrappedName.find_last_of(' '), wrappedName.find_last_of('<')) };
+		constexpr size_t beginOfType{ std::max(wrappedName.find_last_of(' '), wrappedName.find_last_of('<')) };
 
 		return wrappedName.substr(beginOfType + 1, endOfType - beginOfType - 1);
 	}
