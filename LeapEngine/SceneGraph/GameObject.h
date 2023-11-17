@@ -224,7 +224,12 @@ namespace leap
 	{
 		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
 
-		// TODO: Don't let the user destroy the transform component
+		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		if (ComponentID == TransformComponentID)
+		{
+			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
+			return;
+		}
 
 		GetComponent<T>()->Destroy();
 	}
