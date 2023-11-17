@@ -19,22 +19,31 @@ namespace leap
 		static const glm::vec3& One() { return m_One; }
 
 		// Returns a glm::vec3 with value (1,0,0)
-		static const glm::vec3& Right() 
-		{ 
-			return m_Right; 
-		}
+		static const glm::vec3& Right() { return m_Right; }
+
+		// Returns a glm::vec3 with value (-1,0,0)
+		static const glm::vec3& Left() { return m_Left; }
 
 		// Returns a glm::vec3 with value (0,1,0)
 		static const glm::vec3& Up() { return m_Up; }
 
+		// Returns a glm::vec3 with value (0,-1,0)
+		static const glm::vec3& Down() { return m_Down; }
+
 		// Returns a glm::vec3 with value (0,0,1)
 		static const glm::vec3& Forward() { return m_Forward; }
+
+		// Returns a glm::vec3 with value (0,0,-1)
+		static const glm::vec3& Back() { return m_Back; }
 
 	private:
 		inline static glm::vec3 m_Zero{};
 		inline static glm::vec3 m_One{ 1.0f, 1.0f, 1.0f };
 		inline static glm::vec3 m_Right{ 1.0f, 0.0f, 0.0f };
+		inline static glm::vec3 m_Left{ -1.0f, 0.0f, 0.0f };
 		inline static glm::vec3 m_Up{ 0.0f, 1.0f, 0.0f };
+		inline static glm::vec3 m_Down{ 0.0f, -1.0f, 0.0f };
 		inline static glm::vec3 m_Forward{ 0.0f, 0.0f, 1.0f };
+		inline static glm::vec3 m_Back{ 0.0f, 0.0f, -1.0f };
 	};
 }
