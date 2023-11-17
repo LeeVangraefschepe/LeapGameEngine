@@ -189,13 +189,17 @@ namespace leap
 	template<class T>
 	inline std::vector<T*> GameObject::GetComponents() const
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		std::vector<T*> pComponents{};
+		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
 
-		for (const auto& pComponent : m_pComponents)
+		for (const ComponentInfo& CInfo : m_pComponents)
 		{
-			if (dynamic_cast<T*>(pComponent.get()) != nullptr) pComponents.emplace_back(static_cast<T*>(pComponent.get()));
+			if (ComponentID == CInfo.ID)
+			{
+				pComponents.push_back(CInfo.pComponent.get());
+			}
 		}
 
 		return pComponents;
