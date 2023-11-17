@@ -3,16 +3,12 @@
 #include <glm.hpp>
 #include <ext/matrix_clip_space.hpp>
 
+#include <vec3.hpp>
+#include <Matrix.h>
+
 leap::graphics::DirectionalLight::DirectionalLight()
 {
-	SetTransform(
-		{
-			{ 1.0f, 0.0f, 0.0f },
-			{ 0.0f, 1.0f, 0.0f },
-			{ 0.0f, 0.0f, 1.0f },
-			{ 0.0f, 0.0f, 0.0f }
-		}
-	);
+	SetTransform(Matrix::Identity4x3());
 }
 
 void leap::graphics::DirectionalLight::SetShadowMapData(float aspectRatio, float size, float nearPlane, float farPlane)

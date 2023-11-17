@@ -6,6 +6,7 @@
 #include <Subject.h>
 
 #include <vec2.hpp>
+#include <Vector2.h>
 
 namespace leap
 {
@@ -46,6 +47,6 @@ namespace leap
 
 		MatchMode m_MatchMode{ MatchMode::MatchHeight };
 		glm::ivec2 m_ReferenceResolution{ 1920, 1080 };
-		glm::vec2 m_CurrentScale{ 1.0f, 1.0f };
+		glm::vec2 m_CurrentScale{ Vector2::One() };
 	};
 }

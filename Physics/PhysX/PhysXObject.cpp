@@ -12,6 +12,8 @@
 #include <PxRigidDynamic.h>
 #include <extensions/PxRigidBodyExt.h>
 
+#include <Quaternion.h>
+
 leap::physics::PhysXObject::PhysXObject(void* pOwner)
 	: m_pOwner{ pOwner }
 {
@@ -115,7 +117,7 @@ glm::vec3 leap::physics::PhysXObject::GetPosition()
 
 glm::quat leap::physics::PhysXObject::GetRotation()
 {
-	if (!m_pActor) return glm::quat{ 1.0f, 0.0f, 0.0f, 0.0f };
+	if (!m_pActor) return glm::quat{ Quaternion::Identity() };
 
 	const physx::PxQuat& rotation{ m_pActor->getGlobalPose().q };
 	return glm::quat{ rotation.w, rotation.x, rotation.y, rotation.z };

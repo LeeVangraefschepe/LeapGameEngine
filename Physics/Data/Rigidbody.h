@@ -4,6 +4,7 @@
 #pragma warning(disable: 4201)
 #include "gtc/quaternion.hpp"
 #pragma warning(default: 4201)
+#include <Quaternion.h>
 
 #include "../Data/Force.h"
 
@@ -97,9 +98,9 @@ namespace leap::physics
 		glm::vec3 m_AngularVelocity{};
 		float m_Mass{ 1.0f };
 		glm::vec3 m_Position{};
-		glm::quat m_Rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+		glm::quat m_Rotation{ Quaternion::Identity() };
 		glm::vec3 m_Translation{};
-		glm::quat m_RotationDelta{ 1.0f, 0.0f, 0.0f, 0.0f };
+		glm::quat m_RotationDelta{ Quaternion::Identity() };
 		RigidbodyFlag m_DirtyFlag{ RigidbodyFlag::None };
 		std::vector<Force> m_Forces{};
 		std::vector<Constraint> m_Constraints{};

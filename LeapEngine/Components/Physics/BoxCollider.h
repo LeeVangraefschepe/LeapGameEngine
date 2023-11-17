@@ -3,6 +3,7 @@
 #include "Collider.h"
 
 #include <vec3.hpp>
+#include <Vector3.h>
 
 namespace leap
 {
@@ -25,6 +26,6 @@ namespace leap
 		virtual void SetupShape(physics::IPhysicsMaterial* pMaterial) override;
 		virtual void RescaleShape() override;
 
-		glm::vec3 m_Size{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_Size{ Vector3::One() };
 	};
 }

@@ -387,8 +387,8 @@ void leap::Transform::UpdateScale()
 void leap::Transform::UpdateDirectionVectors()
 {
 	// Calculate direction vectors
-	m_Forward = GetWorldRotation() * glm::vec3{ 0.0f, 0.0f, 1.0f };
-	m_Right = glm::normalize(glm::cross(glm::vec3{ 0.0f, 1.0f, 0.0f }, m_Forward));
+	m_Forward = GetWorldRotation() * Vector3::Forward();
+	m_Right = glm::normalize(glm::cross(Vector3::Up(), m_Forward));
 	m_Up = glm::cross(m_Forward, m_Right);
 
 	// Disable the direction dirty flag
