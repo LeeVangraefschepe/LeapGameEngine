@@ -20,10 +20,10 @@ namespace leap
 		struct ComponentInfo
 		{
 			std::unique_ptr<Component> pComponent;
-			int ID;
+			uint32_t ID;
 		};
 
-		inline static int TransformComponentID{ -1 };
+		inline static uint32_t TransformComponentID{ static_cast<uint32_t>(-1) };
 
 	public:
 		GameObject(const char* name);
@@ -149,7 +149,7 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
 		if (ComponentID == TransformComponentID && HasComponent<T>())
 		{
 			Debug::LogError("LeapEngine Error: GameObject::AddComponent() > Can't add multiple Transforms");
@@ -158,7 +158,7 @@ namespace leap
 
 		ComponentInfo& CInfo{ m_pComponentsToAdd.emplace_back(std::make_unique<T>(), ComponentID) };
 
-		return CInfo.pComponent.get();
+		return static_cast<T*>(CInfo.pComponent.get());
 	}
 
 	template<class T>
@@ -172,7 +172,7 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
 
 		const auto iterator
 		{
@@ -183,7 +183,7 @@ namespace leap
 			})
 		};
 
-		return iterator != m_pComponents.end() ? iterator->pComponent.get() : nullptr;
+		return iterator != m_pComponents.end() ? static_cast<T*>(iterator->pComponent.get()) : nullptr;
 	}
 
 	template<class T>
@@ -192,13 +192,13 @@ namespace leap
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		std::vector<T*> pComponents{};
-		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
 
 		for (const ComponentInfo& CInfo : m_pComponents)
 		{
 			if (ComponentID == CInfo.ID)
 			{
-				pComponents.push_back(CInfo.pComponent.get());
+				pComponents.push_back(static_cast<T*>(CInfo.pComponent.get()));
 			}
 		}
 
@@ -224,7 +224,7 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
 		if (ComponentID == TransformComponentID)
 		{
 			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
@@ -239,7 +239,7 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr int ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
 		if (ComponentID == TransformComponentID)
 		{
 			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
