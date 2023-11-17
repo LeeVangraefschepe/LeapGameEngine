@@ -208,7 +208,7 @@ namespace leap
 	template<class T>
 	inline T* GameObject::GetComponentInParent() const
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		GameObject* pParent{ GetParent() };
 		if (pParent == nullptr) return nullptr;
