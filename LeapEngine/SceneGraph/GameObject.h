@@ -2,7 +2,7 @@
 
 #include "../Components/Component.h"
 #include "Debug.h"
-#include "GameObjectUtils.h"
+#include "../Utils/ReflectionUtils.h"
 
 #include <string>
 #include <memory>
@@ -20,10 +20,10 @@ namespace leap
 		struct ComponentInfo
 		{
 			std::unique_ptr<Component> pComponent;
-			uint32_t ID;
+			unsigned int id;
 		};
 
-		inline static uint32_t TransformComponentID{ static_cast<uint32_t>(-1) };
+		static unsigned int m_TransformComponentID;
 
 	public:
 		GameObject(const char* name);
@@ -140,8 +140,8 @@ namespace leap
 		std::vector<std::unique_ptr<GameObject>> m_pChildrenToAdd{};
 		std::vector<std::unique_ptr<GameObject>> m_pChildren{};
 
-		std::vector<ComponentInfo> m_pComponentsToAdd{};
-		std::vector<ComponentInfo> m_pComponents{};
+		std::vector<ComponentInfo> m_ComponentsToAdd{};
+		std::vector<ComponentInfo> m_Components{};
 	};
 
 	template<class T>
@@ -149,14 +149,14 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
-		if (ComponentID == TransformComponentID && HasComponent<T>())
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
+		if (componentID == m_TransformComponentID && HasComponent<T>())
 		{
 			Debug::LogError("LeapEngine Error: GameObject::AddComponent() > Can't add multiple Transforms");
 			return nullptr;
 		}
 
-		ComponentInfo& CInfo{ m_pComponentsToAdd.emplace_back(std::make_unique<T>(), ComponentID) };
+		ComponentInfo& CInfo{ m_ComponentsToAdd.emplace_back(std::make_unique<T>(), componentID) };
 
 		CInfo.pComponent->SetOwner(this);
 
@@ -174,18 +174,18 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
 
 		const auto iterator
 		{
-			std::find_if(m_pComponents.begin(), m_pComponents.end(),
-			[ComponentID](const ComponentInfo& CInfo)
+			std::find_if(m_Components.begin(), m_Components.end(),
+			[componentID](const ComponentInfo& CInfo)
 			{
-				return ComponentID == CInfo.ID;
+				return componentID == CInfo.id;
 			})
 		};
 
-		return iterator != m_pComponents.end() ? static_cast<T*>(iterator->pComponent.get()) : nullptr;
+		return iterator != m_Components.end() ? static_cast<T*>(iterator->pComponent.get()) : nullptr;
 	}
 
 	template<class T>
@@ -194,11 +194,11 @@ namespace leap
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		std::vector<T*> pComponents{};
-		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
 
-		for (const ComponentInfo& CInfo : m_pComponents)
+		for (const ComponentInfo& CInfo : m_Components)
 		{
-			if (ComponentID == CInfo.ID)
+			if (componentID == CInfo.id)
 			{
 				pComponents.push_back(static_cast<T*>(CInfo.pComponent.get()));
 			}
@@ -226,8 +226,8 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
-		if (ComponentID == TransformComponentID)
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
+		if (componentID == m_TransformComponentID)
 		{
 			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
 			return;
@@ -241,16 +241,16 @@ namespace leap
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		constexpr uint32_t ComponentID{ GOutils::GenerateComponentID<T>() };
-		if (ComponentID == TransformComponentID)
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
+		if (componentID == m_TransformComponentID)
 		{
 			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
 			return;
 		}
 
 		// Don't try to remove a component that is not on this gameobject
-		if (std::find_if(begin(m_pComponents), end(m_pComponents), [](const ComponentInfo& CInfo)
-			{ return CInfo.pComponent.get() == pComponent; }) == end(m_pComponents))
+		if (std::find_if(begin(m_Components), end(m_Components), [](const ComponentInfo& CInfo)
+			{ return CInfo.pComponent.get() == pComponent; }) == end(m_Components))
 		{
 			return;
 		}

@@ -7,7 +7,7 @@
 #undef max
 #endif
 
-namespace leap::GOutils
+namespace leap::ReflectionUtils
 {
 	namespace Detail
 	{
@@ -36,11 +36,11 @@ namespace leap::GOutils
 	}
 
 	// Reference: https://www.partow.net/programming/hashfunctions/index.html#AvailableHashFunctions
-	constexpr uint32_t ConstexprStringHash(const char* str, uint32_t length)
+	constexpr unsigned int ConstexprStringHash(const char* str, unsigned int length)
 	{
-		uint32_t hash = 1315423911;
+		unsigned int hash = 1315423911;
 
-		for (uint32_t i = 0; i < length; ++str, ++i)
+		for (unsigned int i = 0; i < length; ++str, ++i)
 		{
 			hash ^= ((hash << 5) + (*str) + (hash >> 2));
 		}
@@ -49,10 +49,10 @@ namespace leap::GOutils
 	}
 
 	template<typename T>
-	constexpr uint32_t GenerateComponentID()
+	constexpr unsigned int GenerateTypenameHash()
 	{
 		constexpr std::string_view Typename(ConstexprTypeName<T>());
 
-		return ConstexprStringHash(Typename.data(), static_cast<uint32_t>(Typename.size()));
+		return ConstexprStringHash(Typename.data(), static_cast<unsigned int>(Typename.size()));
 	}
 }
