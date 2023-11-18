@@ -2,8 +2,9 @@
 
 #include "../Components/Transform/Transform.h"
 
-#include "Debug.h"
 #include "SceneManager.h"
+
+unsigned int leap::GameObject::m_TransformComponentID = leap::ReflectionUtils::GenerateTypenameHash<Transform>();
 
 leap::GameObject::GameObject(const char* name)
 	: m_Name{ name }
@@ -110,9 +111,9 @@ void leap::GameObject::OnFrameStart()
 void leap::GameObject::MoveNewObjectsAndComponents()
 {	
 	// Move the components from the temp container to the default container
-	for (auto& pComponent : m_pComponentsToAdd)
+	for (auto& pComponent : m_ComponentsToAdd)
 	{
-		m_pComponents.emplace_back(std::move(pComponent));
+		m_Components.emplace_back(std::move(pComponent));
 	}
 
 	// Move the children from the temp container to the default container
@@ -122,7 +123,7 @@ void leap::GameObject::MoveNewObjectsAndComponents()
 	}
 
 	// Clear the temp folders
-	m_pComponentsToAdd.clear();
+	m_ComponentsToAdd.clear();
 	m_pChildrenToAdd.clear();
 
 	// Call MoveNewObjectsAndComponents on all children
@@ -135,7 +136,7 @@ void leap::GameObject::MoveNewObjectsAndComponents()
 void leap::GameObject::CallAwake() const
 {
 	// Call awake on the new components and children
-	for (const auto& pComponent : m_pComponents)
+	for (const auto& [pComponent, id] : m_Components)
 	{
 		if (!pComponent->IsInitialized())
 		{
@@ -171,7 +172,7 @@ void leap::GameObject::ChangeActiveState()
 	}
 
 	// Update the active state of the components
-	for (const auto& pComponent : m_pComponents) pComponent->ChangeActiveState();
+	for (const auto& [pComponent, id] : m_Components) pComponent->ChangeActiveState();
 
 	// Update the active state of the children
 	for (const auto& pChild : m_pChildren)
@@ -195,7 +196,7 @@ void leap::GameObject::SetWorldState(bool isActive)
 void leap::GameObject::CallStart() const
 {
 	// Call Start on the components if needed
-	for (const auto& pComponent : m_pComponents) pComponent->TryCallStart();
+	for (const auto& [pComponent, id] : m_Components) pComponent->TryCallStart();
 
 	// Call OnEnable or OnDisable on the children
 	for (const auto& pChild : m_pChildren)
@@ -207,7 +208,7 @@ void leap::GameObject::CallStart() const
 void leap::GameObject::CallEnableAndDisable() const
 {
 	// Call OnEnable or OnDisable on the components if needed
-	for (const auto& pComponent : m_pComponents) pComponent->TryCallEnableAndDisable();
+	for (const auto& [pComponent, id] : m_Components) pComponent->TryCallEnableAndDisable();
 
 	// Call OnEnable or OnDisable on the children
 	for (const auto& pChild : m_pChildren)
@@ -237,7 +238,7 @@ void leap::GameObject::CheckDestroyFlag() const
 	else
 	{
 		// Call OnDestroy on components if needed
-		for (const auto& pComponent : m_pComponents)
+		for (const auto& [pComponent, id] : m_Components)
 		{
 			if (pComponent->IsMarkedAsDead()) pComponent->OnDestroy();
 		}
@@ -253,12 +254,12 @@ void leap::GameObject::CheckDestroyFlag() const
 void leap::GameObject::UpdateCleanup()
 {
 	// Remove all marked components
-	m_pComponents.erase(
+	m_Components.erase(
 		std::remove_if(
-			begin(m_pComponents), end(m_pComponents), 
-			[](const auto& pComponent) { return pComponent->IsMarkedAsDead(); }
+			begin(m_Components), end(m_Components), 
+			[](const ComponentInfo& CInfo) { return CInfo.pComponent->IsMarkedAsDead(); }
 		),
-		end(m_pComponents));
+		end(m_Components));
 
 	// Remove all children that are nullptr
 	m_pChildren.erase(
@@ -321,20 +322,20 @@ leap::Transform* leap::GameObject::GetTransform() const
 void leap::GameObject::OnEnable() const
 {
 	// Delegate OnEnable method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnEnable();
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnEnable();
 }
 
 // This method is called per gameobject, so it shouldn't delegate the method to its children
 void leap::GameObject::OnDisable() const
 {
 	// Delegate OnDisable method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnDisable();
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnDisable();
 }
 
 void leap::GameObject::Update() const
 {
 	// Delegate Update method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->Update();
+	for (const auto& [pComponent, id] : m_Components) pComponent->Update();
 
 	// Delegate Update method to the children
 	for (const auto& pChild : m_pChildren)
@@ -346,7 +347,7 @@ void leap::GameObject::Update() const
 void leap::GameObject::FixedUpdate() const
 {
 	// Delegate FixedUpdate method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->FixedUpdate();
+	for (const auto& [pComponent, id] : m_Components) pComponent->FixedUpdate();
 
 	// Delegate FixedUpdate method to the children
 	for (const auto& pChild : m_pChildren)
@@ -358,7 +359,7 @@ void leap::GameObject::FixedUpdate() const
 void leap::GameObject::LateUpdate() const
 {
 	// Delegate LateUpdate method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->LateUpdate();
+	for (const auto& [pComponent, id] : m_Components) pComponent->LateUpdate();
 
 	// Delegate LateUpdate method to the children
 	for (const auto& pChild : m_pChildren)
@@ -370,7 +371,7 @@ void leap::GameObject::LateUpdate() const
 void leap::GameObject::OnGUI() const
 {
 	// Delegate OnGUI method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnGUI();
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnGUI();
 
 	// Delegate OnGUI method to the children
 	for (const auto& pChild : m_pChildren)
@@ -382,7 +383,7 @@ void leap::GameObject::OnGUI() const
 void leap::GameObject::OnDestroy() const
 {
 	// Delegate OnDestroy method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnDestroy();
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnDestroy();
 
 	// Delegate OnDestroy method to the children
 	for (const auto& pChild : m_pChildren)
@@ -394,36 +395,36 @@ void leap::GameObject::OnDestroy() const
 void leap::GameObject::OnCollisionEnter(Collider* pCollider, Collider* pOther) const
 {
 	// Delegate OnCollisionEnter method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnCollisionEnter(pCollider, pOther);
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnCollisionEnter(pCollider, pOther);
 }
 
 void leap::GameObject::OnCollisionStay(Collider* pCollider, Collider* pOther) const
 {
 	// Delegate OnCollisionStay method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnCollisionStay(pCollider, pOther);
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnCollisionStay(pCollider, pOther);
 }
 
 void leap::GameObject::OnCollisionExit(Collider* pCollider, Collider* pOther) const
 {
 	// Delegate OnCollisionExit method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnCollisionExit(pCollider, pOther);
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnCollisionExit(pCollider, pOther);
 }
 
 void leap::GameObject::OnTriggerEnter(Collider* pCollider, Collider* pOther) const
 {
 	// Delegate OnTriggerEnter method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnTriggerEnter(pCollider, pOther);
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnTriggerEnter(pCollider, pOther);
 }
 
 void leap::GameObject::OnTriggerStay(Collider* pCollider, Collider* pOther) const
 {
 	// Delegate OnTriggerStay method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnTriggerStay(pCollider, pOther);
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnTriggerStay(pCollider, pOther);
 }
 
 void leap::GameObject::OnTriggerExit(Collider* pCollider, Collider* pOther) const
 {
 	// Delegate OnTriggerExit method to the components
-	for (const auto& pComponent : m_pComponents) pComponent->OnTriggerExit(pCollider, pOther);
+	for (const auto& [pComponent, id] : m_Components) pComponent->OnTriggerExit(pCollider, pOther);
 }
 #pragma endregion

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../Components/Component.h"
+#include "Debug.h"
+#include "ReflectionUtils.h"
 
 #include <string>
 #include <memory>
@@ -15,6 +17,14 @@ namespace leap
 
 	class GameObject final
 	{
+		struct ComponentInfo
+		{
+			std::unique_ptr<Component> pComponent;
+			unsigned int id;
+		};
+
+		static unsigned int m_TransformComponentID;
+
 	public:
 		GameObject(const char* name);
 		~GameObject() = default;
@@ -130,29 +140,27 @@ namespace leap
 		std::vector<std::unique_ptr<GameObject>> m_pChildrenToAdd{};
 		std::vector<std::unique_ptr<GameObject>> m_pChildren{};
 
-		std::vector<std::unique_ptr<Component>> m_pComponentsToAdd{};
-		std::vector<std::unique_ptr<Component>> m_pComponents{};
+		std::vector<ComponentInfo> m_ComponentsToAdd{};
+		std::vector<ComponentInfo> m_Components{};
 	};
 
 	template<class T>
 	inline T* GameObject::AddComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		// TODO: Don't let the user add multiple Transform components
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
+		if (componentID == m_TransformComponentID && HasComponent<T>())
+		{
+			Debug::LogError("LeapEngine Error: GameObject::AddComponent() > Can't add multiple Transforms");
+			return nullptr;
+		}
 
-		// Create a new component and set its variables
-		auto pComponent{ std::make_unique<T>() };
-		pComponent->SetOwner(this);
+		ComponentInfo& CInfo{ m_ComponentsToAdd.emplace_back(std::make_unique<T>(), componentID) };
 
-		// Get the raw ptr from the new component
-		T* pRawComponent{ pComponent.get() };
+		CInfo.pComponent->SetOwner(this);
 
-		// Add the new component to the container for components of the next frame
-		m_pComponentsToAdd.emplace_back(std::move(pComponent));
-
-		// Return the raw ptr of the new component
-		return pRawComponent;
+		return static_cast<T*>(CInfo.pComponent.get());
 	}
 
 	template<class T>
@@ -164,25 +172,36 @@ namespace leap
 	template<class T>
 	inline T* GameObject::GetComponent() const
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		const auto iterator{ std::find_if(begin(m_pComponents), end(m_pComponents), [](const auto& pComponent) { return dynamic_cast<T*>(pComponent.get()) != nullptr; }) };
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
 
-		if (iterator == end(m_pComponents)) return nullptr;
+		const auto iterator
+		{
+			std::find_if(m_Components.begin(), m_Components.end(),
+			[componentID](const ComponentInfo& CInfo)
+			{
+				return componentID == CInfo.id;
+			})
+		};
 
-		return static_cast<T*>(iterator->get());
+		return iterator != m_Components.end() ? static_cast<T*>(iterator->pComponent.get()) : nullptr;
 	}
 
 	template<class T>
 	inline std::vector<T*> GameObject::GetComponents() const
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		std::vector<T*> pComponents{};
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
 
-		for (const auto& pComponent : m_pComponents)
+		for (const ComponentInfo& CInfo : m_Components)
 		{
-			if (dynamic_cast<T*>(pComponent.get()) != nullptr) pComponents.emplace_back(static_cast<T*>(pComponent.get()));
+			if (componentID == CInfo.id)
+			{
+				pComponents.push_back(static_cast<T*>(CInfo.pComponent.get()));
+			}
 		}
 
 		return pComponents;
@@ -191,7 +210,7 @@ namespace leap
 	template<class T>
 	inline T* GameObject::GetComponentInParent() const
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
 		GameObject* pParent{ GetParent() };
 		if (pParent == nullptr) return nullptr;
@@ -205,9 +224,14 @@ namespace leap
 	template<class T>
 	inline void GameObject::RemoveComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		// TODO: Don't let the user destroy the transform component
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
+		if (componentID == m_TransformComponentID)
+		{
+			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
+			return;
+		}
 
 		GetComponent<T>()->Destroy();
 	}
@@ -215,13 +239,18 @@ namespace leap
 	template<class T>
 	inline void GameObject::RemoveComponent(T* pComponent)
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T needs to be derived from the Component class");
+		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
-		// TODO: Don't let the user destroy the transform component
+		constexpr uint32_t componentID{ ReflectionUtils::GenerateTypenameHash<T>() };
+		if (componentID == m_TransformComponentID)
+		{
+			Debug::LogError("LeapEngine Error: GameObject::RemoveComponent() > Cannot manually remove Transform");
+			return;
+		}
 
 		// Don't try to remove a component that is not on this gameobject
-		if (std::find_if(begin(m_pComponents), end(m_pComponents), [](const auto& pComponent)
-			{ return pComponent.get() == pComponent; }) == end(m_pComponents))
+		if (std::find_if(begin(m_Components), end(m_Components), [](const ComponentInfo& CInfo)
+			{ return CInfo.pComponent.get() == pComponent; }) == end(m_Components))
 		{
 			return;
 		}
