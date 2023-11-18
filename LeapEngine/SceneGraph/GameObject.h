@@ -2,7 +2,7 @@
 
 #include "../Components/Component.h"
 #include "Debug.h"
-#include "../Utils/ReflectionUtils.h"
+#include "ReflectionUtils.h"
 
 #include <string>
 #include <memory>
