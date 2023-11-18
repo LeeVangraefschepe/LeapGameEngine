@@ -34,12 +34,31 @@ leap::graphics::IMaterial* leap::MeshRendererComponent::GetMaterial() const
 	return m_pRenderer->GetMaterial();
 }
 
+void leap::MeshRendererComponent::Awake()
+{
+	GetTransform()->OnPositionChanged.AddListener(this);
+	GetTransform()->OnRotationChanged.AddListener(this);
+	GetTransform()->OnScaleChanged.AddListener(this);
+}
+
 void leap::MeshRendererComponent::LateUpdate()
 {
-	m_pRenderer->SetTransform(GetTransform()->GetWorldTransform());
+	if (m_IsDirty)
+	{
+		m_pRenderer->SetTransform(GetTransform()->GetWorldTransform());
+		m_IsDirty = false;
+	}
 }
 
 void leap::MeshRendererComponent::OnDestroy()
 {
+	GetTransform()->OnPositionChanged.RemoveListener(this);
+	GetTransform()->OnRotationChanged.RemoveListener(this);
+	GetTransform()->OnScaleChanged.RemoveListener(this);
 	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
+}
+
+void leap::MeshRendererComponent::Notify()
+{
+	m_IsDirty = true;
 }
