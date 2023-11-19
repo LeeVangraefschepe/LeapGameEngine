@@ -61,6 +61,8 @@
 #include "../Components/ColliderScaler.h"
 #include "../Components/PrintVelocity.h"
 
+#include <Graphics/Mesh.h>
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -70,10 +72,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
-	//pCameraObj->AddComponent<FreeCamMovement>();
+	pMainCamera->GetData()->SetFarPlane(1000.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
-	pCameraObj->GetTransform()->SetLocalPosition(-10.0f, 5.0f, 0.0f);
-	pCameraObj->GetTransform()->SetLocalRotation(0.0f, 90.0f, 0.0f);
+	pCameraObj->GetTransform()->SetLocalPosition(0.0f, 200.0f, -200.0f);
 
 	auto canvas{ scene.CreateGameObject("Canvas") };
 	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
@@ -81,8 +82,9 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 	canvas->AddComponent<leap::CanvasActions>();
 
-	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
-	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	auto sprite{ canvas->CreateChild("Sprite") };
+	sprite->AddComponent<leap::RectTransform>();
+	sprite->AddComponent<leap::Image>()->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
@@ -90,48 +92,45 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	/*auto pSlideMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
-	pSlideMaterial->SetStaticFriction(0.1f);
-	pSlideMaterial->SetDynamicFriction(0.1f);*/
-	auto pBounceMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
-	pBounceMaterial->SetBounciness(1.0f);
+	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
+	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
-	auto pBox{ scene.CreateGameObject("Sphere") };
-	auto pBoxColl{ pBox->AddComponent<leap::SphereCollider>() };
-	pBoxColl->SetMaterial(pBounceMaterial);
-	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
-	//pBox->AddComponent<PrintVelocity>();
-	pBoxRb->SetVelocity(0.0f, 0.0f, 3.0f);
-	pBoxRb->SetAngularVelocity(0.0f, 100.0f, 0.0f);
-	pBoxRb->SetConstraint(leap::physics::Rigidbody::Constraint::Flag::RotationX, true);
-	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh->LoadMesh("Data/Engine/Models/sphere.obj");
-	pBoxMesh->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBox->GetTransform()->Translate(0.0f, 2.0f, 0.0f);
-	pBox->GetTransform()->Rotate(0.0f, 0.0f, 0.0f);
-	//pBox->AddComponent<PrintCollision>();
-	//pBox->AddComponent<ApplyForces>();
-	auto pBoxTrigger{ pBox->AddComponent<leap::BoxCollider>() };
-	pBoxTrigger->SetSize(3.0f);
-	pBoxTrigger->SetTrigger(true);
+	leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
 
-	auto pBox4{ scene.CreateGameObject("Box") };
-	pBox4->AddComponent<leap::BoxCollider>()/*->SetMaterial(pBounceMaterial)*/;
-	pBox4->AddComponent<leap::Rigidbody>();
-	auto pBoxMesh4{ pBox4->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh4->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBoxMesh4->LoadMesh("Data/Engine/Models/cube.obj");
-	pBox4->GetTransform()->Translate(0.0f, 3.0f, 0.0f);
-	pBox4->GetTransform()->Rotate(0.0f, 0.0f, 0.0f);
-	pBox4->AddComponent<ColliderScaler>();
-	//pBox4->AddComponent<PrintCollision>();
+	auto ground{ scene.CreateGameObject("Ground") };
+	leap::MeshRenderer* pGroundMeshRenderer{ ground->AddComponent<leap::MeshRenderer>() };
+	pGroundMeshRenderer->SetMesh(cube);
+	pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
+	ground->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);
+	ground->GetTransform()->SetLocalScale(20.0f, 1.0f, 20.0f);
+	ground->AddComponent<leap::BoxCollider>();
 
-	auto pBox2{ scene.CreateGameObject("Ground") };
-	pBox2->AddComponent<leap::BoxCollider>()/*->SetMaterial(pBounceMaterial)*/;
-	auto pBoxMesh2{ pBox2->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh2->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");
-	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
-	pBox2->GetTransform()->Scale(20.0f, 1.0f, 20.0f);
-	pBox2->AddComponent<PrintCollision>();
+
+	auto box{ scene.CreateGameObject("Box") };
+	leap::MeshRenderer* pBoxMeshRenderer{ box->AddComponent<leap::MeshRenderer>() };
+	pBoxMeshRenderer->SetMesh(cube);
+	pBoxMeshRenderer->SetMaterial(pTexturedMaterial);
+	box->GetTransform()->SetLocalPosition(0.0f, 0.5f, 0.0f);
+	box->AddComponent<leap::BoxCollider>();
+	box->AddComponent<leap::Rigidbody>();
+
+
+	/*auto terrain{ scene.CreateGameObject("Terrain") };
+	terrain->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain->AddComponent<SineWaveTerrain>();
+
+	auto terrain2{ scene.CreateGameObject("Terrain") };
+	terrain2->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain2->AddComponent<SineWaveTerrain>();
+	terrain2->GetTransform()->SetLocalPosition(-1000.0f, 0.0f, 0.0f);
+
+	auto terrain3{ scene.CreateGameObject("Terrain") };
+	terrain3->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain3->AddComponent<SineWaveTerrain>();
+	terrain3->GetTransform()->SetLocalPosition(0.0f, 0.0f, 1000.0f);
+
+	auto terrain4{ scene.CreateGameObject("Terrain") };
+	terrain4->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain4->AddComponent<SineWaveTerrain>();
+	terrain4->GetTransform()->SetLocalPosition(-1000.0f, 0.0f, 1000.0f);*/
 }

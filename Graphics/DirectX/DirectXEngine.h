@@ -16,6 +16,7 @@ struct ID3D11RenderTargetView;
 #include "DirectXTexture.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXMaterial.h"
+#include "DirectXMesh.h"
 
 #include "DirectXShadowRenderer.h"
 #include "DirectXSpriteRenderer.h"
@@ -62,6 +63,9 @@ namespace leap::graphics
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() override;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) override;
+		virtual IMesh* CreateMesh(const std::string& path, bool cached) override;
+		virtual IMesh* CreateMesh() override;
+		virtual void RemoveMesh(IMesh* pMesh) override;
 
 		// Sprites
 		virtual void AddSprite(Sprite* pSprite) override;
@@ -98,11 +102,14 @@ namespace leap::graphics
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXTexture>> m_pTextures{};
 		std::vector<std::unique_ptr<DirectXTexture>> m_pUniqueTextures{};
+		std::unordered_map<std::string, std::unique_ptr<DirectXMesh>> m_pMeshes{};
+		std::vector<std::unique_ptr<DirectXMesh>> m_pUniqueMeshes{};
 
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};
 		DirectionalLight m_DirectionalLight{};
 
+		IMesh* m_pDebugMesh{};
 		CustomMesh m_DebugDrawings{};
 		IMeshRenderer* m_pDebugRenderer{};
 	};

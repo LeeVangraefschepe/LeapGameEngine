@@ -6,6 +6,8 @@
 #include "DirectXMaterial.h"
 #include "DirectXMeshLoader.h"
 #include "DirectXDefaults.h"
+#include "DirectXMesh.h"
+#include "DirectXEngine.h"
 
 #include "../MeshLoader.h"
 
@@ -15,9 +17,7 @@ leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(ID3D11Device* pDevice, 
 {
 }
 
-leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer()
-{
-}
+leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer() = default;
 
 void leap::graphics::DirectXMeshRenderer::Draw()
 {
@@ -26,19 +26,27 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 
 void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 {
-	unsigned int vertexSize{ m_VertexSize };
-	ID3D11Buffer* pVertexBuffer{ m_pVertexBuffer };
-	ID3D11Buffer* pIndexBuffer{ m_pIndexBuffer };
-	unsigned int nrIndices{ m_NrIndices };
+	unsigned int vertexSize{};
+	ID3D11Buffer* pVertexBuffer{};
+	ID3D11Buffer* pIndexBuffer{};
+	unsigned int nrIndices{};
 
-	if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pDevice);
-	if (!m_pVertexBuffer || !m_pIndexBuffer)
+	if (!m_pMesh)
 	{
 		if (m_IsLineRenderer) return;
 
 		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
 		pMaterial = defaults.GetMaterialError(m_pDevice);
 		defaults.GetMeshError(m_pDevice, vertexSize, pVertexBuffer, pIndexBuffer, nrIndices);
+	}
+	else
+	{
+		vertexSize = m_pMesh->m_VertexSize;
+		pVertexBuffer = m_pMesh->m_pVertexBuffer;
+		pIndexBuffer = m_pMesh->m_pIndexBuffer;
+		nrIndices = m_pMesh->m_NrIndices;
+
+		if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pDevice);
 	}
 
 	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
@@ -89,39 +97,17 @@ void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transf
 	m_Transform = transform;
 }
 
-void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
+void leap::graphics::DirectXMeshRenderer::SetMesh(IMesh* pMesh)
 {
-	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh(filePath, m_pDevice) };
-
-	if (m_HasCustomMesh)
-	{
-		DirectXMeshLoader::GetInstance().RemoveCustomMesh(m_pVertexBuffer);
-	}
-
-	m_HasCustomMesh = false;
-	m_VertexSize = mesh.vertexSize;
-	m_pVertexBuffer = mesh.vertexBuffer;
-	m_pIndexBuffer = mesh.indexBuffer;
-	m_NrIndices = mesh.nrIndices;
-}
-
-void leap::graphics::DirectXMeshRenderer::LoadMesh(const CustomMesh& mesh)
-{
-	const DirectXMeshLoader::DirectXMeshDefinition& directXMesh{ DirectXMeshLoader::GetInstance().LoadMesh(mesh, m_pDevice) };
-
-	if (m_HasCustomMesh)
-	{
-		DirectXMeshLoader::GetInstance().RemoveCustomMesh(m_pVertexBuffer);
-	}
-
-	m_HasCustomMesh = true;
-	m_VertexSize = directXMesh.vertexSize;
-	m_pVertexBuffer = directXMesh.vertexBuffer;
-	m_pIndexBuffer = directXMesh.indexBuffer;
-	m_NrIndices = directXMesh.nrIndices;
+	m_pMesh = static_cast<DirectXMesh*>(pMesh);
 }
 
 void leap::graphics::DirectXMeshRenderer::SetIsLineRenderer(bool isLineRenderer)
 {
 	m_IsLineRenderer = isLineRenderer;
+}
+
+void leap::graphics::DirectXMeshRenderer::OnRemove(DirectXEngine* pEngine)
+{
+	if (m_pMesh) pEngine->RemoveMesh(m_pMesh);
 }

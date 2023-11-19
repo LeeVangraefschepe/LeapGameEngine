@@ -8,40 +8,36 @@
 #include <Data/CustomMesh.h>
 
 #include "../Transform/Transform.h"
+#include "../../Graphics/Mesh.h"
 
-leap::MeshRendererComponent::MeshRendererComponent()
+leap::MeshRenderer::MeshRenderer()
 {
 	m_pRenderer = ServiceLocator::GetRenderer().CreateMeshRenderer();
 }
 
-void leap::MeshRendererComponent::LoadMesh(const std::string& filePath)
+void leap::MeshRenderer::SetMesh(Mesh& mesh)
 {
-	m_pRenderer->LoadMesh(filePath);
+	m_pRenderer->SetMesh(mesh.GetInternal());
 }
 
-void leap::MeshRendererComponent::LoadMesh(const graphics::CustomMesh& mesh)
-{
-	m_pRenderer->LoadMesh(mesh);
-}
-
-void leap::MeshRendererComponent::SetMaterial(graphics::IMaterial* pMaterial)
+void leap::MeshRenderer::SetMaterial(graphics::IMaterial* pMaterial)
 {
 	m_pRenderer->SetMaterial(pMaterial);
 }
 
-leap::graphics::IMaterial* leap::MeshRendererComponent::GetMaterial() const
+leap::graphics::IMaterial* leap::MeshRenderer::GetMaterial() const
 {
 	return m_pRenderer->GetMaterial();
 }
 
-void leap::MeshRendererComponent::Awake()
+void leap::MeshRenderer::Awake()
 {
 	GetTransform()->OnPositionChanged.AddListener(this);
 	GetTransform()->OnRotationChanged.AddListener(this);
 	GetTransform()->OnScaleChanged.AddListener(this);
 }
 
-void leap::MeshRendererComponent::LateUpdate()
+void leap::MeshRenderer::LateUpdate()
 {
 	if (m_IsDirty)
 	{
@@ -50,7 +46,7 @@ void leap::MeshRendererComponent::LateUpdate()
 	}
 }
 
-void leap::MeshRendererComponent::OnDestroy()
+void leap::MeshRenderer::OnDestroy()
 {
 	GetTransform()->OnPositionChanged.RemoveListener(this);
 	GetTransform()->OnRotationChanged.RemoveListener(this);
@@ -58,7 +54,7 @@ void leap::MeshRendererComponent::OnDestroy()
 	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
 }
 
-void leap::MeshRendererComponent::Notify()
+void leap::MeshRenderer::Notify()
 {
 	m_IsDirty = true;
 }

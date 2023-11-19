@@ -52,6 +52,8 @@ void leap::graphics::DirectXEngine::Initialize()
 	Debug::Log("DirectXRenderer Log: Creating debug renderer");
 	m_pDebugRenderer = CreateMeshRenderer();
 	m_pDebugRenderer->SetIsLineRenderer(true);
+	m_pDebugMesh = CreateMesh();
+	m_pDebugRenderer->SetMesh(m_pDebugMesh);
 
 	m_IsInitialized = true;
 	Debug::Log("DirectXRenderer Log: Successfully initialized DirectX engine");
@@ -65,7 +67,7 @@ void leap::graphics::DirectXEngine::Draw()
 	{
 		if (!m_DebugDrawings.GetIndexBuffer().empty())
 		{
-			m_pDebugRenderer->LoadMesh(m_DebugDrawings);
+			m_pDebugMesh->ReloadMesh(m_DebugDrawings);
 			m_DebugDrawings.Clear();
 		}
 
@@ -135,7 +137,36 @@ leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer
 
 void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRenderer)
 {
-	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
+	auto it{ std::find_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }) };
+	(*it)->OnRemove(this);
+	m_pRenderers.erase(it);
+}
+
+leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh(const std::string& path, bool cached)
+{
+	if (!cached)
+	{
+		m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(m_pDevice, path));
+		return m_pUniqueMeshes[m_pUniqueMeshes.size() - 1].get();
+	}
+
+	if (!m_pMeshes.contains(path))
+	{
+		m_pMeshes[path] = std::make_unique<DirectXMesh>(m_pDevice, path);
+	}
+
+	return m_pMeshes[path].get();
+}
+
+leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh()
+{
+	m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(m_pDevice));
+	return m_pUniqueMeshes[m_pUniqueMeshes.size() - 1].get();
+}
+
+void leap::graphics::DirectXEngine::RemoveMesh(IMesh* pMesh)
+{
+	std::erase_if(m_pUniqueMeshes, [pMesh](const auto& pUniqueMesh) { return pUniqueMesh.get() == pMesh; });
 }
 
 void leap::graphics::DirectXEngine::AddSprite(Sprite* pSprite)
