@@ -56,6 +56,8 @@ namespace leap::graphics
 
 		static glm::mat4x4 m_ViewProjMatrix;
 
+		std::string m_AssetFile{};
+
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
 		ID3DX11EffectMatrixVariable* m_pMatWorldVariable{};
 
@@ -63,15 +65,6 @@ namespace leap::graphics
 
 		std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> m_VertexDataFunction{};
 		ID3DX11Effect* m_pEffect{};
-		std::string m_AssetFile{};
-		std::unordered_map<std::string, DirectXTexture*> m_pTextures{};
 		ID3DX11EffectTechnique* m_pTechnique{};
-
-		struct MaterialVariable final
-		{
-			std::any data{};
-			unsigned int byteCount{};
-		};
-		std::unordered_map<std::string, MaterialVariable> m_MaterialVariables{};
 	};
 }

@@ -42,8 +42,6 @@ namespace leap::graphics
 		virtual void SetIsLineRenderer(bool isLineRenderer) override;
 
 	private:
-		std::string m_FilePath{};
-
 		DirectXMaterial* m_pMaterial{};
 
 		ID3D11Device* m_pDevice{};

@@ -82,7 +82,6 @@ void leap::graphics::DirectXMaterial::SetBool(const std::string& varName, bool d
 	if (var->IsValid()) 
 	{
 		var->AsScalar()->SetBool(data);
-		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
 	}
 }
 
@@ -92,7 +91,6 @@ void leap::graphics::DirectXMaterial::SetFloat(const std::string& varName, float
 	if (var->IsValid())
 	{
 		var->AsScalar()->SetFloat(data);
-		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
 	}
 }
 
@@ -102,7 +100,6 @@ void leap::graphics::DirectXMaterial::SetFloat2(const std::string& varName, cons
 	if (var->IsValid())
 	{
 		var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
-		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
 	}
 }
 
@@ -112,7 +109,6 @@ void leap::graphics::DirectXMaterial::SetFloat3(const std::string& varName, cons
 	if (var->IsValid())
 	{
 		var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
-		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
 	}
 }
 
@@ -122,7 +118,6 @@ void leap::graphics::DirectXMaterial::SetFloat4(const std::string& varName, cons
 	if (var->IsValid())
 	{
 		var->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&data));
-		m_MaterialVariables[varName] = MaterialVariable{ data, sizeof(data) };
 	}
 }
 
@@ -143,7 +138,6 @@ void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ITe
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
 	if (var->IsValid())
 	{
-		m_pTextures[varName] = static_cast<DirectXTexture*>(pTexture);
 		var->AsShaderResource()->SetResource(static_cast<DirectXTexture*>(pTexture)->GetResource());
 	}
 }
@@ -160,12 +154,6 @@ void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ID3
 std::unique_ptr<leap::graphics::DirectXMaterial> leap::graphics::DirectXMaterial::Clone(ID3D11Device* pDevice)
 {
 	auto pMaterial{ std::make_unique<DirectXMaterial>(pDevice, m_AssetFile, m_VertexDataFunction) };
-
-	for (const auto& texturePair : m_pTextures)
-	{
-		pMaterial->SetTexture(texturePair.first, texturePair.second);
-	}
-
 	return std::move(pMaterial);
 }
 

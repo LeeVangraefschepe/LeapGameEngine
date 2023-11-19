@@ -91,8 +91,6 @@ void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transf
 
 void leap::graphics::DirectXMeshRenderer::LoadMesh(const std::string& filePath)
 {
-	m_FilePath = filePath;
-
 	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh(filePath, m_pDevice) };
 
 	if (m_HasCustomMesh)
