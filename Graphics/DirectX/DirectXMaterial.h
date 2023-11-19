@@ -48,7 +48,6 @@ namespace leap::graphics
 		virtual void SetTexture(const std::string& varName, ITexture* pTexture) override;
 		void SetTexture(const std::string& varName, ID3D11ShaderResourceView* pSRV);
 
-		void Reload(ID3D11Device* pDevice);
 		std::unique_ptr<DirectXMaterial> Clone(ID3D11Device* pDevice);
 
 	private:

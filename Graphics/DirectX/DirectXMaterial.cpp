@@ -157,38 +157,6 @@ void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ID3
 	}
 }
 
-void leap::graphics::DirectXMaterial::Reload(ID3D11Device* pDevice)
-{
-	if (m_pEffect) m_pEffect->Release();
-	if (m_pInputLayout) m_pInputLayout->Release();
-
-	m_pEffect = LoadEffect(pDevice, m_AssetFile);
-
-	// Save the technique of the effect as a member variable
-	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
-	if (!m_pTechnique->IsValid()) return;
-
-	// Save the worldviewprojection and world variable of the effect as a member variable
-	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
-	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorld")->AsMatrix();
-
-	for (const auto& texturePair : m_pTextures)
-	{
-		SetTexture(texturePair.first, texturePair.second);
-	}
-
-	m_pInputLayout = LoadInputLayout(pDevice);
-
-	// Set all material variables again
-	for (const auto& nameVariablePair : m_MaterialVariables)
-	{
-		auto var = m_pEffect->GetVariableByName(nameVariablePair.first.c_str());
-
-		const MaterialVariable varData{ nameVariablePair.second };
-		var->SetRawValue(&varData.data, 0, varData.byteCount);
-	}
-}
-
 std::unique_ptr<leap::graphics::DirectXMaterial> leap::graphics::DirectXMaterial::Clone(ID3D11Device* pDevice)
 {
 	auto pMaterial{ std::make_unique<DirectXMaterial>(pDevice, m_AssetFile, m_VertexDataFunction) };

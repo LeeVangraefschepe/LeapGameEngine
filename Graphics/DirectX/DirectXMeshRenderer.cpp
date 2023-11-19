@@ -127,13 +127,3 @@ void leap::graphics::DirectXMeshRenderer::SetIsLineRenderer(bool isLineRenderer)
 {
 	m_IsLineRenderer = isLineRenderer;
 }
-
-void leap::graphics::DirectXMeshRenderer::Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
-{
-	LoadMesh(m_FilePath);
-
-	m_pDevice = pDevice;
-	m_pDeviceContext = pDeviceContext;
-
-	SetMaterial(m_pMaterial);
-}

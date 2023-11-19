@@ -34,13 +34,7 @@ namespace leap::graphics
 
 		ID3D11ShaderResourceView* GetResource() const { return m_pSRV; };
 
-		void Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& path);
-		void StoreData(ID3D11Device* pDevice);
-		void Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
-
 	private:
-		std::unique_ptr<std::vector<unsigned char>> m_pData{};
-
 		void LoadTexture(ID3D11Device* pDevice, const std::string& path);
 		void LoadTexture(ID3D11Device* pDevice, int width, int height);
 
@@ -52,7 +46,5 @@ namespace leap::graphics
 
 		ID3D11Texture2D* m_pResource{};
 		ID3D11ShaderResourceView* m_pSRV{};
-
-		
 	};
 }

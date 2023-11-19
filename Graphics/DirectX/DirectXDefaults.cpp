@@ -42,9 +42,3 @@ void leap::graphics::DirectXDefaults::GetMeshError(ID3D11Device* pDevice, unsign
 	pIndexBuffer = mesh.indexBuffer;
 	nrIndices = mesh.nrIndices;
 }
-
-void leap::graphics::DirectXDefaults::Reload(ID3D11Device* pDevice) const
-{
-	if (m_pNotFoundMaterial) m_pNotFoundMaterial->Reload(pDevice);
-	if (m_pNoMeshMaterial) m_pNoMeshMaterial->Reload(pDevice);
-}

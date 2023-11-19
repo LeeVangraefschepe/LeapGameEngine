@@ -41,8 +41,6 @@ namespace leap::graphics
 		virtual void LoadMesh(const CustomMesh& mesh) override;
 		virtual void SetIsLineRenderer(bool isLineRenderer) override;
 
-		void Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
-
 	private:
 		std::string m_FilePath{};
 

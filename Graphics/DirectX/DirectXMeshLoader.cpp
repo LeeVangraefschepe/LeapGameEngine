@@ -36,17 +36,6 @@ void leap::graphics::DirectXMeshLoader::RemoveCustomMesh(ID3D11Buffer* pVertexBu
 	m_CustomMeshes.erase(meshIt);
 }
 
-void leap::graphics::DirectXMeshLoader::Reload(ID3D11Device* pDevice)
-{
-	for (auto& mesh : m_Meshes)
-	{
-		if (mesh.second.vertexBuffer) mesh.second.vertexBuffer->Release();
-		if (mesh.second.indexBuffer) mesh.second.indexBuffer->Release();
-
-		mesh.second = CreateMesh(mesh.first, pDevice);
-	}
-}
-
 leap::graphics::DirectXMeshLoader::~DirectXMeshLoader()
 {
 	for (auto& mesh : m_Meshes)
