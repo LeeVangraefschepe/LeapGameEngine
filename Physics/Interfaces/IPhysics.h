@@ -17,6 +17,7 @@
 namespace leap::physics
 {
 	class IPhysicsObject;
+	struct RaycastHit;
 
 	class IPhysics
 	{
@@ -40,6 +41,8 @@ namespace leap::physics
 		virtual TSubject<CollisionData>& OnTriggerEnter() = 0;
 		virtual TSubject<CollisionData>& OnTriggerStay() = 0;
 		virtual TSubject<CollisionData>& OnTriggerExit() = 0;
+
+		virtual bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo) = 0;
 	};
 
 	class DefaultPhysics final : public IPhysics
@@ -64,6 +67,8 @@ namespace leap::physics
 		virtual TSubject<CollisionData>& OnTriggerEnter() override { return m_EmptyCollision; }
 		virtual TSubject<CollisionData>& OnTriggerStay() override { return m_EmptyCollision; }
 		virtual TSubject<CollisionData>& OnTriggerExit() override { return m_EmptyCollision; }
+
+		virtual bool Raycast(const glm::vec3&, const glm::vec3&, float, RaycastHit&) override { return {}; }
 
 	private:
 		TSubject<CollisionData> m_EmptyCollision{};

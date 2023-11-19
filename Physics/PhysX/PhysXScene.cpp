@@ -4,6 +4,8 @@
 
 #include "PhysXEngine.h"
 
+#include "../Data/RaycastHit.h"
+
 leap::physics::PhysXScene::PhysXScene(physx::PxScene* pScene)
 	: m_pScene{ pScene }
 {
@@ -40,6 +42,24 @@ std::vector<std::pair<glm::vec3, glm::vec3>> leap::physics::PhysXScene::GetDebug
 	}
 
 	return debugDrawings;
+}
+
+bool leap::physics::PhysXScene::Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo)
+{
+	physx::PxRaycastBuffer physXRaycastHit{};
+	physx::PxVec3 physXStart{ start.x, start.y, start.z};
+	physx::PxVec3 physXDir{ direction.x, direction.y, direction.z };
+
+	if (!m_pScene->raycast(physXStart, physXDir.getNormalized(), distance, physXRaycastHit)) return { false };
+
+	hitInfo.pCollider = physXRaycastHit.block.shape->userData;
+	hitInfo.distance = physXRaycastHit.block.distance;
+	const auto& physXPoint{ physXRaycastHit.block.position };
+	hitInfo.point = { physXPoint.x, physXPoint.y, physXPoint.z };
+	const auto& physXNormal{ physXRaycastHit.block.normal };
+	hitInfo.normal = { physXNormal.x, physXNormal.y, physXNormal.z };
+
+	return true;
 }
 
 void leap::physics::PhysXScene::AddActor(physx::PxRigidActor* pActor) const

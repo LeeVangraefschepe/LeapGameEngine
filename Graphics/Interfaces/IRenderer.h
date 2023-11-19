@@ -58,6 +58,7 @@ namespace leap::graphics
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines) = 0;
+		virtual void DrawLine(const glm::vec3& start, const glm::vec3& end) = 0;
 	};
 
 	class DefaultRenderer final : public IRenderer
@@ -96,5 +97,6 @@ namespace leap::graphics
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>&) override {}
+		virtual void DrawLine(const glm::vec3&, const glm::vec3&) override {}
 	};
 }
