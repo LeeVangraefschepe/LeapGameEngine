@@ -44,7 +44,7 @@ leap::graphics::DirectXEngine::~DirectXEngine()
 
 void leap::graphics::DirectXEngine::Initialize()
 {
-	ReloadDirectXEngine();
+	CreateDirectXEngine();
 
 	Debug::Log("DirectXRenderer Log: Creating default material with ID \"Default\"");
 	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default");
@@ -57,22 +57,74 @@ void leap::graphics::DirectXEngine::Initialize()
 	Debug::Log("DirectXRenderer Log: Successfully initialized DirectX engine");
 }
 
+void leap::graphics::DirectXEngine::Draw()
+{
+	if (!m_IsInitialized) return;
+
+	if (m_pCamera)
+	{
+		if (!m_DebugDrawings.GetIndexBuffer().empty())
+		{
+			m_pDebugRenderer->LoadMesh(m_DebugDrawings);
+			m_DebugDrawings.Clear();
+		}
+
+		RenderCameraView();
+	}
+	else
+	{
+		SetupNonCameraView();
+	}
+
+	// Render sprites
+	m_SpriteRenderer.Draw();
+
+	// Imgui render
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	// Swap render buffers
+	m_pSwapChain->Present(0, 0);
+}
+
+void leap::graphics::DirectXEngine::GuiDraw()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
+
 void leap::graphics::DirectXEngine::SetAntiAliasing(AntiAliasing antiAliasing)
 {
 	m_AntiAliasing = antiAliasing;
 
-	if(m_IsInitialized) ReloadDirectXEngine();
+	if (m_IsInitialized) CreateRenderTargetAndSetViewport();
 }
 
 void leap::graphics::DirectXEngine::SetWindowSize(const glm::ivec2&)
 {
-	if (m_IsInitialized) ReloadDirectXEngine();
+	if (m_IsInitialized) CreateRenderTargetAndSetViewport();
 }
 
 void leap::graphics::DirectXEngine::SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane)
 {
 	m_DirectionalLight.SetShadowMapData(static_cast<float>(shadowMapWidth) / shadowMapHeight, orthoSize, nearPlane, farPlane);
 	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, { shadowMapWidth, shadowMapHeight });
+}
+
+void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
+{
+	if (!m_pCamera) return;
+
+	glm::mat4x3 lightTransform{ transform };
+	lightTransform[3] = glm::vec3{ m_pCamera->GetInverseViewMatrix()[3] } - transform[2] * 25.0f;
+
+	m_DirectionalLight.SetTransform(lightTransform);
+
+	for (const auto& pMaterial : m_pMaterials)
+	{
+		pMaterial.second->SetFloat3("gLightDirection", transform[2]);
+	}
 }
 
 leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
@@ -170,28 +222,9 @@ void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::v
 	}
 }
 
-void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
-{
-	if (!m_pCamera) return;
-
-	glm::mat4x3 lightTransform { transform };
-	lightTransform[3] = glm::vec3{ m_pCamera->GetInverseViewMatrix()[3] } - transform[2] * 25.0f;
-
-	m_DirectionalLight.SetTransform(lightTransform);
-
-	for (const auto& pMaterial : m_pMaterials)
-	{
-		pMaterial.second->SetFloat3("gLightDirection", transform[2]);
-	}
-}
-
 void leap::graphics::DirectXEngine::Release()
 {
-	if (m_pSwapChain)
-	{
-		m_pSwapChain->Release();
-		m_pSwapChain = nullptr;
-	}
+	ReleaseSwapchain();
 	if (m_pDeviceContext)
 	{
 		m_pDeviceContext->ClearState();
@@ -209,17 +242,17 @@ void leap::graphics::DirectXEngine::Release()
 	}
 }
 
-void leap::graphics::DirectXEngine::ReloadDirectXEngine()
+void leap::graphics::DirectXEngine::ReleaseSwapchain()
 {
-	// Store all the previous texture information to reapply it later to reloaded textures
-	for (const auto& pTexture : m_pUniqueTextures)
+	if (m_pSwapChain)
 	{
-		pTexture->StoreData(m_pDevice);
+		m_pSwapChain->Release();
+		m_pSwapChain = nullptr;
 	}
+}
 
-	// Release the previous version of the graphics engine
-	Release();
-
+void leap::graphics::DirectXEngine::CreateDirectXEngine()
+{
 	/// Create device & Device context
 	UINT createDeviceFlags = 0;
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
@@ -229,15 +262,14 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 #endif
 
 	IDXGIFactory1* pFactory = nullptr;
-	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory));
-	HRESULT result{};
+	HRESULT result{ CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory)) };
 
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(result))
 	{
 		IDXGIAdapter1* pAdapter = nullptr;
 
-		hr = pFactory->EnumAdapters1(0, &pAdapter);
-		if (SUCCEEDED(hr))
+		result = pFactory->EnumAdapters1(0, &pAdapter);
+		if (SUCCEEDED(result))
 		{
 			result = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, &featureLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 
@@ -249,6 +281,35 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		pFactory->Release();
 	}
 
+	// Create swap chain and viewport
+	CreateRenderTargetAndSetViewport();
+
+	// Create a new shadow renderer using new video settings
+	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, m_ShadowRenderer.GetShadowMapSize());
+
+	Debug::Log("DirectXRenderer Log: Successfully created DirectX engine");
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOther(m_pWindow, true);
+	ImGui_ImplDX11_Init(m_pDevice, m_pDeviceContext);
+	ImGui::StyleColorsDark();
+}
+
+void leap::graphics::DirectXEngine::CreateRenderTargetAndSetViewport()
+{
+	// Release previous versions of the swapchain
+	ReleaseSwapchain();
+
+	// Get the window size to use for the swap chain
+	int width, height;
+	glfwGetWindowSize(m_pWindow, &width, &height);
+
+	// Create factory
+	IDXGIFactory1* pDxgiFactory{ nullptr };
+	HRESULT result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
+	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create DirectX factory");
+
 	// Check if the anti aliasing level is supported
 	UINT supportedLevels{};
 	result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
@@ -257,14 +318,6 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		m_AntiAliasing = static_cast<AntiAliasing>(static_cast<UINT>(m_AntiAliasing) / 2);
 		result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
 	}
-
-	// Get the window size to use for the swap chain
-	int width, height;
-	glfwGetWindowSize(m_pWindow, &width, &height);
-
-	IDXGIFactory1* pDxgiFactory{ nullptr };
-	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
-	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create DirectX factory");
 
 	// Create swapchain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
@@ -303,7 +356,7 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 
 	m_RenderTarget.Create(m_pDevice, m_pDeviceContext, renderTargetDesc);
 
-	/// Set viewport
+	// Set viewport
 	D3D11_VIEWPORT viewport{};
 	viewport.Width = static_cast<FLOAT>(width);
 	viewport.Height = static_cast<FLOAT>(height);
@@ -313,90 +366,10 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	viewport.MaxDepth = 1;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
 
-	// Create a new shadow renderer using new video settings
-	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, m_ShadowRenderer.GetShadowMapSize());
-
-	// Reload existing textures, materials & meshes using new video settings
-	for (const auto& texturePair : m_pTextures)
-	{
-		texturePair.second->Reload(m_pDevice, m_pDeviceContext, texturePair.first);
-	}
-	for (const auto& pTexture : m_pUniqueTextures)
-	{
-		pTexture->Reload(m_pDevice, m_pDeviceContext);
-	}
-
-	for (const auto& materialPair : m_pMaterials)
-	{
-		materialPair.second->Reload(m_pDevice);
-
-		// Reconnect the shadowmap to the material
-		materialPair.second->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
-	}
-
-	DirectXMeshLoader::GetInstance().Reload(m_pDevice);
-
-	for (const auto& pRenderer : m_pRenderers)
-	{
-		pRenderer->Reload(m_pDevice, m_pDeviceContext);
-	}
-
 	// Create a new sprite renderer using new video settings
 	m_SpriteRenderer.Create(m_pDevice, m_pDeviceContext, glm::vec2{ width, height });
 
-	Debug::Log("DirectXRenderer Log: Successfully reloaded DirectX engine");
-	DirectXDefaults::GetInstance().Reload(m_pDevice);
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui_ImplGlfw_InitForOther(m_pWindow, true);
-	ImGui_ImplDX11_Init(m_pDevice, m_pDeviceContext);
-	ImGui::StyleColorsDark();
-}
-
-void leap::graphics::DirectXEngine::Draw()
-{
-	if (!m_IsInitialized) return;
-
-	if (m_pCamera)
-	{
-		if (!m_DebugDrawings.GetIndexBuffer().empty())
-		{
-			m_pDebugRenderer->LoadMesh(m_DebugDrawings);
-			m_DebugDrawings.Clear();
-		}
-
-		RenderCameraView();
-	}
-	else
-	{
-		SetupNonCameraView();
-	}
-
-	// Render sprites
-	m_SpriteRenderer.Draw();
-
-	// Imgui render
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-	// Swap render buffers
-	m_pSwapChain->Present(0, 0);
-}
-
-void leap::graphics::DirectXEngine::SetupNonCameraView() const
-{
-	// Unbind SRV
-	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
-	//m_pDeviceContext->PSSetShaderResources(1, 1, pSRV);
-	m_pDeviceContext->PSSetShaderResources(0, 2, pSRV);
-
-	// Set render target
-	m_RenderTarget.Apply();
-
-	// Clear target views
-	constexpr glm::vec4 clearColor{};
-	m_RenderTarget.Clear(clearColor);
+	Debug::Log("DirectXRenderer Log: Successfully created swapchain, rendertarget and spriterenderer");
 }
 
 void leap::graphics::DirectXEngine::RenderCameraView() const
@@ -440,9 +413,17 @@ void leap::graphics::DirectXEngine::RenderCameraView() const
 	}
 }
 
-void leap::graphics::DirectXEngine::GuiDraw()
+void leap::graphics::DirectXEngine::SetupNonCameraView() const
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	// Unbind SRV
+	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
+	//m_pDeviceContext->PSSetShaderResources(1, 1, pSRV);
+	m_pDeviceContext->PSSetShaderResources(0, 2, pSRV);
+
+	// Set render target
+	m_RenderTarget.Apply();
+
+	// Clear target views
+	constexpr glm::vec4 clearColor{};
+	m_RenderTarget.Clear(clearColor);
 }

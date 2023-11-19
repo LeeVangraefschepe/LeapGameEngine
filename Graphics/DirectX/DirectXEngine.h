@@ -78,7 +78,9 @@ namespace leap::graphics
 
 	private:
 		void Release();
-		void ReloadDirectXEngine();
+		void ReleaseSwapchain();
+		void CreateDirectXEngine();
+		void CreateRenderTargetAndSetViewport();
 		void RenderCameraView() const;
 		void SetupNonCameraView() const;
 
