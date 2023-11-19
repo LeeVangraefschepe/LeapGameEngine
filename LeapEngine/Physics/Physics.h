@@ -5,10 +5,12 @@
 namespace leap
 {
 	class Collider;
+	class Rigidbody;
 
 	struct RaycastHitInfo final
 	{
 		Collider* pCollider{};
+		Rigidbody* pRigidbody{};
 		float distance{};
 		glm::vec3 point{};
 		glm::vec3 normal{};
