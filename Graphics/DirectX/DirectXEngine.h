@@ -74,13 +74,15 @@ namespace leap::graphics
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
 		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) override;
-		virtual ITexture* CreateTexture(const std::string& path) override;
+		virtual ITexture* CreateTexture(const std::string& path, bool cached) override;
 		virtual ITexture* CreateTexture(int width, int height) override;
+		virtual void RemoveTexture(ITexture* pTexture) override;
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) override;
 
 		ID3D11Device* GetDevice() const { return m_pDevice; }
+		ID3D11DeviceContext* GetContext() const { return m_pDeviceContext; }
 
 	private:
 		void Release();

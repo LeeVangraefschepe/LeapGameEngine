@@ -32,6 +32,11 @@ namespace leap
 			return m_pObject;
 		}
 
+		T* GetUncountedObject() const
+		{
+			return m_pObject;
+		}
+
 		bool IsValid() const
 		{
 			return m_pObject;

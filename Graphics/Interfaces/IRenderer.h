@@ -57,8 +57,9 @@ namespace leap::graphics
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) = 0;
 		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) = 0;
-		virtual ITexture* CreateTexture(const std::string& path) = 0;
+		virtual ITexture* CreateTexture(const std::string& path, bool cached) = 0;
 		virtual ITexture* CreateTexture(int width, int height) = 0;
+		virtual void RemoveTexture(ITexture* pTexture) = 0;
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines) = 0;
@@ -98,8 +99,9 @@ namespace leap::graphics
 		// Materials & Textures
 		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&) override { return nullptr; }
 		virtual IMaterial* CloneMaterial(const std::string&, const std::string&) override { return nullptr; }
-		virtual ITexture* CreateTexture(const std::string&) override { return nullptr; }
+		virtual ITexture* CreateTexture(const std::string&, bool) override { return nullptr; }
 		virtual ITexture* CreateTexture(int, int) override { return nullptr; }
+		virtual void RemoveTexture(ITexture*) override {}
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>&) override {}

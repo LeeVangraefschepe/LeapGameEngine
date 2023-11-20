@@ -217,28 +217,31 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const st
 	return nullptr;
 }
 
-leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path)
+leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path, bool cached)
 {
-	if (auto it{ m_pTextures.find(path) }; it != end(m_pTextures))
+	if (!cached)
 	{
-		return it->second.get();
+		m_pUniqueTextures.emplace_back(std::make_unique<DirectXTexture>(this, path));
+		return m_pUniqueTextures[m_pUniqueTextures.size() - 1].get();
 	}
 
-	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, m_pDeviceContext, path) };
-	auto pTextureRaw{ pTexture.get() };
+	if (!m_pTextures.contains(path))
+	{
+		m_pTextures[path] = std::make_unique<DirectXTexture>(this, path);
+	}
 
-	m_pTextures[path] = std::move(pTexture);
-	return pTextureRaw;
+	return m_pTextures[path].get();
 }
 
 leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(int width, int height)
 {
-	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, m_pDeviceContext, width, height) };
-	auto pTextureRaw{ pTexture.get() };
+	m_pUniqueTextures.emplace_back(std::make_unique<DirectXTexture>(this, width, height));
+	return m_pUniqueTextures[m_pUniqueTextures.size() - 1].get();
+}
 
-	m_pUniqueTextures.emplace_back(std::move(pTexture));
-
-	return pTextureRaw;
+void leap::graphics::DirectXEngine::RemoveTexture(ITexture* pTexture)
+{
+	std::erase_if(m_pUniqueTextures, [pTexture](const auto& pUniqueTexture) { return pUniqueTexture.get() == pTexture; });
 }
 
 void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines)

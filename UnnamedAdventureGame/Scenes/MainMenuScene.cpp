@@ -94,7 +94,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	windowControls->AddComponent<WindowManager>();
 
 	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
-	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
+	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png", true));
 
 	const leap::Mesh cube{ "Data/Engine/Models/cube.obj", true };
 	auto ground{ scene.CreateGameObject("Ground") };

@@ -9,18 +9,17 @@
 #include <wincodec.h>
 #include <dxgiformat.h>
 
-struct ID3D11Device;
 struct ID3D11Texture2D;
 struct ID3D11ShaderResourceView;
-struct ID3D11DeviceContext;
 
 namespace leap::graphics
 {
+	class DirectXEngine;
 	class DirectXTexture final : public ITexture
 	{
 	public:
-		DirectXTexture(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, int width, int height);
-		DirectXTexture(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& path);
+		DirectXTexture(DirectXEngine* pEngine, int width, int height);
+		DirectXTexture(DirectXEngine* pEngine, const std::string& path);
 		virtual ~DirectXTexture();
 
 		DirectXTexture(const DirectXTexture& other) = delete;
@@ -31,18 +30,18 @@ namespace leap::graphics
 		virtual void SetData(void* pData, unsigned int nrBytes) override;
 		virtual std::vector<unsigned char> GetData() override;
 		virtual glm::ivec2 GetSize() const override;
+		virtual void Remove() override;
 
 		ID3D11ShaderResourceView* GetResource() const { return m_pSRV; };
 
 	private:
-		void LoadTexture(ID3D11Device* pDevice, const std::string& path);
-		void LoadTexture(ID3D11Device* pDevice, int width, int height);
+		void LoadTexture(const std::string& path);
+		void LoadTexture(int width, int height);
 
 		static DXGI_FORMAT ConvertWICToDXGI(const WICPixelFormatGUID& wicFormat);
 		static WICPixelFormatGUID ConvertWICToWIC(const WICPixelFormatGUID& wicFormatGUID);
 
-		ID3D11DeviceContext* m_pDeviceContext{};
-		ID3D11Device* m_pDevice{};
+		DirectXEngine* m_pEngine{};
 
 		ID3D11Texture2D* m_pResource{};
 		ID3D11ShaderResourceView* m_pSRV{};

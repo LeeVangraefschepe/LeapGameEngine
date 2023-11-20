@@ -6,6 +6,7 @@
 #include "Interfaces/ITexture.h"
 #include <fstream>
 #include "Debug.h"
+#include "../Graphics/Texture.h"
 
 const glm::ivec2& leap::Window::GetWindowSize() const
 {
@@ -45,10 +46,10 @@ void leap::Window::SetResize(bool value) const
 
 void leap::Window::SetIcon(const std::string& path) const
 {
-	const auto texture = ServiceLocator::GetRenderer().CreateTexture(path);
-	auto data = texture->GetData();
+	Texture iconTexture{ path, true };
+	auto data = iconTexture.GetData();
 	GLFWimage images[1];
-	images[0] = GLFWimage{ texture->GetSize().x, texture->GetSize().y, data.data() };
+	images[0] = GLFWimage{ iconTexture.GetSize().x, iconTexture.GetSize().y, data.data() };
 
 	glfwSetWindowIcon(m_pWindow, 1, images);
 }

@@ -8,8 +8,8 @@
 #include <Debug.h>
 
 leap::Mesh::Mesh()
+	: m_pMesh{ std::make_unique<GraphicsObject<graphics::IMesh>>() }
 {
-	m_pMesh = std::make_unique<GraphicsObject<graphics::IMesh>>();
 }
 
 leap::Mesh::Mesh(const std::string& filePath, bool unique)

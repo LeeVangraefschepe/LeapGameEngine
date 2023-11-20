@@ -1,14 +1,14 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "GraphicsObject.h"
 
 #include <Data/CustomMesh.h>
 #include <Interfaces/IMesh.h>
 #include <Debug.h>
+
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace leap
 {
