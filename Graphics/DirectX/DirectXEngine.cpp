@@ -31,6 +31,8 @@
 
 #include "../Data/CustomMesh.h"
 
+#include <sstream>
+
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 	Debug::Log("DirectXRenderer Log: Created DirectX engine");
@@ -457,4 +459,21 @@ void leap::graphics::DirectXEngine::SetupNonCameraView() const
 	// Clear target views
 	constexpr glm::vec4 clearColor{};
 	m_RenderTarget.Clear(clearColor);
+}
+
+void leap::graphics::DirectXEngine::PrintDiagnostics() const
+{
+	std::stringstream ss{};
+
+	ss << "\n";
+	ss << "DirectX Engine Usage:";
+	ss << "Meshes cached " << m_pMeshes.size() << "\n";
+	ss << "Meshes non-cached " << m_pUniqueMeshes.size() << "\n";
+	ss << "Materials " << m_pMaterials.size() << "\n";
+	ss << "Mesh renderers " << m_pRenderers.size() << "\n";
+	ss << "Textures cached " << m_pTextures.size() << "\n";
+	ss << "Textured non-cached " << m_pUniqueTextures.size() << "\n";
+	ss << "\n";
+
+	Debug::Log(ss.str());
 }

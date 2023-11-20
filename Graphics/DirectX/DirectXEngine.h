@@ -88,6 +88,8 @@ namespace leap::graphics
 		void RenderCameraView() const;
 		void SetupNonCameraView() const;
 
+		void PrintDiagnostics() const;
+
 		AntiAliasing m_AntiAliasing{ AntiAliasing::X16 };
 
 		GLFWwindow* m_pWindow;
