@@ -5,19 +5,20 @@
 #include <string>
 
 struct ID3D11Buffer;
-struct ID3D11Device;
 
 namespace leap::graphics
 {
+	class DirectXEngine;
 	class DirectXMeshRenderer;
 
 	class DirectXMesh final : public IMesh
 	{
 	public:
-		DirectXMesh(ID3D11Device* pDevice);
-		DirectXMesh(ID3D11Device* pDevice, const std::string& filePath);
+		DirectXMesh(DirectXEngine* pEngine);
+		DirectXMesh(DirectXEngine* pEngine, const std::string& filePath);
 
 		virtual void ReloadMesh(const CustomMesh& mesh) override;
+		virtual void Remove() override;
 
 		virtual ~DirectXMesh() = default;
 
@@ -29,6 +30,6 @@ namespace leap::graphics
 		unsigned int m_NrIndices{};
 		ID3D11Buffer* m_pIndexBuffer{};
 
-		ID3D11Device* m_pDevice{};
+		DirectXEngine* m_pEngine{};
 	};
 }

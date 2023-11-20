@@ -80,6 +80,8 @@ namespace leap::graphics
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) override;
 
+		ID3D11Device* GetDevice() const { return m_pDevice; }
+
 	private:
 		void Release();
 		void ReleaseSwapchain();

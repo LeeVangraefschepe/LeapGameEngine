@@ -139,22 +139,20 @@ leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer
 
 void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRenderer)
 {
-	auto it{ std::find_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }) };
-	(*it)->OnRemove(this);
-	m_pRenderers.erase(it);
+	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
 }
 
 leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh(const std::string& path, bool cached)
 {
 	if (!cached)
 	{
-		m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(m_pDevice, path));
+		m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(this, path));
 		return m_pUniqueMeshes[m_pUniqueMeshes.size() - 1].get();
 	}
 
 	if (!m_pMeshes.contains(path))
 	{
-		m_pMeshes[path] = std::make_unique<DirectXMesh>(m_pDevice, path);
+		m_pMeshes[path] = std::make_unique<DirectXMesh>(this, path);
 	}
 
 	return m_pMeshes[path].get();
@@ -162,7 +160,7 @@ leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh(const std::stri
 
 leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh()
 {
-	m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(m_pDevice));
+	m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(this));
 	return m_pUniqueMeshes[m_pUniqueMeshes.size() - 1].get();
 }
 
@@ -257,6 +255,13 @@ void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::v
 
 void leap::graphics::DirectXEngine::Release()
 {
+	m_pRenderers.clear();
+	m_pMaterials.clear();
+	m_pTextures.clear();
+	m_pUniqueTextures.clear();
+	m_pMeshes.clear();
+	m_pUniqueMeshes.clear();
+
 	ReleaseSwapchain();
 	if (m_pDeviceContext)
 	{

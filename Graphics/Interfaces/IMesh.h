@@ -10,5 +10,6 @@ namespace leap::graphics
 		virtual ~IMesh() = default;
 
 		virtual void ReloadMesh(const CustomMesh& mesh) = 0;
+		virtual void Remove() = 0;
 	};
 }

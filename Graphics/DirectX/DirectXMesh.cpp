@@ -1,5 +1,7 @@
 #include "DirectXMesh.h"
 
+#include "DirectXEngine.h"
+
 #include "../Data/Vertex.h"
 #include "../Data/CustomMesh.h"
 #include "../MeshLoader.h"
@@ -10,13 +12,13 @@
 
 #include <Debug.h>
 
-leap::graphics::DirectXMesh::DirectXMesh(ID3D11Device* pDevice)
-	: m_pDevice{ pDevice }
+leap::graphics::DirectXMesh::DirectXMesh(DirectXEngine* pEngine)
+	: m_pEngine{ pEngine }
 {
 }
 
-leap::graphics::DirectXMesh::DirectXMesh(ID3D11Device* pDevice, const std::string& filePath)
-	: DirectXMesh(pDevice)
+leap::graphics::DirectXMesh::DirectXMesh(DirectXEngine* pEngine, const std::string& filePath)
+	: DirectXMesh(pEngine)
 {
 	std::vector<Vertex> vertices{};
 	std::vector<unsigned int> indices{};
@@ -39,7 +41,7 @@ leap::graphics::DirectXMesh::DirectXMesh(ID3D11Device* pDevice, const std::strin
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = vertices.data();
 
-	HRESULT result{ pDevice->CreateBuffer(&bd, &initData, &m_pVertexBuffer) };
+	HRESULT result{ pEngine->GetDevice()->CreateBuffer(&bd, &initData, &m_pVertexBuffer)};
 	if (FAILED(result))
 	{
 		Debug::LogError("DirectXEngine Error : Failed to create vertex buffer from obj");
@@ -54,7 +56,7 @@ leap::graphics::DirectXMesh::DirectXMesh(ID3D11Device* pDevice, const std::strin
 	bd.MiscFlags = 0;
 	initData.pSysMem = indices.data();
 
-	result = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
+	result = pEngine->GetDevice()->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) Debug::LogError("DirectXEngine Error : Failed to create index buffer from obj");
 }
 
@@ -75,7 +77,7 @@ void leap::graphics::DirectXMesh::ReloadMesh(const CustomMesh& mesh)
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = mesh.GetVertexBuffer().data();
 
-	HRESULT result{ m_pDevice->CreateBuffer(&bd, &initData, &m_pVertexBuffer) };
+	HRESULT result{ m_pEngine->GetDevice()->CreateBuffer(&bd, &initData, &m_pVertexBuffer)};
 	if (FAILED(result))
 	{
 		Debug::LogError("DirectXEngine Error : Failed to create vertex buffer from obj");
@@ -90,6 +92,11 @@ void leap::graphics::DirectXMesh::ReloadMesh(const CustomMesh& mesh)
 	bd.MiscFlags = 0;
 	initData.pSysMem = mesh.GetIndexBuffer().data();
 
-	result = m_pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
+	result = m_pEngine->GetDevice()->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) Debug::LogError("DirectXEngine Error : Failed to create index buffer from obj");
+}
+
+void leap::graphics::DirectXMesh::Remove()
+{
+	m_pEngine->RemoveMesh(this);
 }

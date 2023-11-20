@@ -41,8 +41,6 @@ namespace leap::graphics
 		virtual void SetMesh(IMesh* pMesh) override;
 		virtual void SetIsLineRenderer(bool isLineRenderer) override;
 
-		void OnRemove(DirectXEngine* pEngine);
-
 	private:
 		DirectXMesh* m_pMesh{};
 		DirectXMaterial* m_pMaterial{};

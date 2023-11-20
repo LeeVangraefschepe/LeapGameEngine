@@ -17,7 +17,10 @@ leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(ID3D11Device* pDevice, 
 {
 }
 
-leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer() = default;
+leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer()
+{
+	if(m_pMesh) m_pMesh->Remove();
+}
 
 void leap::graphics::DirectXMeshRenderer::Draw()
 {
@@ -99,15 +102,14 @@ void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transf
 
 void leap::graphics::DirectXMeshRenderer::SetMesh(IMesh* pMesh)
 {
+	if (m_pMesh == pMesh) return;
+
+	if (m_pMesh) m_pMesh->Remove();
+
 	m_pMesh = static_cast<DirectXMesh*>(pMesh);
 }
 
 void leap::graphics::DirectXMeshRenderer::SetIsLineRenderer(bool isLineRenderer)
 {
 	m_IsLineRenderer = isLineRenderer;
-}
-
-void leap::graphics::DirectXMeshRenderer::OnRemove(DirectXEngine* pEngine)
-{
-	if (m_pMesh) pEngine->RemoveMesh(m_pMesh);
 }
