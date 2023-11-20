@@ -22,6 +22,12 @@ namespace leap
 	public:
 		Mesh() = default;
 		Mesh(const std::string& filePath, bool unique = false);
+		~Mesh();
+
+		Mesh(const Mesh& mesh) = delete;
+		Mesh& operator=(const Mesh& mesh) = delete;
+		Mesh(Mesh&& mesh) noexcept;
+		Mesh& operator=(Mesh&& mesh) noexcept;
 
 		template<typename T> 
 		void AddVertex(const T& vertex)
@@ -81,5 +87,6 @@ namespace leap
 		graphics::IMesh* m_pMesh{};
 		std::unique_ptr<graphics::CustomMesh> m_pWritableMesh{};
 		bool m_IsWritableMeshDirty{};
+		unsigned int m_UseCounter{};
 	};
 }
