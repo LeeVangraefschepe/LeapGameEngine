@@ -15,7 +15,7 @@ leap::MeshRenderer::MeshRenderer()
 	m_pRenderer = ServiceLocator::GetRenderer().CreateMeshRenderer();
 }
 
-void leap::MeshRenderer::SetMesh(Mesh& mesh)
+void leap::MeshRenderer::SetMesh(const Mesh& mesh)
 {
 	m_pRenderer->SetMesh(mesh.GetInternal());
 }

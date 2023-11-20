@@ -25,7 +25,7 @@ namespace leap
 		MeshRenderer& operator=(const MeshRenderer& other) = delete;
 		MeshRenderer& operator=(MeshRenderer&& other) = delete;
 
-		void SetMesh(Mesh& mesh);
+		void SetMesh(const Mesh& mesh);
 		void SetMaterial(graphics::IMaterial* pMaterial);
 		graphics::IMaterial* GetMaterial() const;
 

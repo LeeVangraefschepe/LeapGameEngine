@@ -4,25 +4,32 @@
 #include <string>
 #include <vector>
 
-#include <Data/CustomMesh.h>
+#include "GraphicsObject.h"
 
+#include <Data/CustomMesh.h>
+#include <Interfaces/IMesh.h>
 #include <Debug.h>
 
 namespace leap
 {
-	class MeshRendererComponent;
 	namespace graphics
 	{
-		class IMesh;
 		class CustomMesh;
 	}
 
 	class Mesh final
 	{
+	private:
+		struct WritableMesh final
+		{
+			graphics::CustomMesh mesh{};
+			bool isDirty{};
+		};
+
 	public:
-		Mesh() = default;
+		Mesh();
 		Mesh(const std::string& filePath, bool unique = false);
-		~Mesh();
+		~Mesh() = default;
 
 		Mesh(const Mesh& mesh) = delete;
 		Mesh& operator=(const Mesh& mesh) = delete;
@@ -39,11 +46,11 @@ namespace leap
 			}
 
 			// Add the vertex and a new index
-			m_pWritableMesh->AddVertex(vertex);
-			m_pWritableMesh->AddIndex(static_cast<unsigned int>(m_pWritableMesh->GetIndexBuffer().size()));
+			m_pWritableMesh->mesh.AddVertex(vertex);
+			m_pWritableMesh->mesh.AddIndex(static_cast<unsigned int>(m_pWritableMesh->mesh.GetIndexBuffer().size()));
 
 			// Set dirty flag
-			m_IsWritableMeshDirty = true;
+			m_pWritableMesh->isDirty = true;
 		}
 
 		template<typename T>
@@ -56,16 +63,16 @@ namespace leap
 			}
 
 			// Clear any previous data in the custom mesh
-			m_pWritableMesh->Clear();
+			m_pWritableMesh->mesh.Clear();
 
 			// Set the given indices if any
 			const bool hasIndices{ !indices.empty() };
-			if (hasIndices) m_pWritableMesh->SetIndices(std::move(indices));
+			if (hasIndices) m_pWritableMesh->mesh.SetIndices(std::move(indices));
 
 			// Add all the give vertices, also add indices if there were none given by the user
 			if (hasIndices)
 			{
-				for (const T& vertex : vertices) m_pWritableMesh->AddVertex(vertex);
+				for (const T& vertex : vertices) m_pWritableMesh->mesh.AddVertex(vertex);
 			}
 			else
 			{
@@ -73,7 +80,7 @@ namespace leap
 			}
 
 			// Set dirty flag
-			m_IsWritableMeshDirty = true;
+			m_pWritableMesh->isDirty = true;
 		}
 
 		void SetWritable(bool isWritable);
@@ -81,12 +88,10 @@ namespace leap
 
 		void Load(const std::string& filePath, bool unique = false);
 
-		graphics::IMesh* GetInternal();
+		graphics::IMesh* GetInternal() const;
 
 	private:
-		graphics::IMesh* m_pMesh{};
-		std::unique_ptr<graphics::CustomMesh> m_pWritableMesh{};
-		bool m_IsWritableMeshDirty{};
-		unsigned int m_UseCounter{};
+		std::unique_ptr<GraphicsObject<graphics::IMesh>> m_pMesh{};
+		std::unique_ptr<WritableMesh> m_pWritableMesh{};
 	};
 }

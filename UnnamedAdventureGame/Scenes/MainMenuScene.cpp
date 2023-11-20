@@ -75,7 +75,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pMainCamera->GetData()->SetFarPlane(1000.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
 	//pCameraObj->GetTransform()->SetLocalPosition(0.0f, 200.0f, -200.0f);
-	pCameraObj->GetTransform()->SetLocalPosition(0.0f, 0.0f, -5.0f);
+	pCameraObj->GetTransform()->SetLocalPosition(0.0f, 5.0f, -5.0f);
 
 	auto canvas{ scene.CreateGameObject("Canvas") };
 	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
@@ -93,15 +93,15 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	/*const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
-	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));*/
+	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
+	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
 
-	leap::Mesh cube{ "Data/Engine/Models/cube.obj", true };
-
+	const leap::Mesh cube{ "Data/Engine/Models/cube.obj", true };
 	auto ground{ scene.CreateGameObject("Ground") };
 	leap::MeshRenderer* pGroundMeshRenderer{ ground->AddComponent<leap::MeshRenderer>() };
 	pGroundMeshRenderer->SetMesh(cube);
-	ground->Destroy();
+	pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
+	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);
 	//pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
 	/*ground->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);
 	ground->GetTransform()->SetLocalScale(20.0f, 1.0f, 20.0f);
