@@ -60,8 +60,15 @@ leap::graphics::DirectXMesh::DirectXMesh(DirectXEngine* pEngine, const std::stri
 	if (FAILED(result)) Debug::LogError("DirectXEngine Error : Failed to create index buffer from obj");
 }
 
+leap::graphics::DirectXMesh::~DirectXMesh()
+{
+	Release();
+}
+
 void leap::graphics::DirectXMesh::ReloadMesh(const CustomMesh& mesh)
 {
+	Release();
+
 	// Set index amoutn and vertex size
 	m_NrIndices = static_cast<unsigned int>(mesh.GetIndexBuffer().size());
 	m_VertexSize = mesh.GetVertexSize();
@@ -99,4 +106,14 @@ void leap::graphics::DirectXMesh::ReloadMesh(const CustomMesh& mesh)
 void leap::graphics::DirectXMesh::Remove()
 {
 	m_pEngine->RemoveMesh(this);
+}
+
+void leap::graphics::DirectXMesh::Release()
+{
+	if(m_pIndexBuffer) m_pIndexBuffer->Release();
+	m_pIndexBuffer = nullptr;
+	if(m_pVertexBuffer) m_pVertexBuffer->Release();
+	m_pVertexBuffer = nullptr;
+	m_NrIndices = 0;
+	m_VertexSize = 0;
 }

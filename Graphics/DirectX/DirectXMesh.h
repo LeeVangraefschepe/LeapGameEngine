@@ -16,13 +16,14 @@ namespace leap::graphics
 	public:
 		DirectXMesh(DirectXEngine* pEngine);
 		DirectXMesh(DirectXEngine* pEngine, const std::string& filePath);
+		virtual ~DirectXMesh();
 
 		virtual void ReloadMesh(const CustomMesh& mesh) override;
 		virtual void Remove() override;
 
-		virtual ~DirectXMesh() = default;
-
 	private:
+		void Release();
+
 		friend DirectXMeshRenderer;
 
 		unsigned int m_VertexSize{};
