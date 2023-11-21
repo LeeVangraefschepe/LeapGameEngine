@@ -129,10 +129,12 @@ void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transfo
 	for (const auto& pMaterial : m_pMaterials)
 	{
 		pMaterial.second->SetFloat3("gLightDirection", lightDir);
+		pMaterial.second->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
 	}
 	for (const auto& pMaterial : m_pUniqueMaterials)
 	{
 		pMaterial->SetFloat3("gLightDirection", lightDir);
+		pMaterial->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
 	}
 }
 
@@ -200,6 +202,7 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::un
 
 	pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
 	pMaterial->SetFloat3("gLightDirection", m_DirectionalLight.GetDirection());
+	pMaterial->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
 
 	if (cached)
 	{
@@ -229,6 +232,7 @@ leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const st
 
 		pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
 		pMaterial->SetFloat3("gLightDirection", m_DirectionalLight.GetDirection());
+		pMaterial->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
 
 		if (cached)
 		{
@@ -472,12 +476,6 @@ void leap::graphics::DirectXEngine::RenderCameraView() const
 
 	// Set camera matrix
 	DirectXMaterial::SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
-
-	// Apply the shadow map to each material
-	for (const auto& pMaterial : m_pMaterials)
-	{
-		pMaterial.second->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
-	}
 
 	// Render each mesh
 	for (const auto& pRenderer : m_pRenderers)
