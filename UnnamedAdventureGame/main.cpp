@@ -1,3 +1,4 @@
+#include <iostream>
 #include <Windows.h>
 #include "Leap.h"
 #include "GameContext/GameContext.h"
@@ -6,6 +7,11 @@
 #include "Scenes/MainMenuScene.h"
 #include <ServiceLocator/ServiceLocator.h>
 #include <Interfaces/IPhysics.h>
+
+#include "Leap/LeapClient.h"
+#include "Leap/LeapPacket.h"
+#include "Debug.h"
+#include <sstream>
 
 #if _DEBUG
 #include <vld.h>
@@ -22,6 +28,24 @@ int main()
 			leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
 			//leap::GameContext::GetInstance().GetWindow()->SetIcon("Data/Example.png");
 		};
+
+	leap::networking::LeapClient client{1234, "127.0.0.1"};
+	client.Run(20);
+	
+	leap::networking::LeapPacket sendPacket{1};
+	sendPacket.WriteString("Hello from leap game engine!");
+	client.SendTCP(sendPacket);
+	client.SendUDP(sendPacket);
+	
+	leap::networking::LeapPacket receivedPacket{};
+	while (true)
+	{
+		if (client.GetPacket(receivedPacket))
+		{
+			std::cout << receivedPacket.GetData() << '\n';
+			break;
+		}
+	}
 
 	engine.Run(afterInitializing, 60);
 
