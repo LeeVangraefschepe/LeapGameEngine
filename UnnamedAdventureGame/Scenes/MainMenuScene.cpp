@@ -106,6 +106,10 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pGroundMeshRenderer->SetMesh(cube);
 	pGroundMeshRenderer->SetMaterial(material);
 	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);
+
+	auto terrain{ scene.CreateGameObject("Terrain") };
+	terrain->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+
 	//pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
 	/*ground->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);
 	ground->GetTransform()->SetLocalScale(20.0f, 1.0f, 20.0f);
