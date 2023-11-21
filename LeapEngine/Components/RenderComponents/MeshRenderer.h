@@ -8,6 +8,7 @@
 namespace leap
 {
 	class Mesh;
+	class Material;
 	namespace graphics
 	{
 		class IMaterial;
@@ -26,7 +27,7 @@ namespace leap
 		MeshRenderer& operator=(MeshRenderer&& other) = delete;
 
 		void SetMesh(const Mesh& mesh);
-		void SetMaterial(graphics::IMaterial* pMaterial);
+		void SetMaterial(const Material& material);
 		graphics::IMaterial* GetMaterial() const;
 
 	protected:

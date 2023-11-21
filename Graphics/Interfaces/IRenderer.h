@@ -55,8 +55,9 @@ namespace leap::graphics
 		virtual void RemoveSprite(Sprite* pSprite) = 0;
 
 		// Materials & Textures
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) = 0;
-		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) = 0;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name, bool cached) = 0;
+		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone, bool cached) = 0;
+		virtual void RemoveMaterial(IMaterial* pMaterial) = 0;
 		virtual ITexture* CreateTexture(const std::string& path, bool cached) = 0;
 		virtual ITexture* CreateTexture(int width, int height) = 0;
 		virtual void RemoveTexture(ITexture* pTexture) = 0;
@@ -97,8 +98,9 @@ namespace leap::graphics
 		virtual void RemoveSprite(Sprite*) override {}
 
 		// Materials & Textures
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&) override { return nullptr; }
-		virtual IMaterial* CloneMaterial(const std::string&, const std::string&) override { return nullptr; }
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&, bool) override { return nullptr; }
+		virtual IMaterial* CloneMaterial(const std::string&, const std::string&, bool) override { return nullptr; }
+		virtual void RemoveMaterial(IMaterial*) override {}
 		virtual ITexture* CreateTexture(const std::string&, bool) override { return nullptr; }
 		virtual ITexture* CreateTexture(int, int) override { return nullptr; }
 		virtual void RemoveTexture(ITexture*) override {}

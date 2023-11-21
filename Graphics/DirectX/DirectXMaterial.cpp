@@ -9,14 +9,18 @@
 
 #include "Debug.h"
 #include "DirectXTexture.h"
+#include "DirectXEngine.h"
 
 glm::mat4x4 leap::graphics::DirectXMaterial::m_ViewProjMatrix{};
 
-leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction)
-	: m_pEffect{ LoadEffect(pDevice, assetFile) }
+leap::graphics::DirectXMaterial::DirectXMaterial(DirectXEngine* pEngine, const std::string& assetFile, std::function<std::vector<D3D11_INPUT_ELEMENT_DESC>()> vertexDataFunction)
+	: m_pEngine{ pEngine }
 	, m_VertexDataFunction{ vertexDataFunction }
 	, m_AssetFile{ assetFile }
 {
+	// Load the effect shader
+	m_pEffect = LoadEffect(m_pEngine->GetDevice(), assetFile);
+
 	// Save the technique of the effect as a member variable
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid()) Debug::Log("DirectXEngine Error: Failed to load .fx file while creating a material");
@@ -27,7 +31,7 @@ leap::graphics::DirectXMaterial::DirectXMaterial(ID3D11Device* pDevice, const st
 	ID3DX11EffectVariable* pWorld{ m_pEffect->GetVariableByName("gWorld") };
 	if(pWorld) m_pMatWorldVariable = pWorld->AsMatrix();
 
-	m_pInputLayout = LoadInputLayout(pDevice);
+	m_pInputLayout = LoadInputLayout();
 }
 
 leap::graphics::DirectXMaterial::~DirectXMaterial()
@@ -36,7 +40,7 @@ leap::graphics::DirectXMaterial::~DirectXMaterial()
 	if (m_pInputLayout) m_pInputLayout->Release();
 }
 
-ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device* pDevice) const
+ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout() const
 {
 	std::vector<D3D11_INPUT_ELEMENT_DESC> vertexDesc{ m_VertexDataFunction() };
 
@@ -46,7 +50,7 @@ ID3D11InputLayout* leap::graphics::DirectXMaterial::LoadInputLayout(ID3D11Device
 
 	ID3D11InputLayout* pInputLayout;
 
-	const HRESULT result{ pDevice->CreateInputLayout
+	const HRESULT result{ m_pEngine->GetDevice()->CreateInputLayout
 		(
 			vertexDesc.data(),
 			static_cast<UINT>(vertexDesc.size()),
@@ -151,9 +155,14 @@ void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ID3
 	}
 }
 
-std::unique_ptr<leap::graphics::DirectXMaterial> leap::graphics::DirectXMaterial::Clone(ID3D11Device* pDevice)
+void leap::graphics::DirectXMaterial::Remove()
 {
-	auto pMaterial{ std::make_unique<DirectXMaterial>(pDevice, m_AssetFile, m_VertexDataFunction) };
+	m_pEngine->RemoveMaterial(this);
+}
+
+std::unique_ptr<leap::graphics::DirectXMaterial> leap::graphics::DirectXMaterial::Clone()
+{
+	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pEngine, m_AssetFile, m_VertexDataFunction)};
 	return std::move(pMaterial);
 }
 

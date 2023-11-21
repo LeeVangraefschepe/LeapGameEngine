@@ -3,19 +3,20 @@
 
 #include "../Data/Sprite.h"
 #include "DirectXMaterial.h"
+#include "DirectXEngine.h"
 #include "../Shaders/Sprites.h"
 
 #include <algorithm>
 
 #include "Debug.h"
 
-void leap::graphics::DirectXSpriteRenderer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const glm::vec2& screenSize)
+void leap::graphics::DirectXSpriteRenderer::Create(DirectXEngine* pEngine, const glm::vec2& screenSize)
 {
-	m_pDeviceContext = pDeviceContext;
-	m_pDevice = pDevice;
+	m_pDeviceContext = pEngine->GetContext();
+	m_pDevice = pEngine->GetDevice();
 
 	const auto shaderData{ DirectXShaderReader::GetShaderData(shaders::Sprites::GetShader()) };
-	m_pMaterial = std::make_unique<DirectXMaterial>(pDevice, shaderData.path, shaderData.vertexDataFunction);
+	m_pMaterial = std::make_unique<DirectXMaterial>(pEngine, shaderData.path, shaderData.vertexDataFunction);
 
 	const float scaleX = 2.0f / float(screenSize.x);
 	const float scaleY = 2.0f / float(screenSize.y);

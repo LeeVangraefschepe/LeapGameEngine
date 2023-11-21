@@ -25,7 +25,7 @@ namespace leap::graphics
 	class DirectXMeshRenderer final : public IMeshRenderer
 	{
 	public:
-		DirectXMeshRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
+		DirectXMeshRenderer(DirectXEngine* pEngine);
 		virtual ~DirectXMeshRenderer();
 
 		DirectXMeshRenderer(const DirectXMeshRenderer& other) = delete;
@@ -45,8 +45,7 @@ namespace leap::graphics
 		DirectXMesh* m_pMesh{};
 		DirectXMaterial* m_pMaterial{};
 
-		ID3D11Device* m_pDevice{};
-		ID3D11DeviceContext* m_pDeviceContext{};
+		DirectXEngine* m_pEngine{};
 
 		glm::mat4x4 m_Transform{ Matrix::Identity4x4() };
 

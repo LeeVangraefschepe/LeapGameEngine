@@ -49,7 +49,7 @@ void leap::graphics::DirectXEngine::Initialize()
 	CreateDirectXEngine();
 
 	Debug::Log("DirectXRenderer Log: Creating default material with ID \"Default\"");
-	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default");
+	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default", true);
 
 	Debug::Log("DirectXRenderer Log: Creating debug renderer");
 	m_pDebugRenderer = CreateMeshRenderer();
@@ -113,7 +113,7 @@ void leap::graphics::DirectXEngine::SetWindowSize(const glm::ivec2&)
 void leap::graphics::DirectXEngine::SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane)
 {
 	m_DirectionalLight.SetShadowMapData(static_cast<float>(shadowMapWidth) / shadowMapHeight, orthoSize, nearPlane, farPlane);
-	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, { shadowMapWidth, shadowMapHeight });
+	m_ShadowRenderer.Create(this, { shadowMapWidth, shadowMapHeight });
 }
 
 void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
@@ -125,15 +125,20 @@ void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transfo
 
 	m_DirectionalLight.SetTransform(lightTransform);
 
+	const auto& lightDir{ transform[2] };
 	for (const auto& pMaterial : m_pMaterials)
 	{
-		pMaterial.second->SetFloat3("gLightDirection", transform[2]);
+		pMaterial.second->SetFloat3("gLightDirection", lightDir);
+	}
+	for (const auto& pMaterial : m_pUniqueMaterials)
+	{
+		pMaterial->SetFloat3("gLightDirection", lightDir);
 	}
 }
 
 leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
 {
-	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(m_pDevice, m_pDeviceContext));
+	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(this));
 	return m_pRenderers[m_pRenderers.size() - 1].get();
 }
 
@@ -179,42 +184,69 @@ void leap::graphics::DirectXEngine::RemoveSprite(Sprite* pSprite)
 	m_SpriteRenderer.RemoveSprite(pSprite);
 }
 
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name, bool cached)
 {
-	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
+	if (cached)
 	{
-		return it->second.get();
+		if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
+		{
+			return it->second.get();
+		}
 	}
 
 	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
-	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
+	auto pMaterial{ std::make_unique<DirectXMaterial>(this, shader.path, shader.vertexDataFunction) };
 	auto pMaterialRaw{ pMaterial.get() };
 
 	pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
+	pMaterial->SetFloat3("gLightDirection", m_DirectionalLight.GetDirection());
 
-	m_pMaterials[name] = std::move(pMaterial);
+	if (cached)
+	{
+		m_pMaterials[name] = std::move(pMaterial);
+	}
+	else 
+	{
+		m_pUniqueMaterials.emplace_back(std::move(pMaterial));
+	}
 	return pMaterialRaw;
 }
 
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const std::string& original, const std::string& clone)
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const std::string& original, const std::string& clone, bool cached)
 {
-	if (auto it{ m_pMaterials.find(clone) }; it != end(m_pMaterials))
+	if (cached)
 	{
-		return it->second.get();
+		if (auto it{ m_pMaterials.find(clone) }; it != end(m_pMaterials))
+		{
+			return it->second.get();
+		}
 	}
 
 	if (auto it{ m_pMaterials.find(original) }; it != end(m_pMaterials))
 	{
-		std::unique_ptr<DirectXMaterial> pMaterial{ it->second->Clone(m_pDevice) };
+		std::unique_ptr<DirectXMaterial> pMaterial{ it->second->Clone() };
 		auto pMaterialRaw{ pMaterial.get() };
 
 		pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
+		pMaterial->SetFloat3("gLightDirection", m_DirectionalLight.GetDirection());
 
-		m_pMaterials[clone] = std::move(pMaterial);
+		if (cached)
+		{
+			m_pMaterials[clone] = std::move(pMaterial);
+		}
+		else
+		{
+			m_pUniqueMaterials.emplace_back(std::move(pMaterial));
+		}
 		return pMaterialRaw;
 	}
 
 	return nullptr;
+}
+
+void leap::graphics::DirectXEngine::RemoveMaterial(IMaterial* pMaterial)
+{
+	std::erase_if(m_pUniqueMaterials, [pMaterial](const auto& pUniqueMaterial) { return pUniqueMaterial.get() == pMaterial; });
 }
 
 leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path, bool cached)
@@ -326,7 +358,7 @@ void leap::graphics::DirectXEngine::CreateDirectXEngine()
 	CreateRenderTargetAndSetViewport();
 
 	// Create a new shadow renderer using new video settings
-	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, m_ShadowRenderer.GetShadowMapSize());
+	m_ShadowRenderer.Create(this, m_ShadowRenderer.GetShadowMapSize());
 
 	Debug::Log("DirectXRenderer Log: Successfully created DirectX engine");
 
@@ -408,7 +440,7 @@ void leap::graphics::DirectXEngine::CreateRenderTargetAndSetViewport()
 	m_pDeviceContext->RSSetViewports(1, &viewport);
 
 	// Create a new sprite renderer using new video settings
-	m_SpriteRenderer.Create(m_pDevice, m_pDeviceContext, glm::vec2{ width, height });
+	m_SpriteRenderer.Create(this, glm::vec2{ width, height });
 
 	Debug::Log("DirectXRenderer Log: Successfully created swapchain, rendertarget and spriterenderer");
 }
@@ -478,6 +510,7 @@ void leap::graphics::DirectXEngine::PrintDiagnostics() const
 	ss << "Meshes cached " << m_pMeshes.size() << "\n";
 	ss << "Meshes non-cached " << m_pUniqueMeshes.size() << "\n";
 	ss << "Materials " << m_pMaterials.size() << "\n";
+	ss << "Unique Materials " << m_pUniqueMaterials.size() << "\n";
 	ss << "Mesh renderers " << m_pRenderers.size() << "\n";
 	ss << "Textures cached " << m_pTextures.size() << "\n";
 	ss << "Textured non-cached " << m_pUniqueTextures.size() << "\n";

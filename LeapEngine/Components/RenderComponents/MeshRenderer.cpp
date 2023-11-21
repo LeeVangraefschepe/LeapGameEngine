@@ -9,6 +9,7 @@
 
 #include "../Transform/Transform.h"
 #include "../../Graphics/Mesh.h"
+#include "../../Graphics/Material.h"
 
 leap::MeshRenderer::MeshRenderer()
 {
@@ -20,9 +21,9 @@ void leap::MeshRenderer::SetMesh(const Mesh& mesh)
 	m_pRenderer->SetMesh(mesh.GetInternal());
 }
 
-void leap::MeshRenderer::SetMaterial(graphics::IMaterial* pMaterial)
+void leap::MeshRenderer::SetMaterial(const Material& material)
 {
-	m_pRenderer->SetMaterial(pMaterial);
+	m_pRenderer->SetMaterial(material.GetInternal());
 }
 
 leap::graphics::IMaterial* leap::MeshRenderer::GetMaterial() const

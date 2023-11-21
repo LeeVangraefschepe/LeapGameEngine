@@ -62,6 +62,8 @@
 #include "../Components/PrintVelocity.h"
 
 #include <Graphics/Mesh.h>
+#include <Graphics/Shader.h>
+#include <Graphics/Material.h>
 
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
@@ -93,14 +95,16 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
-	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png", true));
+	leap::Material material{ "Test", leap::Shader<leap::graphics::shaders::PosNorm3D>{} };
 
-	const leap::Mesh cube{ "Data/Engine/Models/cube.obj", true };
+	//const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
+	//pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png", true));
+
+	const leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
 	auto ground{ scene.CreateGameObject("Ground") };
 	leap::MeshRenderer* pGroundMeshRenderer{ ground->AddComponent<leap::MeshRenderer>() };
 	pGroundMeshRenderer->SetMesh(cube);
-	pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
+	pGroundMeshRenderer->SetMaterial(material);
 	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);
 	//pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
 	/*ground->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);

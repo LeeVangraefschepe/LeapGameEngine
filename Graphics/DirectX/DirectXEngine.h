@@ -72,8 +72,9 @@ namespace leap::graphics
 		virtual void RemoveSprite(Sprite* pSprite) override;
 
 		// Materials & Textures
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
-		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) override;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name, bool cached) override;
+		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone, bool cached) override;
+		virtual void RemoveMaterial(IMaterial* pMaterial) override;
 		virtual ITexture* CreateTexture(const std::string& path, bool cached) override;
 		virtual ITexture* CreateTexture(int width, int height) override;
 		virtual void RemoveTexture(ITexture* pTexture) override;
@@ -106,6 +107,7 @@ namespace leap::graphics
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
+		std::vector<std::unique_ptr<DirectXMaterial>> m_pUniqueMaterials{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXTexture>> m_pTextures{};
 		std::vector<std::unique_ptr<DirectXTexture>> m_pUniqueTextures{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMesh>> m_pMeshes{};

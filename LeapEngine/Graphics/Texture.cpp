@@ -30,7 +30,7 @@ leap::Texture& leap::Texture::operator=(Texture&& mesh) noexcept
 void leap::Texture::Load(const std::string& filePath, bool unique)
 {
 	// Load texture
-	graphics::ITexture* pTexture{ ServiceLocator::GetRenderer().CreateTexture(filePath, unique) };
+	graphics::ITexture* pTexture{ ServiceLocator::GetRenderer().CreateTexture(filePath, !unique) };
 	m_pObject->SetObject(pTexture);
 }
 

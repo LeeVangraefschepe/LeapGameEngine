@@ -11,15 +11,15 @@
 
 #include "../MeshLoader.h"
 
-leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
-	: m_pDevice{ pDevice }
-	, m_pDeviceContext{ pDeviceContext }
+leap::graphics::DirectXMeshRenderer::DirectXMeshRenderer(DirectXEngine* pEngine)
+	: m_pEngine{ pEngine }
 {
 }
 
 leap::graphics::DirectXMeshRenderer::~DirectXMeshRenderer()
 {
 	if(m_pMesh) m_pMesh->Remove();
+	if (m_pMaterial) m_pMaterial->Remove();
 }
 
 void leap::graphics::DirectXMeshRenderer::Draw()
@@ -39,8 +39,8 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 		if (m_IsLineRenderer) return;
 
 		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
-		pMaterial = defaults.GetMaterialError(m_pDevice);
-		defaults.GetMeshError(m_pDevice, vertexSize, pVertexBuffer, pIndexBuffer, nrIndices);
+		pMaterial = defaults.GetMaterialError(m_pEngine);
+		defaults.GetMeshError(m_pEngine, vertexSize, pVertexBuffer, pIndexBuffer, nrIndices);
 	}
 	else
 	{
@@ -49,7 +49,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 		pIndexBuffer = m_pMesh->m_pIndexBuffer;
 		nrIndices = m_pMesh->m_NrIndices;
 
-		if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pDevice);
+		if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pEngine);
 	}
 
 	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
@@ -58,18 +58,18 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	pDXMaterial->SetWorldMatrix(m_Transform);
 
 	// Set primitive topology
-	m_pDeviceContext->IASetPrimitiveTopology(m_IsLineRenderer ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pEngine->GetContext()->IASetPrimitiveTopology(m_IsLineRenderer ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	// Set input layout
-	m_pDeviceContext->IASetInputLayout(pDXMaterial->GetInputLayout());
+	m_pEngine->GetContext()->IASetInputLayout(pDXMaterial->GetInputLayout());
 
 	// Set vertex buffer
 	const UINT stride{ vertexSize };
 	constexpr UINT offset{ 0 };
-	m_pDeviceContext->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
+	m_pEngine->GetContext()->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
 
 	// Set index buffer
-	m_pDeviceContext->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	m_pEngine->GetContext()->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	// Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
@@ -78,10 +78,10 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
-		result = pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pDeviceContext);
+		result = pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pEngine->GetContext());
 		if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to apply a effect technique pass to device");
 
-		m_pDeviceContext->DrawIndexed(nrIndices, 0, 0);
+		m_pEngine->GetContext()->DrawIndexed(nrIndices, 0, 0);
 	}
 }
 
