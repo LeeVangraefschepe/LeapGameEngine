@@ -9,6 +9,7 @@
 
 namespace leap
 {
+	class Texture;
 	namespace graphics
 	{
 		struct Shader;
@@ -25,6 +26,17 @@ namespace leap
 		{
 			CreateShaderMaterial(name, shader.GetShader(), unique);
 		}
+
+		template<typename T>
+		void Set(const std::string& varName, const T& data) const
+		{
+			if constexpr (std::is_same_v<T, Texture>)
+			{
+				SetTexture(varName, data);
+			}
+		}
+
+		void SetTexture(const std::string& varName, const Texture& data) const;
 
 		graphics::IMaterial* GetInternal() const;
 

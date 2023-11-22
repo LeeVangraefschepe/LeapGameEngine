@@ -4,9 +4,12 @@
 
 #include "../../Graphics/Mesh.h"
 #include "../../Graphics/Material.h"
+#include "../../Graphics/Texture.h"
 
 #include <vector>
 #include <unordered_map>
+
+#include <Observer.h>
 
 namespace leap
 {
@@ -15,7 +18,7 @@ namespace leap
 		class IMeshRenderer;
 	}
 
-	class TerrainComponent final : public Component
+	class TerrainComponent final : public Component, Observer
 	{
 	public:
 		TerrainComponent();
@@ -27,7 +30,10 @@ namespace leap
 		TerrainComponent& operator=(TerrainComponent&& other) = delete;
 
 		void SetSize(unsigned int size);
-		//void SetTexture(Texture& texture);
+		Texture& GetTexture() { return m_Texture; }
+
+		std::vector<float> GetHeights() const;
+		void SetHeights(const std::vector<float>& heights);
 
 	private:
 		struct TerrainMesh final
@@ -36,14 +42,18 @@ namespace leap
 			Mesh mesh{};
 		};
 		inline static std::unordered_map<int, TerrainMesh> m_Meshes{};
-		inline static std::unique_ptr<Material> m_pMaterial{};
+		std::unique_ptr<Material> m_pMaterial{};
 
+		virtual void Notify() override;
 		virtual void OnDestroy() override;
 
+		void ApplySizeTexture();
+		void ApplySizeMesh(unsigned int prevSize);
 		void CreateMesh(unsigned int size);
 
 		unsigned int m_Size{};
 		graphics::IMeshRenderer* m_pRenderer{};
+		Texture m_Texture{};
 	};
 
 

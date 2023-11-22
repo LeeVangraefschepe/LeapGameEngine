@@ -78,6 +78,7 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCameraObj->AddComponent<leap::AudioListener>();
 	//pCameraObj->GetTransform()->SetLocalPosition(0.0f, 200.0f, -200.0f);
 	pCameraObj->GetTransform()->SetLocalPosition(0.0f, 5.0f, -5.0f);
+	pCameraObj->AddComponent<FreeCamMovement>();
 
 	auto canvas{ scene.CreateGameObject("Canvas") };
 	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
@@ -95,20 +96,57 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	leap::Material material{ "Test", leap::Shader<leap::graphics::shaders::PosNorm3D>{} };
+	//const leap::Material material{ "Test", leap::Shader<leap::graphics::shaders::PosNorm3D>{} };
 
 	//const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
 	//pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png", true));
 
-	const leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
+	/*const leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
 	auto ground{ scene.CreateGameObject("Ground") };
 	leap::MeshRenderer* pGroundMeshRenderer{ ground->AddComponent<leap::MeshRenderer>() };
 	pGroundMeshRenderer->SetMesh(cube);
 	pGroundMeshRenderer->SetMaterial(material);
-	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);
+	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);*/
 
 	auto terrain{ scene.CreateGameObject("Terrain") };
-	terrain->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	leap::TerrainComponent* pTerrain{ terrain->AddComponent<leap::TerrainComponent>() };
+
+	pTerrain->SetSize(1000);
+	//terrain->AddComponent<SineWaveTerrain>();
+	auto heights = pTerrain->GetHeights();
+	for (int x{}; x < 1000; ++x)
+	{
+		float xMultiplier = x / 1000.0f;
+		for (int y{}; y < 1000; ++y)
+		{
+			float yMultiplier = y / 1000.0f;
+
+			heights[x + y * 1000] = xMultiplier * yMultiplier;
+		}
+	}
+	pTerrain->SetHeights(heights);
+	
+	//pTerrain->GetTexture().Load("Data/Heightmap.png");
+	//auto test{ pTerrain->GetHeights() };
+	//for (auto& var : test)
+	//{
+	//	if (var < 0.35f) var = 0.35f;
+	//}
+	//pTerrain->SetHeights(test);
+
+
+	// 
+	//auto heights{ pTerrain->GetHeights() };
+
+	//heights[2] = 0.1f;
+	///*for (int x{5}; x < 15; ++x)
+	//{
+	//	for (int z{5}; z < 15; ++z)
+	//	{
+	//		heights[x + z * 1000] = 0.1f;
+	//	}
+	//}*/
+	//pTerrain->SetHeights(heights);
 
 	//pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
 	/*ground->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);

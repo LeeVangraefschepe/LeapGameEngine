@@ -32,15 +32,30 @@ void leap::Texture::Load(const std::string& filePath, bool unique)
 	// Load texture
 	graphics::ITexture* pTexture{ ServiceLocator::GetRenderer().CreateTexture(filePath, !unique) };
 	m_pObject->SetObject(pTexture);
+	OnInternalChange.Notify();
 }
 
-glm::ivec2 leap::Texture::GetSize() const
+void leap::Texture::Load(unsigned int width, unsigned int height)
 {
+	graphics::ITexture* pTexture{ ServiceLocator::GetRenderer().CreateTexture(width, height) };
+	m_pObject->SetObject(pTexture);
+	OnInternalChange.Notify();
+}
+
+void leap::Texture::SetData(const std::vector<unsigned char>& data) const
+{
+	m_pObject->GetUncountedObject()->SetData(data.data(), static_cast<unsigned int>(data.size()));
+}
+
+glm::uvec2 leap::Texture::GetSize() const
+{
+	if (!m_pObject->GetUncountedObject()) return {};
 	return m_pObject->GetUncountedObject()->GetSize();
 }
 
 std::vector<unsigned char> leap::Texture::GetData() const
 {
+	if (!m_pObject->GetUncountedObject()) return {};
 	return m_pObject->GetUncountedObject()->GetData();
 }
 

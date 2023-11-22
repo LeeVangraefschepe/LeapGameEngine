@@ -10,6 +10,8 @@
 
 #include "../../Graphics/Shader.h"
 
+#include <sstream>
+
 //#include "TerrainComponent.h"
 //
 //#include "MeshRenderer.h"
@@ -162,8 +164,14 @@
 leap::TerrainComponent::TerrainComponent()
 {
 	m_pRenderer = ServiceLocator::GetRenderer().CreateMeshRenderer();
-	if (!m_pMaterial) m_pMaterial = std::make_unique<Material>("Heightmap", Shader<graphics::shaders::Heightmap>(), true);
+
+	std::stringstream ss{};
+	ss << "Heightmap" << this;
+	m_pMaterial = std::make_unique<Material>(ss.str(), Shader<graphics::shaders::Heightmap>(), true);
+
 	m_pRenderer->SetMaterial(m_pMaterial->GetInternal());
+
+	m_Texture.OnInternalChange.AddListener(this);
 }
 
 leap::TerrainComponent::~TerrainComponent()
@@ -177,25 +185,84 @@ void leap::TerrainComponent::SetSize(unsigned int size)
 {
 	if (m_Size == size) return;
 
+	unsigned int prevSize{ m_Size };
 	m_Size = size;
 
-	auto pTexture{ ServiceLocator::GetRenderer().CreateTexture(size,size) };
+	ApplySizeTexture();
+	ApplySizeMesh(prevSize);
+}
+
+std::vector<float> leap::TerrainComponent::GetHeights() const
+{
 	std::vector<float> heights{};
-	heights.resize(size * size);
-	pTexture->SetData(heights.data(), static_cast<unsigned int>(heights.size() * sizeof(float)));
+	const std::vector<unsigned char> textureData{ m_Texture.GetData() };
+	heights.resize(textureData.size() / sizeof(float));
+	for (size_t i{}; i < heights.size(); ++i)
+	{
+		const unsigned char byte{ textureData[i * sizeof(float)]};
+		const float height{ byte / 255.0f };
+		heights[i] = height;
+	}
+	return heights;
+}
 
-	m_pRenderer->GetMaterial()->SetTexture("gHeightMap", pTexture/*ServiceLocator::GetRenderer().CreateTexture(m_Size, m_Size)*/);
+void leap::TerrainComponent::SetHeights(const std::vector<float>& heights)
+{
+	std::vector<unsigned char> textureData{};
+	textureData.resize(heights.size() * sizeof(float));
+	for (size_t i{}; i < heights.size(); ++i)
+	{
+		const float height{ heights[i] };
+		const unsigned char byte{ static_cast<unsigned char>(height * UCHAR_MAX) };
+		const size_t byteIdx{ i * sizeof(float) };
+		textureData[byteIdx] = byte;
+		textureData[byteIdx + 1] = byte;
+		textureData[byteIdx + 2] = byte;
+		textureData[byteIdx + 3] = UCHAR_MAX; // Alpha channel
+	}
+	m_Texture.SetData(textureData);
+}
 
-	if (!m_Meshes.contains(size)) CreateMesh(size);
+void leap::TerrainComponent::Notify()
+{
+	const auto& textureSize{ m_Texture.GetSize() };
+	if (textureSize.x != textureSize.y)
+	{
+		Debug::LogError("LeapEngine Error : Cannot create terrain with a texture which different width and height values");
+		return;
+	}
 
-	TerrainMesh& mesh{ m_Meshes[size] };
-	++mesh.useCounter;
-	m_pRenderer->SetMesh(mesh.mesh.GetInternal());
+	m_pMaterial->Set("gHeightMap", m_Texture);
+
+	if (m_Size == textureSize.x) return;
+
+	unsigned int prevSize{ m_Size };
+	m_Size = textureSize.x;
+	ApplySizeMesh(prevSize);
 }
 
 void leap::TerrainComponent::OnDestroy()
 {
 	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
+}
+
+void leap::TerrainComponent::ApplySizeTexture()
+{
+	m_Texture.Load(m_Size, m_Size);
+}
+
+void leap::TerrainComponent::ApplySizeMesh(unsigned int prevSize)
+{
+	if (!m_Meshes.contains(m_Size)) CreateMesh(m_Size);
+
+	TerrainMesh& mesh{ m_Meshes[m_Size] };
+	++mesh.useCounter;
+
+	TerrainMesh& prevMesh{ m_Meshes[prevSize] };
+	--prevMesh.useCounter;
+	if (prevMesh.useCounter <= 0) m_Meshes.erase(prevSize);
+
+	m_pRenderer->SetMesh(mesh.mesh.GetInternal());
 }
 
 void leap::TerrainComponent::CreateMesh(unsigned int size)
@@ -230,5 +297,5 @@ void leap::TerrainComponent::CreateMesh(unsigned int size)
 
 	mesh.SetData(vertices, std::move(indices));
 
-	m_Meshes[size] = TerrainMesh{ size, std::move(mesh) };
+	m_Meshes[size] = TerrainMesh{ 0, std::move(mesh) };
 }

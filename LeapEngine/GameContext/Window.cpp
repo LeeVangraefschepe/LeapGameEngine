@@ -49,7 +49,7 @@ void leap::Window::SetIcon(const std::string& path) const
 	Texture iconTexture{ path, true };
 	auto data = iconTexture.GetData();
 	GLFWimage images[1];
-	images[0] = GLFWimage{ iconTexture.GetSize().x, iconTexture.GetSize().y, data.data() };
+	images[0] = GLFWimage{ static_cast<int>(iconTexture.GetSize().x), static_cast<int>(iconTexture.GetSize().y), data.data() };
 
 	glfwSetWindowIcon(m_pWindow, 1, images);
 }

@@ -1,5 +1,6 @@
 #include "Material.h"
 
+#include "Texture.h"
 #include "../ServiceLocator/ServiceLocator.h"
 #include <Interfaces/IRenderer.h>
 
@@ -7,6 +8,11 @@ leap::Material::Material(const std::string& name, bool unique)
 	: Material{}
 {
 	m_pMaterial->SetObject(ServiceLocator::GetRenderer().CloneMaterial("Default", name, !unique));
+}
+
+void leap::Material::SetTexture(const std::string& varName, const Texture& data) const
+{
+	m_pMaterial->GetUncountedObject()->SetTexture(varName, data.GetInternal());
 }
 
 leap::graphics::IMaterial* leap::Material::GetInternal() const

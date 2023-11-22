@@ -4,6 +4,8 @@
 
 #include <Interfaces/ITexture.h>
 
+#include <Subject.h>
+
 #include <string>
 #include <memory>
 
@@ -27,11 +29,15 @@ namespace leap
 		Texture& operator=(Texture&& mesh) noexcept;
 
 		void Load(const std::string& filePath, bool unique = false);
+		void Load(unsigned int width, unsigned int height);
+		void SetData(const std::vector<unsigned char>& data) const;
 
-		glm::ivec2 GetSize() const;
+		glm::uvec2 GetSize() const;
 		std::vector<unsigned char> GetData() const;
 
 		graphics::ITexture* GetInternal() const;
+
+		Subject OnInternalChange{};
 
 	private:
 		std::unique_ptr<GraphicsObject<graphics::ITexture>> m_pObject{};

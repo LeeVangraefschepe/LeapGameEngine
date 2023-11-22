@@ -28,7 +28,7 @@ leap::graphics::DirectXTexture::~DirectXTexture()
 	if(m_pSRV) m_pSRV->Release();
 }
 
-void leap::graphics::DirectXTexture::SetData(void* pData, unsigned int nrBytes)
+void leap::graphics::DirectXTexture::SetData(const void* pData, unsigned int nrBytes)
 {
 	m_pEngine->GetContext()->UpdateSubresource(m_pResource, 0, nullptr, pData, nrBytes / GetSize().x, nrBytes);
 }
@@ -67,7 +67,7 @@ std::vector<unsigned char> leap::graphics::DirectXTexture::GetData()
 	return data;
 }
 
-glm::ivec2 leap::graphics::DirectXTexture::GetSize() const
+glm::uvec2 leap::graphics::DirectXTexture::GetSize() const
 {
 	D3D11_TEXTURE2D_DESC desc{};
 	m_pResource->GetDesc(&desc);
@@ -210,7 +210,7 @@ void leap::graphics::DirectXTexture::LoadTexture(int width, int height)
 	desc.Height = static_cast<unsigned int>(height);
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R32_FLOAT;
+	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.Usage = D3D11_USAGE_DEFAULT;
