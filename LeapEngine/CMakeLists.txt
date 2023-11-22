@@ -30,6 +30,7 @@ add_library(LeapEngine STATIC
     "Components/Physics/SphereCollider.cpp"
     "Components/Physics/Collider.cpp" 
 	"Components/Physics/CapsuleCollider.cpp"
-	"Physics/Physics.cpp")
+	"Physics/Physics.cpp"
+    "GameContext/Logger/NetworkLogger.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

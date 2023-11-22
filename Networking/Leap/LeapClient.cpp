@@ -1,9 +1,10 @@
 #include "LeapClient.h"
 #include <array>
 #include <chrono>
-#include <iostream>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <sstream>
+#include "Debug.h"
 
 #pragma comment(lib, "ws2_32.lib")
 
@@ -14,7 +15,9 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
     WORD version = MAKEWORD(2, 2);
     if (WSAStartup(version, &wsData) != 0)
     {
-        std::cerr << "Error initializing Winsock: " << WSAGetLastError() << std::endl;
+        std::stringstream ss{};
+        ss << "Error initializing Winsock: " << WSAGetLastError() << std::endl;
+        Debug::LogError(ss.str());
         return;
     }
 
@@ -22,7 +25,9 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
     m_TCPsocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (m_TCPsocket == INVALID_SOCKET)
     {
-        std::cerr << "Error creating socket: " << WSAGetLastError() << std::endl;
+        std::stringstream ss{};
+        ss << "Error creating socket: " << WSAGetLastError() << std::endl;
+        Debug::LogError(ss.str());
         WSACleanup();
         return;
     }
@@ -42,7 +47,10 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
 
     if (connect(m_TCPsocket, reinterpret_cast<sockaddr*>(m_pServerAdress.get()), sizeof(sockaddr_in)) == SOCKET_ERROR)
     {
-        std::cerr << "Error connecting to server: " << WSAGetLastError() << std::endl;
+        std::stringstream ss{};
+        ss << "Error connecting to server: " << WSAGetLastError() << std::endl;
+        Debug::LogError(ss.str());
+        
         closesocket(m_TCPsocket);
         WSACleanup();
         return;
@@ -56,10 +64,21 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
 
 leap::networking::LeapClient::~LeapClient()
 {
-    m_sendThread.request_stop();
-    m_sendCondition.notify_one();
+    // Close sockets so threads dont have blocking call on waiting
     closesocket(m_TCPsocket);
     closesocket(m_UDPsocket);
+
+    // Awake threads
+    m_connected = false;
+    m_sendThread.request_stop();
+    m_clientThread.request_stop();
+    m_sendCondition.notify_one();
+
+    // Wait till threads are done
+    m_sendThread.join();
+    m_clientThread.join();
+
+    // Cleanup the sockets
     WSACleanup();
 }
 
@@ -84,7 +103,6 @@ void leap::networking::LeapClient::Run(float ticks)
 {
     m_connected = true;
     m_clientThread = std::jthread{ [this, ticks]() { InternalRun(ticks); } };
-    m_clientThread.detach();
 }
 
 bool leap::networking::LeapClient::IsConnected()
@@ -94,13 +112,13 @@ bool leap::networking::LeapClient::IsConnected()
 
 void leap::networking::LeapClient::InternalRun(float ticks)
 {
+    const std::stop_token& stopToken{ m_clientThread.get_stop_token() };
     const float tickTimeMs{ 1000 / ticks };
-    bool connected{ true };
-    while (connected)
+    while (m_connected && !stopToken.stop_requested())
     {
         const auto currentTime = std::chrono::high_resolution_clock::now();
 
-        connected = HandleReceive();
+        m_connected = HandleReceive();
 
         const auto sleepTimeMs = tickTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
@@ -151,7 +169,7 @@ void leap::networking::LeapClient::HandleSend()
         m_sendCondition.wait(lock, [&]() { return m_packetSender->Get(data) || stopToken.stop_requested(); });
         lock.unlock();
 
-        if (stopToken.stop_requested()) { break; }
+        if (stopToken.stop_requested() || m_connected == false) { break; }
 
         if (data.IsUDP)
         {

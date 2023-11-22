@@ -3,6 +3,8 @@
 #include "Leap.h"
 #include "GameContext/GameContext.h"
 #include "GameContext/Logger/ImGuiLogger.h"
+#include "GameContext/Logger/NetworkLogger.h"
+#include "GameContext/Logger/ConsoleLogger.h"
 #include "SceneGraph/SceneManager.h"
 #include "Scenes/MainMenuScene.h"
 #include <ServiceLocator/ServiceLocator.h>
@@ -19,33 +21,18 @@
 
 int main()
 {
+	leap::GameContext::GetInstance().AddLogger<leap::NetworkLogger>();
+	leap::GameContext::GetInstance().AddLogger<leap::ConsoleLogger>();
+
 	leap::LeapEngine engine{ 1280, 720, "Leap game engine" };
 
 	auto afterInitializing = []()
 		{
-			leap::GameContext::GetInstance().AddLogger<leap::ImGuiLogger>();
+			leap::Debug::LogWarning("Warning message");
 			leap::ServiceLocator::GetPhysics().SetEnabledDebugDrawing(true);
 			leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
 			//leap::GameContext::GetInstance().GetWindow()->SetIcon("Data/Example.png");
 		};
-
-	leap::networking::LeapClient client{1234, "127.0.0.1"};
-	client.Run(20);
-	
-	leap::networking::LeapPacket sendPacket{1};
-	sendPacket.WriteString("Hello from leap game engine!");
-	client.SendTCP(sendPacket);
-	client.SendUDP(sendPacket);
-	
-	leap::networking::LeapPacket receivedPacket{};
-	while (true)
-	{
-		if (client.GetPacket(receivedPacket))
-		{
-			std::cout << receivedPacket.GetData() << '\n';
-			break;
-		}
-	}
 
 	engine.Run(afterInitializing, 60);
 
