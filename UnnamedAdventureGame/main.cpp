@@ -1,4 +1,3 @@
-#include <iostream>
 #include <Windows.h>
 #include "Leap.h"
 #include "GameContext/GameContext.h"
