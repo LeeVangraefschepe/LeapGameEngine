@@ -20,38 +20,38 @@ namespace leap
 		bool Add(T data);
 
 	private:
-		std::mutex m_lockData{};
-		std::vector<T> m_vectorData{};
-		int m_packetAmount{};
+		std::mutex m_LockData{};
+		std::vector<T> m_VectorData{};
+		int m_PacketAmount{};
 	};
 
 	template <typename T>
 	EventPool<T>::EventPool(int bufferSize)
 	{
-		std::unique_lock lock{ m_lockData };
-		m_vectorData.resize(bufferSize);
+		std::unique_lock lock{ m_LockData };
+		m_VectorData.resize(bufferSize);
 	}
 
 	template <typename T>
 	bool EventPool<T>::Get(T& data)
 	{
-		std::unique_lock lock{ m_lockData };
-		if (m_packetAmount < 1) { return false; }
-		data = m_vectorData[--m_packetAmount];
+		std::unique_lock lock{ m_LockData };
+		if (m_PacketAmount < 1) { return false; }
+		data = m_VectorData[--m_PacketAmount];
 		return true;
 	}
 
 	template <typename T>
 	bool EventPool<T>::Add(T data)
 	{
-		std::unique_lock lock{ m_lockData };
-		if (m_packetAmount >= static_cast<int>(m_vectorData.size()) - 1)
+		std::unique_lock lock{ m_LockData };
+		if (m_PacketAmount >= static_cast<int>(m_VectorData.size()) - 1)
 		{
 			Debug::LogWarning("Data is not saved. Increase buffer size");
 			return true;
 		}
 
-		m_vectorData[m_packetAmount++] = data;
+		m_VectorData[m_PacketAmount++] = data;
 		return false;
 	}
 }

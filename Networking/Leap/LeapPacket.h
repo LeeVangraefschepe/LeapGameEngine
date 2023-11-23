@@ -19,15 +19,15 @@ namespace leap::networking
         template <typename T>
         T Read()
         {
-            auto it = m_data.begin();
+            auto it = m_Data.begin();
             std::advance(it, sizeof(T));
 
-            std::stringstream ss(std::accumulate(m_data.begin(), it, std::string("")), std::ios_base::in | std::ios_base::binary);
+            std::stringstream ss(std::accumulate(m_Data.begin(), it, std::string("")), std::ios_base::in | std::ios_base::binary);
 
             T value{};
             ss.read(reinterpret_cast<char*>(&value), sizeof(T));
 
-            m_data.erase(m_data.begin(), it);
+            m_Data.erase(m_Data.begin(), it);
 
             return value;
         }
@@ -41,7 +41,7 @@ namespace leap::networking
             ss.write(reinterpret_cast<char*>(&value), sizeof(value));
             for (const auto data{ ss.str() }; char byte : data)
             {
-                m_data.push_back(byte);
+                m_Data.push_back(byte);
             }
         }
 

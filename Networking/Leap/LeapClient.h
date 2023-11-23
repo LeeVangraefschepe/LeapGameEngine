@@ -38,20 +38,20 @@ namespace leap::networking
 		bool HandleReceive();
 		void HandleSend();
 
-		std::jthread m_clientThread{};
-		std::jthread m_sendThread{};
-		std::condition_variable m_sendCondition{};
+		std::jthread m_ClientThread{};
+		std::jthread m_SendThread{};
+		std::condition_variable m_SendCondition{};
 
-		int m_bufferSize;
+		int m_BufferSize;
 
-		bool m_connected{ false };
+		bool m_Connected{ false };
 		unsigned long long m_TCPsocket{};
 		unsigned long long m_UDPsocket{};
 		std::unique_ptr<sockaddr_in> m_pServerAdress;
 
-		std::unique_ptr<EventPool<BasePacket>> m_packetReceiver;
-		std::unique_ptr<EventPool<InternalPacket>> m_packetSender;
+		std::unique_ptr<EventPool<BasePacket>> m_PacketReceiver;
+		std::unique_ptr<EventPool<InternalPacket>> m_PacketSender;
 
-		std::mutex m_mutex{};
+		std::mutex m_Mutex{};
 	};
 }

@@ -8,7 +8,7 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, int receiveBuffer, int packetBuffer) : m_bufferSize(receiveBuffer)
+leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, int receiveBuffer, int packetBuffer) : m_BufferSize(receiveBuffer)
 {
     //Initialize Winsock
     WSADATA wsData;
@@ -56,10 +56,10 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
         return;
     }
 
-    m_packetReceiver = std::make_unique<EventPool<BasePacket>>(packetBuffer);
-    m_packetSender = std::make_unique<EventPool<InternalPacket>>(packetBuffer);
+    m_PacketReceiver = std::make_unique<EventPool<BasePacket>>(packetBuffer);
+    m_PacketSender = std::make_unique<EventPool<InternalPacket>>(packetBuffer);
 
-    m_sendThread = std::jthread{ &LeapClient::HandleSend, this };
+    m_SendThread = std::jthread{ &LeapClient::HandleSend, this };
 }
 
 leap::networking::LeapClient::~LeapClient()
@@ -69,14 +69,14 @@ leap::networking::LeapClient::~LeapClient()
     closesocket(m_UDPsocket);
 
     // Awake threads
-    m_connected = false;
-    m_sendThread.request_stop();
-    m_clientThread.request_stop();
-    m_sendCondition.notify_one();
+    m_Connected = false;
+    m_SendThread.request_stop();
+    m_ClientThread.request_stop();
+    m_SendCondition.notify_one();
 
     // Wait till threads are done
-    m_sendThread.join();
-    m_clientThread.join();
+    m_SendThread.join();
+    m_ClientThread.join();
 
     // Cleanup the sockets
     WSACleanup();
@@ -84,25 +84,25 @@ leap::networking::LeapClient::~LeapClient()
 
 bool leap::networking::LeapClient::GetPacket(BasePacket& packet)
 {
-    return m_packetReceiver->Get(packet);
+    return m_PacketReceiver->Get(packet);
 }
 
 void leap::networking::LeapClient::SendTCP(const BasePacket& packet)
 {
-    m_packetSender->Add(InternalPacket{ packet });
-    m_sendCondition.notify_one();
+    m_PacketSender->Add(InternalPacket{ packet });
+    m_SendCondition.notify_one();
 }
 
 void leap::networking::LeapClient::SendUDP(const BasePacket& packet)
 {
-    m_packetSender->Add(InternalPacket{ packet, true });
-    m_sendCondition.notify_one();
+    m_PacketSender->Add(InternalPacket{ packet, true });
+    m_SendCondition.notify_one();
 }
 
 void leap::networking::LeapClient::Run(float ticks)
 {
-    m_connected = true;
-    m_clientThread = std::jthread{ [this, ticks]() { InternalRun(ticks); } };
+    m_Connected = true;
+    m_ClientThread = std::jthread{ [this, ticks]() { InternalRun(ticks); } };
 }
 
 bool leap::networking::LeapClient::IsConnected()
@@ -112,13 +112,13 @@ bool leap::networking::LeapClient::IsConnected()
 
 void leap::networking::LeapClient::InternalRun(float ticks)
 {
-    const std::stop_token& stopToken{ m_clientThread.get_stop_token() };
+    const std::stop_token& stopToken{ m_ClientThread.get_stop_token() };
     const float tickTimeMs{ 1000 / ticks };
-    while (m_connected && !stopToken.stop_requested())
+    while (m_Connected && !stopToken.stop_requested())
     {
         const auto currentTime = std::chrono::high_resolution_clock::now();
 
-        m_connected = HandleReceive();
+        m_Connected = HandleReceive();
 
         const auto sleepTimeMs = tickTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
@@ -129,21 +129,21 @@ bool leap::networking::LeapClient::HandleReceive()
 {
     // Receive a response from the server
     std::vector<char> buffer{};
-    buffer.resize(m_bufferSize);
+    buffer.resize(m_BufferSize);
 
     const int bytesReceived = recv(m_TCPsocket, buffer.data(), static_cast<int>(buffer.size()), 0);
     if (bytesReceived == SOCKET_ERROR)
     {
         closesocket(m_TCPsocket);
         WSACleanup();
-        m_connected = false;
+        m_Connected = false;
         return false;
     }
     if (bytesReceived == 0)
     {
         closesocket(m_TCPsocket);
         WSACleanup();
-        m_connected = false;
+        m_Connected = false;
         return false;
     }
 
@@ -153,23 +153,23 @@ bool leap::networking::LeapClient::HandleReceive()
     //WARNING PACKET CREATION WILL DELETE CHAR BUFFER
     BasePacket packet{};
     packet.SetData(charBuffer);
-    m_packetReceiver->Add(packet);
+    m_PacketReceiver->Add(packet);
 
     return true;
 }
 
 void leap::networking::LeapClient::HandleSend()
 {
-    const std::stop_token& stopToken{ m_sendThread.get_stop_token() };
+    const std::stop_token& stopToken{ m_SendThread.get_stop_token() };
     InternalPacket data{};
 
     while (!stopToken.stop_requested())
     {
-        std::unique_lock lock{ m_mutex };
-        m_sendCondition.wait(lock, [&]() { return m_packetSender->Get(data) || stopToken.stop_requested(); });
+        std::unique_lock lock{ m_Mutex };
+        m_SendCondition.wait(lock, [&]() { return m_PacketSender->Get(data) || stopToken.stop_requested(); });
         lock.unlock();
 
-        if (stopToken.stop_requested() || m_connected == false) { break; }
+        if (stopToken.stop_requested() || m_Connected == false) { break; }
 
         if (data.IsUDP)
         {
@@ -182,7 +182,7 @@ void leap::networking::LeapClient::HandleSend()
             {
                 closesocket(m_TCPsocket);
                 WSACleanup();
-                m_connected = false;
+                m_Connected = false;
             }
         }
     }
