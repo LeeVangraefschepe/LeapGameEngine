@@ -16,8 +16,10 @@ namespace leap::graphics
 		virtual void Draw(IMaterial* pMaterial) = 0;
 		virtual IMaterial* GetMaterial() = 0;
 		virtual void SetMaterial(IMaterial* pMaterial) = 0;
+		virtual void UnsetMaterial() = 0;
 		virtual void SetTransform(const glm::mat4x4& transform) = 0;
 		virtual void SetMesh(IMesh* pMesh) = 0;
+		virtual void UnsetMesh() = 0;
 		virtual void SetIsLineRenderer(bool isLineRenderer) = 0;
 	};
 }

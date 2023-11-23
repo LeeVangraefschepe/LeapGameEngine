@@ -37,8 +37,10 @@ namespace leap::graphics
 		virtual void Draw(IMaterial* pMaterial) override;
 		virtual IMaterial* GetMaterial() override;
 		virtual void SetMaterial(IMaterial* pMaterial) override;
+		virtual void UnsetMaterial() override;
 		virtual void SetTransform(const glm::mat4x4& transform) override;
 		virtual void SetMesh(IMesh* pMesh) override;
+		virtual void UnsetMesh() override;
 		virtual void SetIsLineRenderer(bool isLineRenderer) override;
 
 	private:

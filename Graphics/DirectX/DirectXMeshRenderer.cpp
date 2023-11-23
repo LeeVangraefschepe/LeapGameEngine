@@ -95,6 +95,11 @@ void leap::graphics::DirectXMeshRenderer::SetMaterial(IMaterial* pMaterial)
 	m_pMaterial = static_cast<DirectXMaterial*>(pMaterial);
 }
 
+void leap::graphics::DirectXMeshRenderer::UnsetMaterial()
+{
+	m_pMaterial = nullptr;
+}
+
 void leap::graphics::DirectXMeshRenderer::SetTransform(const glm::mat4x4& transform)
 {
 	m_Transform = transform;
@@ -107,6 +112,11 @@ void leap::graphics::DirectXMeshRenderer::SetMesh(IMesh* pMesh)
 	if (m_pMesh) m_pMesh->Remove();
 
 	m_pMesh = static_cast<DirectXMesh*>(pMesh);
+}
+
+void leap::graphics::DirectXMeshRenderer::UnsetMesh()
+{
+	m_pMesh = nullptr;
 }
 
 void leap::graphics::DirectXMeshRenderer::SetIsLineRenderer(bool isLineRenderer)

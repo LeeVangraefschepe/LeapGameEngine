@@ -108,23 +108,25 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pGroundMeshRenderer->SetMaterial(material);
 	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);*/
 
-	auto terrain{ scene.CreateGameObject("Terrain") };
-	leap::TerrainComponent* pTerrain{ terrain->AddComponent<leap::TerrainComponent>() };
+	//auto terrain{ scene.CreateGameObject("Terrain") };
+	//leap::TerrainComponent* pTerrain{ terrain->AddComponent<leap::TerrainComponent>() };
 
-	pTerrain->SetSize(1000);
-	//terrain->AddComponent<SineWaveTerrain>();
-	auto heights = pTerrain->GetHeights();
-	for (int x{}; x < 1000; ++x)
-	{
-		float xMultiplier = x / 1000.0f;
-		for (int y{}; y < 1000; ++y)
-		{
-			float yMultiplier = y / 1000.0f;
+	////pTerrain->SetSize(1000);
+	//pTerrain->GetTexture().Load("Data/Heightmap.png");
+	////terrain->AddComponent<SineWaveTerrain>();
+	//auto heights = pTerrain->GetHeights();
+	//for (int x{}; x < 1024; ++x)
+	//{
+	//	float xMultiplier = x / 1024.0f;
+	//	for (int y{}; y < 1024; ++y)
+	//	{
+	//		float yMultiplier = y / 1024.0f;
 
-			heights[x + y * 1000] = xMultiplier * yMultiplier;
-		}
-	}
-	pTerrain->SetHeights(heights);
+	//		heights[x + y * 1024] += xMultiplier * yMultiplier;
+	//		if (heights[x + y * 1024] > 1.0f) heights[x + y * 1024] = 1.0f;
+	//	}
+	//}
+	//pTerrain->SetHeights(heights);
 	
 	//pTerrain->GetTexture().Load("Data/Heightmap.png");
 	//auto test{ pTerrain->GetHeights() };
@@ -163,22 +165,22 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	box->AddComponent<leap::Rigidbody>();*/
 
 
-	/*auto terrain{ scene.CreateGameObject("Terrain") };
-	terrain->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	auto terrain{ scene.CreateGameObject("Terrain") };
+	terrain->AddComponent<leap::TerrainComponent>()->SetSize(1024);
 	terrain->AddComponent<SineWaveTerrain>();
 
 	auto terrain2{ scene.CreateGameObject("Terrain") };
-	terrain2->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain2->AddComponent<leap::TerrainComponent>()->SetSize(1024);
 	terrain2->AddComponent<SineWaveTerrain>();
-	terrain2->GetTransform()->SetLocalPosition(-1000.0f, 0.0f, 0.0f);
+	terrain2->GetTransform()->SetLocalPosition(-1024.0f, 0.0f, 0.0f);
 
 	auto terrain3{ scene.CreateGameObject("Terrain") };
-	terrain3->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain3->AddComponent<leap::TerrainComponent>()->SetSize(1024);
 	terrain3->AddComponent<SineWaveTerrain>();
-	terrain3->GetTransform()->SetLocalPosition(0.0f, 0.0f, 1000.0f);
+	terrain3->GetTransform()->SetLocalPosition(0.0f, 0.0f, 1024.0f);
 
 	auto terrain4{ scene.CreateGameObject("Terrain") };
-	terrain4->AddComponent<leap::TerrainComponent>()->SetSize(1000);
+	terrain4->AddComponent<leap::TerrainComponent>()->SetSize(1024);
 	terrain4->AddComponent<SineWaveTerrain>();
-	terrain4->GetTransform()->SetLocalPosition(-1000.0f, 0.0f, 1000.0f);*/
+	terrain4->GetTransform()->SetLocalPosition(-1024.0f, 0.0f, 1024.0f);
 }

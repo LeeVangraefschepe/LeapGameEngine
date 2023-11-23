@@ -45,7 +45,7 @@ namespace leap
 		std::unique_ptr<Material> m_pMaterial{};
 
 		virtual void Notify() override;
-		virtual void OnDestroy() override;
+		virtual void Awake() override;
 
 		void ApplySizeTexture();
 		void ApplySizeMesh(unsigned int prevSize);

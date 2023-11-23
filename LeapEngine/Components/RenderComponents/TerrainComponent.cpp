@@ -7,6 +7,7 @@
 #include <Shaders/Heightmap.h>
 
 #include "../../ServiceLocator/ServiceLocator.h"
+#include "../Transform/Transform.h"
 
 #include "../../Graphics/Shader.h"
 
@@ -178,7 +179,15 @@ leap::TerrainComponent::~TerrainComponent()
 {
 	auto& meshData{ m_Meshes[m_Size] };
 	--meshData.useCounter;
-	if (meshData.useCounter == 0) m_Meshes.erase(m_Size);
+	if (meshData.useCounter == 0)
+	{
+		m_Meshes.erase(m_Size);
+	}
+	else
+	{
+		m_pRenderer->UnsetMesh();
+	}
+	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
 }
 
 void leap::TerrainComponent::SetSize(unsigned int size)
@@ -241,9 +250,9 @@ void leap::TerrainComponent::Notify()
 	ApplySizeMesh(prevSize);
 }
 
-void leap::TerrainComponent::OnDestroy()
+void leap::TerrainComponent::Awake()
 {
-	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
+	m_pRenderer->SetTransform(GetTransform()->GetWorldTransform());
 }
 
 void leap::TerrainComponent::ApplySizeTexture()
