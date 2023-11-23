@@ -41,7 +41,7 @@ void leap::NetworkLogger::Notify(const Debug::LogInfo& data)
 			networking::LeapPacket packet{0};
             packet.WriteString(ss.str());
             if (packet.Length() > MAX_BUFFER) return;
-            m_Client.SendTCP(packet);
+            m_Client.SendUDP(packet);
 	    }
         break;
     case Debug::Type::Warning:
@@ -49,7 +49,7 @@ void leap::NetworkLogger::Notify(const Debug::LogInfo& data)
 			networking::LeapPacket packet{1};
             packet.WriteString(ss.str());
             if (packet.Length() > MAX_BUFFER) return;
-            m_Client.SendTCP(packet);
+            m_Client.SendUDP(packet);
 	    }
         break;
     case Debug::Type::Error:
@@ -57,7 +57,7 @@ void leap::NetworkLogger::Notify(const Debug::LogInfo& data)
 			networking::LeapPacket packet{2};
             packet.WriteString(ss.str());
             if (packet.Length() > MAX_BUFFER) return;
-            m_Client.SendTCP(packet);
+            m_Client.SendUDP(packet);
 	    }
         break;
     }
