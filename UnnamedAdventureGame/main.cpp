@@ -2,6 +2,7 @@
 #include "Leap.h"
 #include "GameContext/GameContext.h"
 #include "GameContext/Logger/ImGuiLogger.h"
+#include "GameContext/Logger/NetworkLogger.h"
 #include "SceneGraph/SceneManager.h"
 #include "Scenes/MainMenuScene.h"
 #include <ServiceLocator/ServiceLocator.h>
@@ -13,11 +14,13 @@
 
 int main()
 {
+	leap::GameContext::GetInstance().AddLogger<leap::NetworkLogger>();
+	leap::GameContext::GetInstance().AddLogger<leap::ImGuiLogger>();
+
 	leap::LeapEngine engine{ 1280, 720, "Leap game engine" };
 
 	auto afterInitializing = []()
 		{
-			leap::GameContext::GetInstance().AddLogger<leap::ImGuiLogger>();
 			leap::ServiceLocator::GetPhysics().SetEnabledDebugDrawing(true);
 			leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
 			//leap::GameContext::GetInstance().GetWindow()->SetIcon("Data/Example.png");

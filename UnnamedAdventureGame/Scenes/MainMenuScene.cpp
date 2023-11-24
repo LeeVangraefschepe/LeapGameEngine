@@ -56,7 +56,6 @@
 #include <Interfaces/IPhysicsMaterial.h>
 #include <Interfaces/IPhysics.h>
 
-#include "../Components/PrintCollision.h"
 #include "../Components/ApplyForces.h"
 #include "../Components/ColliderScaler.h"
 #include "../Components/PrintVelocity.h"
@@ -133,5 +132,4 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");
 	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
 	pBox2->GetTransform()->Scale(20.0f, 1.0f, 20.0f);
-	pBox2->AddComponent<PrintCollision>();
 }
