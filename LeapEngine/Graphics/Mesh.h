@@ -29,12 +29,6 @@ namespace leap
 	public:
 		Mesh();
 		Mesh(const std::string& filePath, bool unique = false);
-		~Mesh() = default;
-
-		Mesh(const Mesh& mesh) = delete;
-		Mesh& operator=(const Mesh& mesh) = delete;
-		Mesh(Mesh&& mesh) noexcept;
-		Mesh& operator=(Mesh&& mesh) noexcept;
 
 		template<typename T> 
 		void AddVertex(const T& vertex)

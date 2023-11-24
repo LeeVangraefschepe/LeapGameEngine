@@ -18,20 +18,6 @@ leap::Mesh::Mesh(const std::string& filePath, bool unique)
 	Load(filePath, unique);
 }
 
-leap::Mesh::Mesh(Mesh&& mesh) noexcept
-	: m_pMesh{ std::move(mesh.m_pMesh) }
-	, m_pWritableMesh{ std::move(mesh.m_pWritableMesh) }
-{
-}
-
-leap::Mesh& leap::Mesh::operator=(Mesh&& mesh) noexcept
-{
-	m_pMesh = std::move(mesh.m_pMesh);
-	m_pWritableMesh = std::move(mesh.m_pWritableMesh);
-
-	return *this;
-}
-
 void leap::Mesh::SetWritable(bool isWritable)
 {
 	// Don't change the state if the state is already correct
