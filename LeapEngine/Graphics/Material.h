@@ -21,10 +21,19 @@ namespace leap
 		Material(const std::string& name, bool unique = false);
 
 		template<typename T>
-		Material(const std::string& name, const Shader<T>& shader, bool unique = false)
-			: Material{}
+		static Material&& Create(const std::string& name, bool unique = false)
 		{
-			CreateShaderMaterial(name, shader.GetShader(), unique);
+			Material m{};
+			m.CreateShaderMaterial(name, T::GetShader(), unique);
+			return std::move(m);
+		}
+
+		template<typename T>
+		static std::unique_ptr<Material> CreatePtr(const std::string& name, bool unique = false)
+		{
+			std::unique_ptr<Material> m{ std::unique_ptr<Material>(new Material{}) };
+			m->CreateShaderMaterial(name, T::GetShader(), unique);
+			return std::move(m);
 		}
 
 		template<typename T>

@@ -17,9 +17,7 @@ leap::TerrainComponent::TerrainComponent()
 {
 	m_pRenderer = ServiceLocator::GetRenderer().CreateMeshRenderer();
 
-	std::stringstream ss{};
-	ss << "Heightmap" << this;
-	m_pMaterial = std::make_unique<Material>(ss.str(), Shader<graphics::shaders::Heightmap>(), true);
+	m_pMaterial = Material::CreatePtr<graphics::shaders::Heightmap>("Heightmap", true);
 
 	m_pRenderer->SetMaterial(m_pMaterial->GetInternal());
 }
@@ -110,6 +108,7 @@ void leap::TerrainComponent::Awake()
 void leap::TerrainComponent::ApplySizeTexture()
 {
 	m_Texture.Load(m_Size + 1, m_Size + 1);
+	m_pMaterial->Set("gHeightMap", m_Texture);
 }
 
 void leap::TerrainComponent::ApplySizeMesh(unsigned int prevSize)
