@@ -21,7 +21,7 @@ namespace leap
 		Material(const std::string& name, bool unique = false);
 
 		template<typename T>
-		static Material&& Create(const std::string& name, bool unique = false)
+		static Material Create(const std::string& name, bool unique = false)
 		{
 			Material m{};
 			m.CreateShaderMaterial(name, T::GetShader(), unique);
