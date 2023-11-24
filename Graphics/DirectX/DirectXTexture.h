@@ -27,7 +27,7 @@ namespace leap::graphics
 		DirectXTexture& operator=(const DirectXTexture& other) = delete;
 		DirectXTexture& operator=(DirectXTexture&& other) = delete;
 
-		virtual void SetData(const void* pData, unsigned int nrBytes) override;
+		virtual void SetData(const std::vector<unsigned char>& data) override;
 		virtual std::vector<unsigned char> GetData() override;
 		virtual glm::uvec2 GetSize() const override;
 		virtual void Remove() override;

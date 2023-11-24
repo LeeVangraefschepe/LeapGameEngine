@@ -44,7 +44,7 @@ void leap::Texture::Load(unsigned int width, unsigned int height)
 
 void leap::Texture::SetData(const std::vector<unsigned char>& data) const
 {
-	m_pObject->GetUncountedObject()->SetData(data.data(), static_cast<unsigned int>(data.size()));
+	m_pObject->GetUncountedObject()->SetData(data);
 }
 
 glm::uvec2 leap::Texture::GetSize() const

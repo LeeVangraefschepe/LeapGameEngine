@@ -28,9 +28,11 @@ leap::graphics::DirectXTexture::~DirectXTexture()
 	if(m_pSRV) m_pSRV->Release();
 }
 
-void leap::graphics::DirectXTexture::SetData(const void* pData, unsigned int nrBytes)
+void leap::graphics::DirectXTexture::SetData(const std::vector<unsigned char>& data)
 {
-	m_pEngine->GetContext()->UpdateSubresource(m_pResource, 0, nullptr, pData, nrBytes / GetSize().x, nrBytes);
+	const unsigned int depthPitch{ static_cast<unsigned int>(data.size()) };
+	const unsigned int rowPitch{ depthPitch / GetSize().y };
+	m_pEngine->GetContext()->UpdateSubresource(m_pResource, 0, nullptr, data.data(), rowPitch, depthPitch);
 }
 
 std::vector<unsigned char> leap::graphics::DirectXTexture::GetData()
@@ -56,10 +58,16 @@ std::vector<unsigned char> leap::graphics::DirectXTexture::GetData()
 		Debug::LogError("DirectXEngine Error: Cannot map texture");
 	}
 
-	const unsigned int nrBytes{ mappedResource.DepthPitch };
+	const unsigned int nrBytesPerRow{ mappedResource.RowPitch };
+	const unsigned int nrUsedBytesPerRow{ desc.Width * 4 };
 
-	std::vector<unsigned char> data(nrBytes);
-	memcpy(data.data(), mappedResource.pData, nrBytes);
+	std::vector<unsigned char> data(desc.Width * desc.Height * 4);
+
+	for (unsigned int rowIdx{}; rowIdx < desc.Height; ++rowIdx)
+	{
+		const unsigned int byteIdx{ rowIdx * nrBytesPerRow };
+		memcpy(data.data() + rowIdx * nrUsedBytesPerRow, static_cast<unsigned char*>(mappedResource.pData) + byteIdx, nrUsedBytesPerRow);
+	}
 
 	m_pEngine->GetContext()->Unmap(pStagingTexture, 0);
 	pStagingTexture->Release();
