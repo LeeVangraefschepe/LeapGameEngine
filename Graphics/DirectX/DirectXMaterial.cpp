@@ -36,6 +36,11 @@ leap::graphics::DirectXMaterial::DirectXMaterial(DirectXEngine* pEngine, const s
 
 leap::graphics::DirectXMaterial::~DirectXMaterial()
 {
+	for (ITexture* pTexture : m_pTextures)
+	{
+		pTexture->Remove();
+	}
+
 	if (m_pEffect) m_pEffect->Release();
 	if (m_pInputLayout) m_pInputLayout->Release();
 }
@@ -142,6 +147,11 @@ void leap::graphics::DirectXMaterial::SetTexture(const std::string& varName, ITe
 	auto var = m_pEffect->GetVariableByName(varName.c_str());
 	if (var->IsValid())
 	{
+		const auto it{ std::find(begin(m_pTextures), end(m_pTextures), pTexture) };
+		if (it == end(m_pTextures))
+		{
+			m_pTextures.emplace_back(pTexture);
+		}
 		var->AsShaderResource()->SetResource(static_cast<DirectXTexture*>(pTexture)->GetResource());
 	}
 }

@@ -61,6 +61,7 @@ namespace leap::graphics
 
 		DirectXEngine* m_pEngine{};
 		std::string m_AssetFile{};
+		std::vector<ITexture*> m_pTextures{};
 
 		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
 		ID3DX11EffectMatrixVariable* m_pMatWorldVariable{};
