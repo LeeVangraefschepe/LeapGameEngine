@@ -22,8 +22,6 @@ leap::TerrainComponent::TerrainComponent()
 	m_pMaterial = std::make_unique<Material>(ss.str(), Shader<graphics::shaders::Heightmap>(), true);
 
 	m_pRenderer->SetMaterial(m_pMaterial->GetInternal());
-
-	m_Texture.OnInternalChange.AddListener(this);
 }
 
 leap::TerrainComponent::~TerrainComponent()
@@ -49,6 +47,27 @@ void leap::TerrainComponent::SetSize(unsigned int size)
 	m_Size = size;
 
 	ApplySizeTexture();
+	ApplySizeMesh(prevSize);
+}
+
+void leap::TerrainComponent::LoadHeightmap(const std::string& path, bool isShared)
+{
+	m_Texture.Load(path, !isShared);
+
+	const auto& textureSize{ m_Texture.GetSize() };
+	if (textureSize.x != textureSize.y)
+	{
+		Debug::LogError("LeapEngine Error : Cannot create terrain with a texture which different width and height values");
+		return;
+	}
+
+	m_pMaterial->Set("gHeightMap", m_Texture);
+
+	const unsigned int meshSize{ textureSize.x - 1 };
+	if (m_Size == meshSize) return;
+
+	const unsigned int prevSize{ m_Size };
+	m_Size = meshSize;
 	ApplySizeMesh(prevSize);
 }
 
@@ -81,25 +100,6 @@ void leap::TerrainComponent::SetHeights(const std::vector<float>& heights)
 		textureData[byteIdx + 3] = UCHAR_MAX; // Alpha channel
 	}
 	m_Texture.SetData(textureData);
-}
-
-void leap::TerrainComponent::Notify()
-{
-	const auto& textureSize{ m_Texture.GetSize() };
-	if (textureSize.x != textureSize.y)
-	{
-		Debug::LogError("LeapEngine Error : Cannot create terrain with a texture which different width and height values");
-		return;
-	}
-
-	m_pMaterial->Set("gHeightMap", m_Texture);
-
-	const unsigned int meshSize{ textureSize.x - 1 };
-	if (m_Size == meshSize) return;
-
-	const unsigned int prevSize{ m_Size };
-	m_Size = meshSize;
-	ApplySizeMesh(prevSize);
 }
 
 void leap::TerrainComponent::Awake()

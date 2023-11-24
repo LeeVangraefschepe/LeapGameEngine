@@ -9,8 +9,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include <Observer.h>
-
 namespace leap
 {
 	namespace graphics
@@ -18,7 +16,7 @@ namespace leap
 		class IMeshRenderer;
 	}
 
-	class TerrainComponent final : public Component, Observer
+	class TerrainComponent final : public Component
 	{
 	public:
 		TerrainComponent();
@@ -30,7 +28,7 @@ namespace leap
 		TerrainComponent& operator=(TerrainComponent&& other) = delete;
 
 		void SetSize(unsigned int size);
-		Texture& GetTexture() { return m_Texture; }
+		void LoadHeightmap(const std::string& path, bool isShared = false);
 
 		std::vector<float> GetHeights() const;
 		void SetHeights(const std::vector<float>& heights);
@@ -44,7 +42,6 @@ namespace leap
 		inline static std::unordered_map<int, TerrainMesh> m_Meshes{};
 		std::unique_ptr<Material> m_pMaterial{};
 
-		virtual void Notify() override;
 		virtual void Awake() override;
 
 		void ApplySizeTexture();
