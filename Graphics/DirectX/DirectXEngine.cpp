@@ -292,6 +292,15 @@ void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::v
 	}
 }
 
+void leap::graphics::DirectXEngine::DrawLine(const glm::vec3& start, const glm::vec3& end)
+{
+	unsigned int index{ static_cast<unsigned int>(m_DebugDrawings.GetIndexBuffer().size()) };
+	m_DebugDrawings.AddVertex(start);
+	m_DebugDrawings.AddVertex(end);
+	m_DebugDrawings.AddIndex(index++);
+	m_DebugDrawings.AddIndex(index++);
+}
+
 void leap::graphics::DirectXEngine::Release()
 {
 	m_pRenderers.clear();

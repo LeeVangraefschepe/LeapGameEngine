@@ -29,9 +29,10 @@ add_library(LeapEngine STATIC
     "Components/Physics/Rigidbody.cpp"
     "Components/Physics/SphereCollider.cpp"
     "Components/Physics/Collider.cpp" 
-	  "Components/Physics/CapsuleCollider.cpp" 
+	"Components/Physics/CapsuleCollider.cpp" 
+    "Physics/Physics.cpp"
     "GameContext/Logger/NetworkLogger.cpp"
-	  "Graphics/Mesh.cpp" 
+	"Graphics/Mesh.cpp" 
     "Graphics/Texture.cpp" 
     "Graphics/Material.cpp" 
     "Graphics/Shader.cpp")
