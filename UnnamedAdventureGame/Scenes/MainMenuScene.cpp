@@ -86,101 +86,36 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 	canvas->AddComponent<leap::CanvasActions>();
 
-	/*auto sprite{ canvas->CreateChild("Sprite") };
-	sprite->AddComponent<leap::RectTransform>();
-	sprite->AddComponent<leap::Image>()->SetTexture(leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));*/
-
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
 
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	//const leap::Material material{ "Test", leap::Shader<leap::graphics::shaders::PosNorm3D>{} };
+	auto pTerrain{ scene.CreateGameObject("Terrain") };
+	pTerrain->AddComponent<leap::TerrainComponent>()->LoadHeightmap("Data/heightmap.png");
 
-	//const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
-	//pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png", true));
+	auto pTerrain2{ scene.CreateGameObject("Terrain") };
+	pTerrain2->AddComponent<leap::TerrainComponent>()->SetSize(1024);
+	pTerrain2->AddComponent<SineWaveTerrain>();
+	pTerrain2->GetTransform()->SetLocalPosition(-1024.0f, 0.0f, 0.0f);
 
-	/*const leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
-	auto ground{ scene.CreateGameObject("Ground") };
-	leap::MeshRenderer* pGroundMeshRenderer{ ground->AddComponent<leap::MeshRenderer>() };
-	pGroundMeshRenderer->SetMesh(cube);
-	pGroundMeshRenderer->SetMaterial(material);
-	ground->GetTransform()->SetLocalPosition(0.0f, 5.0f, 0.0f);*/
+	const leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
+	const leap::Mesh sphere{ "Data/Engine/Models/sphere.obj", true };
 
-	//auto terrain{ scene.CreateGameObject("Terrain") };
-	//leap::TerrainComponent* pTerrain{ terrain->AddComponent<leap::TerrainComponent>() };
+	const leap::Material cubeMat{ "Cube Material" };
+	cubeMat.Set("gDiffuseMap", leap::Texture{ "Data/debug.png" });
+	const leap::Material sphereMat{ leap::Material::Create<leap::graphics::shaders::PosNorm3D>("Sphere Material") };
 
-	////pTerrain->SetSize(1000);
-	//pTerrain->GetTexture().Load("Data/Heightmap.png");
-	////terrain->AddComponent<SineWaveTerrain>();
-	//auto heights = pTerrain->GetHeights();
-	//for (int x{}; x < 1024; ++x)
-	//{
-	//	float xMultiplier = x / 1024.0f;
-	//	for (int y{}; y < 1024; ++y)
-	//	{
-	//		float yMultiplier = y / 1024.0f;
+	auto pCubeObj{ scene.CreateGameObject("Cube") };
+	auto pCubeRenderer{ pCubeObj->AddComponent<leap::MeshRenderer>() };
+	pCubeRenderer->SetMesh(cube);
+	pCubeRenderer->SetMaterial(cubeMat);
+	pCubeObj->GetTransform()->SetLocalPosition(-1.5f, 5.0f, 0.0f);
 
-	//		heights[x + y * 1024] += xMultiplier * yMultiplier;
-	//		if (heights[x + y * 1024] > 1.0f) heights[x + y * 1024] = 1.0f;
-	//	}
-	//}
-	//pTerrain->SetHeights(heights);
-	
-	//pTerrain->GetTexture().Load("Data/Heightmap.png");
-	//auto test{ pTerrain->GetHeights() };
-	//for (auto& var : test)
-	//{
-	//	if (var < 0.35f) var = 0.35f;
-	//}
-	//pTerrain->SetHeights(test);
-
-
-	// 
-	//auto heights{ pTerrain->GetHeights() };
-
-	//heights[2] = 0.1f;
-	///*for (int x{5}; x < 15; ++x)
-	//{
-	//	for (int z{5}; z < 15; ++z)
-	//	{
-	//		heights[x + z * 1000] = 0.1f;
-	//	}
-	//}*/
-	//pTerrain->SetHeights(heights);
-
-	//pGroundMeshRenderer->SetMaterial(pTexturedMaterial);
-	/*ground->GetTransform()->SetLocalPosition(0.0f, -1.0f, 0.0f);
-	ground->GetTransform()->SetLocalScale(20.0f, 1.0f, 20.0f);
-	ground->AddComponent<leap::BoxCollider>();*/
-
-
-	/*auto box{ scene.CreateGameObject("Box") };
-	leap::MeshRenderer* pBoxMeshRenderer{ box->AddComponent<leap::MeshRenderer>() };
-	pBoxMeshRenderer->SetMesh(cube);
-	pBoxMeshRenderer->SetMaterial(pTexturedMaterial);
-	box->GetTransform()->SetLocalPosition(0.0f, 0.5f, 0.0f);
-	box->AddComponent<leap::BoxCollider>();
-	box->AddComponent<leap::Rigidbody>();*/
-
-
-	auto terrain{ scene.CreateGameObject("Terrain") };
-	terrain->AddComponent<leap::TerrainComponent>()->SetSize(1024);
-	terrain->AddComponent<SineWaveTerrain>();
-
-	auto terrain2{ scene.CreateGameObject("Terrain") };
-	terrain2->AddComponent<leap::TerrainComponent>()->SetSize(1024);
-	terrain2->AddComponent<SineWaveTerrain>();
-	terrain2->GetTransform()->SetLocalPosition(-1024.0f, 0.0f, 0.0f);
-
-	auto terrain3{ scene.CreateGameObject("Terrain") };
-	terrain3->AddComponent<leap::TerrainComponent>()->SetSize(1024);
-	terrain3->AddComponent<SineWaveTerrain>();
-	terrain3->GetTransform()->SetLocalPosition(0.0f, 0.0f, 1024.0f);
-
-	auto terrain4{ scene.CreateGameObject("Terrain") };
-	terrain4->AddComponent<leap::TerrainComponent>()->SetSize(1024);
-	terrain4->AddComponent<SineWaveTerrain>();
-	terrain4->GetTransform()->SetLocalPosition(-1024.0f, 0.0f, 1024.0f);
+	auto pSphereObj{ scene.CreateGameObject("Sphere") };
+	auto pSphereRenderer{ pSphereObj->AddComponent<leap::MeshRenderer>() };
+	pSphereRenderer->SetMesh(sphere);
+	pSphereRenderer->SetMaterial(sphereMat);
+	pSphereObj->GetTransform()->SetLocalPosition(1.5f, 5.0f, 0.0f);
 }
