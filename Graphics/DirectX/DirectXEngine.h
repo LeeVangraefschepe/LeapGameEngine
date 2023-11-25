@@ -81,6 +81,7 @@ namespace leap::graphics
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) override;
+		virtual void DrawLine(const glm::vec3& start, const glm::vec3& end) override;
 
 		ID3D11Device* GetDevice() const { return m_pDevice; }
 		ID3D11DeviceContext* GetContext() const { return m_pDeviceContext; }

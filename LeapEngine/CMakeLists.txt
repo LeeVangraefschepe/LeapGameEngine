@@ -25,12 +25,15 @@ add_library(LeapEngine STATIC
     "Components/Audio/AudioListener.cpp"
     "Components/RenderComponents/TerrainComponent.cpp"
     "Components/Physics/BoxCollider.cpp" 
-    "Utils/PhysicsSync.cpp" 
+    "Physics/PhysicsSync.cpp" 
     "Components/Physics/Rigidbody.cpp"
     "Components/Physics/SphereCollider.cpp"
     "Components/Physics/Collider.cpp" 
-	"Components/Physics/CapsuleCollider.cpp" 
-	"Graphics/Mesh.cpp" 
-    "Graphics/Texture.cpp" "Graphics/Material.h" "Graphics/Material.cpp" "Graphics/Shader.h" "Graphics/Shader.cpp")
+	  "Components/Physics/CapsuleCollider.cpp" 
+    "GameContext/Logger/NetworkLogger.cpp"
+	  "Graphics/Mesh.cpp" 
+    "Graphics/Texture.cpp" 
+    "Graphics/Material.cpp" 
+    "Graphics/Shader.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

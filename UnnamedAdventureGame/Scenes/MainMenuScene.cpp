@@ -56,7 +56,6 @@
 #include <Interfaces/IPhysicsMaterial.h>
 #include <Interfaces/IPhysics.h>
 
-#include "../Components/PrintCollision.h"
 #include "../Components/ApplyForces.h"
 #include "../Components/ColliderScaler.h"
 #include "../Components/PrintVelocity.h"

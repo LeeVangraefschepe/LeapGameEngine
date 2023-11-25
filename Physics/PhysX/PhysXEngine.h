@@ -61,6 +61,8 @@ namespace leap::physics
 		virtual TSubject<CollisionData>& OnTriggerStay() override { return m_OnTriggerStay; }
 		virtual TSubject<CollisionData>& OnTriggerExit() override { return m_OnTriggerExit; }
 
+		virtual bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo) override;
+
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
 
 		virtual void Notify(const SimulationEvent& e) override;

@@ -16,7 +16,7 @@
 #include "GameContext/Window.h"
 #include "SceneGraph/SceneManager.h"
 
-#include "Utils/PhysicsSync.h"
+#include "Physics/PhysicsSync.h"
 
 leap::LeapEngine::LeapEngine(int width, int height, const char* title)
 {

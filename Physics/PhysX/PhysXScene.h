@@ -24,6 +24,7 @@ namespace leap::physics
 		virtual void Simulate(float fixedDeltaTime) override;
 		virtual void SetEnabledDebugDrawing(bool isEnabled) override;
 		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() override;
+		virtual bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo) override;
 
 		void AddActor(physx::PxRigidActor* pActor) const;
 		void RemoveActor(physx::PxRigidActor* pActor) const;
