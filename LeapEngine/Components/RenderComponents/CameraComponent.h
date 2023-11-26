@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Component.h"
-#include "Observer.h"
 #include <memory>
 
 #include "vec2.hpp"
@@ -13,13 +12,11 @@ namespace leap
 		class Camera;
 	}
 
-	class CameraComponent final : public Component, TObserver<glm::ivec2>, Observer
+	class CameraComponent final : public Component
 	{
 	public:
 		CameraComponent();
 		virtual ~CameraComponent();
-
-		void Notify(const glm::ivec2& data) override;
 
 		CameraComponent(const CameraComponent& other) = delete;
 		CameraComponent(CameraComponent&& other) = delete;
@@ -32,7 +29,8 @@ namespace leap
 	private:
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
-		virtual void Notify() override;
+		void OnScreenSizeChanged(const glm::ivec2& data);
+		void OnTransformChanged();
 
 		void UpdateTransform() const;
 

@@ -4,7 +4,6 @@
 
 #include <Interfaces/IShape.h>
 #include <Subject.h>
-#include <Observer.h>
 
 #include <memory>
 
@@ -19,7 +18,7 @@ namespace leap
 		class IPhysicsMaterial;
 	}
 
-	class Collider : public Component, public Observer
+	class Collider : public Component
 	{
 	public:
 		struct CollisionCallback final
@@ -54,8 +53,6 @@ namespace leap
 
 		virtual void Awake() override;
 		virtual void OnDestroy() override;
-
-		virtual void Notify() override;
 
 		void Move(const Rigidbody* pRigidbody);
 

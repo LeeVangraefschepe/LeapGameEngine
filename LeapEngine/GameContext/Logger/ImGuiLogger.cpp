@@ -14,7 +14,7 @@ leap::ImGuiLogger::ImGuiLogger()
 
 leap::ImGuiLogger::~ImGuiLogger()
 {
-    Debug::OnEvent.RemoveListener(this);
+    Debug::OnEvent.RemoveListener(this, &ImGuiLogger::OnDebug);
 }
 
 void leap::ImGuiLogger::SetEnabled(bool enable)
@@ -23,11 +23,11 @@ void leap::ImGuiLogger::SetEnabled(bool enable)
 
     if (enable)
     {
-        Debug::OnEvent.AddListener(this);
+        Debug::OnEvent.AddListener(this, &ImGuiLogger::OnDebug);
     }
     else
     {
-        Debug::OnEvent.RemoveListener(this);
+        Debug::OnEvent.RemoveListener(this, &ImGuiLogger::OnDebug);
     }
     m_Enabled = enable;
 }
@@ -85,7 +85,7 @@ void leap::ImGuiLogger::OnGUI()
     ImGui::End();
 }
 
-void leap::ImGuiLogger::Notify(const Debug::LogInfo& message)
+void leap::ImGuiLogger::OnDebug(const Debug::LogInfo& message)
 {
     LogInfo log{};
     log.Message = std::string{ message.Message };
