@@ -51,7 +51,6 @@ namespace leap::graphics
 
 		glm::mat4x4 m_Transform{ Matrix::Identity4x4() };
 
-		bool m_HasCustomMesh{};
 		bool m_IsLineRenderer{};
 	};
 }
