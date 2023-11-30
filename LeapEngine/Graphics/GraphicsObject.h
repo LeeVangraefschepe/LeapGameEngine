@@ -13,6 +13,11 @@ namespace leap
 			Release();
 		}
 
+		GraphicsObject& operator=(const GraphicsObject& other) = delete;
+		GraphicsObject(const GraphicsObject& other) = delete;
+		GraphicsObject& operator=(GraphicsObject&& other) = delete;
+		GraphicsObject(const GraphicsObject&& other) = delete;
+
 		void Clear()
 		{
 			Release();
