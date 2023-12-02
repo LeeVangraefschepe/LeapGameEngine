@@ -10,6 +10,7 @@ struct ID3D11DeviceContext;
 
 namespace leap::graphics
 {
+	class DirectXEngine;
 	struct Sprite;
 	class DirectXMaterial;
 
@@ -23,7 +24,7 @@ namespace leap::graphics
 		DirectXSpriteRenderer& operator=(const DirectXSpriteRenderer& other) = delete;
 		DirectXSpriteRenderer& operator=(DirectXSpriteRenderer&& other) = delete;
 
-		void Create(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const glm::vec2& screenSize);
+		void Create(DirectXEngine* pEngine, const glm::vec2& screenSize);
 
 		void AddSprite(Sprite* pSprite);
 		void RemoveSprite(Sprite* pSprite);

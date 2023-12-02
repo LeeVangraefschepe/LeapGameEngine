@@ -117,9 +117,15 @@ void leap::RectTransform::UpdatePosition()
 	if (m_IsPositionLocal)
 	{
 		RectTransform* pParent{ GetGameObject()->GetParent()->GetComponent<RectTransform>() };
-		const glm::vec3& parentPos{ pParent->GetPosition() };
-
-		GetTransform()->SetWorldPosition(parentPos.x + position.x, parentPos.y + position.y, m_Depth);
+		if (pParent)
+		{
+			const glm::vec3& parentPos{ pParent->GetPosition() };
+			GetTransform()->SetWorldPosition(parentPos.x + position.x, parentPos.y + position.y, m_Depth);
+		}
+		else
+		{
+			GetTransform()->SetWorldPosition(position.x, position.y, m_Depth);
+		}
 	}
 	else
 	{

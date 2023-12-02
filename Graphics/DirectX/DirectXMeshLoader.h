@@ -31,8 +31,6 @@ namespace leap::graphics
 
 		void RemoveCustomMesh(ID3D11Buffer* pVertexBuffer);
 
-		void Reload(ID3D11Device* pDevice);
-
 	private:
 		DirectXMeshLoader() = default;
 		~DirectXMeshLoader();

@@ -30,18 +30,18 @@ void leap::GameObject::SetParent(GameObject* pParent)
 	// Move the unique ptr of itself from the parent to this function
 	const auto selfIt{ std::find_if(begin(pPrevParent->m_pChildren), end(pPrevParent->m_pChildren), [this](const auto& pChild) { return pChild.get() == this; }) };
 	std::unique_ptr<GameObject> pSelf{ std::move(*selfIt) };
+	
+	// Set the new parent of this gameobject
+	m_pParent = pParent;
 
 	// Keep the world transform
 	GetTransform()->KeepWorldTransform(pParent);
-
+	
 	// Add self to the new parent
 	pParent->m_pChildren.emplace_back(std::move(pSelf));
 
 	// Erase self from previous parent
 	pPrevParent->m_pChildren.erase(selfIt);
-
-	// Set the new parent of this gameobject
-	m_pParent = pParent;
 }
 
 leap::GameObject* leap::GameObject::CreateChild(const char* name)

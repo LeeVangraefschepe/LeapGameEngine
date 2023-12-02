@@ -14,6 +14,7 @@ struct ID3D11ShaderResourceView;
 
 namespace leap::graphics
 {
+	class DirectXEngine;
 	class DirectXMeshRenderer;
 	class DirectXMaterial;
 
@@ -23,7 +24,7 @@ namespace leap::graphics
 		DirectXShadowRenderer() = default;
 		~DirectXShadowRenderer();
 
-		void Create(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const glm::uvec2& shadowMapSize);
+		void Create(DirectXEngine* pEngine, const glm::uvec2& shadowMapSize);
 
 		void SetupTarget() const;
 		void SetLightMatrix(const glm::mat4x4& lightMatrix) const;

@@ -4,6 +4,7 @@
 #include "DirectXMaterial.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXShaderReader.h"
+#include "DirectXEngine.h"
 #include "../Shaders/ShadowMap.h"
 
 #include <d3d11.h>
@@ -12,11 +13,11 @@ leap::graphics::DirectXShadowRenderer::~DirectXShadowRenderer()
 {
 }
 
-void leap::graphics::DirectXShadowRenderer::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const glm::uvec2& shadowMapSize)
+void leap::graphics::DirectXShadowRenderer::Create(DirectXEngine* pEngine, const glm::uvec2& shadowMapSize)
 {
 	m_Size = shadowMapSize;
 
-	m_pDeviceContext = pDeviceContext;
+	m_pDeviceContext = pEngine->GetContext();
 
 	DirectXRenderTarget::RTDesc shadowRenderTargetDesc{};
 	shadowRenderTargetDesc.width = shadowMapSize.x;
@@ -25,10 +26,10 @@ void leap::graphics::DirectXShadowRenderer::Create(ID3D11Device* pDevice, ID3D11
 	shadowRenderTargetDesc.isDepthSRV = true;
 	shadowRenderTargetDesc.antiAliasing = AntiAliasing::NONE;
 
-	m_ShadowTarget.Create(pDevice, pDeviceContext, shadowRenderTargetDesc);
+	m_ShadowTarget.Create(pEngine->GetDevice(), pEngine->GetContext(), shadowRenderTargetDesc);
 
 	const DirectXShader shader{ DirectXShaderReader::GetShaderData(shaders::ShadowMap::GetShader()) };
-	m_pMaterial = std::make_unique<DirectXMaterial>(pDevice, shader.path, shader.vertexDataFunction);
+	m_pMaterial = std::make_unique<DirectXMaterial>(pEngine, shader.path, shader.vertexDataFunction);
 }
 
 void leap::graphics::DirectXShadowRenderer::SetupTarget() const

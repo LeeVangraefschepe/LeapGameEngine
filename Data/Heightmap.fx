@@ -59,7 +59,7 @@ float EvaluateShadowMap(float4 lpos)
 {
 	// Re-homogenize position after interpolation
     lpos.xyz /= lpos.w;
-
+    
 	// If position is not visible to the light - dont illuminate it
 	// Results in hard light frustum
     if (lpos.x < -1.0f || lpos.x > 1.0f ||
@@ -94,19 +94,41 @@ float EvaluateShadowMap(float4 lpos)
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
+bool IsInsideTexture(int position)
+{
+    int width, height;
+    gHeightMap.GetDimensions(width, height);
+    
+    return position >= 0 && position < width;
+
+}
+
+float GetNeighbouringHeight(float curHeight, float2 curPos, int neighbourValueX, int neighbourValueY)
+{
+    float x = curPos.x + neighbourValueX;
+    if (!IsInsideTexture(x))
+        return curHeight;
+    
+    float y = curPos.y + neighbourValueY;
+    if (!IsInsideTexture(y))
+        return curHeight;
+    
+    return gHeightMap[float2(x, y)] * gMaxHeight;
+}
+
 VS_OUTPUT VS(VS_INPUT input) 
 {
 	VS_OUTPUT output;
     float2 heightMapPos = input.uv;
 	// Step 1:	convert position into float4 and multiply with matWorldViewProj
-    float height = gHeightMap[heightMapPos];
+    float height = gHeightMap[heightMapPos] * gMaxHeight;
+    	
+    float L = GetNeighbouringHeight(height, heightMapPos, -1.0f, 0.0f);
+    float R = GetNeighbouringHeight(height, heightMapPos, 1.0f, 0.0f);
+    float T = GetNeighbouringHeight(height, heightMapPos, 0.0f, 1.0f);
+    float B = GetNeighbouringHeight(height, heightMapPos, 0.0f, -1.0f);
 	
-    float L = gHeightMap[heightMapPos + float2(-1.0f, 0.0f)] * gMaxHeight;
-    float R = gHeightMap[heightMapPos + float2(1.0f, 0.0f)] * gMaxHeight;
-    float T = gHeightMap[heightMapPos + float2(0.0f, 1.0f)] * gMaxHeight;
-    float B = gHeightMap[heightMapPos + float2(0.0f, -1.0f)] * gMaxHeight;
-	
-    output.pos = mul(float4(input.pos + float3(0, height * gMaxHeight, 0), 1.0f), gWorldViewProj);
+    output.pos = mul(float4(input.pos + float3(0, height, 0), 1.0f), gWorldViewProj);
 	// Step 2:	rotate the normal: NO TRANSLATION
 	//			this is achieved by clipping the 4x4 to a 3x3 matrix, 
 	//			thus removing the postion row of the matrix

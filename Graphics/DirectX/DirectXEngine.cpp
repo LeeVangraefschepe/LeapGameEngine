@@ -31,6 +31,8 @@
 
 #include "../Data/CustomMesh.h"
 
+#include <sstream>
+
 leap::graphics::DirectXEngine::DirectXEngine(GLFWwindow* pWindow) : m_pWindow(pWindow)
 {
 	Debug::Log("DirectXRenderer Log: Created DirectX engine");
@@ -44,46 +46,134 @@ leap::graphics::DirectXEngine::~DirectXEngine()
 
 void leap::graphics::DirectXEngine::Initialize()
 {
-	ReloadDirectXEngine();
+	CreateDirectXEngine();
 
 	Debug::Log("DirectXRenderer Log: Creating default material with ID \"Default\"");
-	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default");
+	CreateMaterial(shaders::PosNormTex3D::GetShader(), "Default", true);
 
 	Debug::Log("DirectXRenderer Log: Creating debug renderer");
 	m_pDebugRenderer = CreateMeshRenderer();
 	m_pDebugRenderer->SetIsLineRenderer(true);
+	m_pDebugMesh = CreateMesh();
+	m_pDebugRenderer->SetMesh(m_pDebugMesh);
 
 	m_IsInitialized = true;
 	Debug::Log("DirectXRenderer Log: Successfully initialized DirectX engine");
+}
+
+void leap::graphics::DirectXEngine::Draw()
+{
+	if (!m_IsInitialized) return;
+
+	if (m_pCamera)
+	{
+		if (!m_DebugDrawings.GetIndexBuffer().empty())
+		{
+			m_pDebugMesh->ReloadMesh(m_DebugDrawings);
+			m_DebugDrawings.Clear();
+		}
+
+		RenderCameraView();
+	}
+	else
+	{
+		SetupNonCameraView();
+	}
+
+	// Render sprites
+	m_SpriteRenderer.Draw();
+
+	// Imgui render
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	// Swap render buffers
+	m_pSwapChain->Present(0, 0);
+}
+
+void leap::graphics::DirectXEngine::GuiDraw()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 }
 
 void leap::graphics::DirectXEngine::SetAntiAliasing(AntiAliasing antiAliasing)
 {
 	m_AntiAliasing = antiAliasing;
 
-	if(m_IsInitialized) ReloadDirectXEngine();
+	if (m_IsInitialized) CreateRenderTargetAndSetViewport();
 }
 
 void leap::graphics::DirectXEngine::SetWindowSize(const glm::ivec2&)
 {
-	if (m_IsInitialized) ReloadDirectXEngine();
+	if (m_IsInitialized) CreateRenderTargetAndSetViewport();
 }
 
 void leap::graphics::DirectXEngine::SetShadowMapData(unsigned int shadowMapWidth, unsigned int shadowMapHeight, float orthoSize, float nearPlane, float farPlane)
 {
 	m_DirectionalLight.SetShadowMapData(static_cast<float>(shadowMapWidth) / shadowMapHeight, orthoSize, nearPlane, farPlane);
-	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, { shadowMapWidth, shadowMapHeight });
+	m_ShadowRenderer.Create(this, { shadowMapWidth, shadowMapHeight });
+}
+
+void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
+{
+	if (!m_pCamera) return;
+
+	glm::mat4x3 lightTransform{ transform };
+	lightTransform[3] = glm::vec3{ m_pCamera->GetInverseViewMatrix()[3] } - transform[2] * 25.0f;
+
+	m_DirectionalLight.SetTransform(lightTransform);
+
+	const auto& lightDir{ transform[2] };
+	for (const auto& pMaterial : m_pMaterials)
+	{
+		pMaterial.second->SetFloat3("gLightDirection", lightDir);
+		pMaterial.second->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
+	}
+	for (const auto& pMaterial : m_pUniqueMaterials)
+	{
+		pMaterial->SetFloat3("gLightDirection", lightDir);
+		pMaterial->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
+	}
 }
 
 leap::graphics::IMeshRenderer* leap::graphics::DirectXEngine::CreateMeshRenderer()
 {
-	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(m_pDevice, m_pDeviceContext));
+	m_pRenderers.push_back(std::make_unique<DirectXMeshRenderer>(this));
 	return m_pRenderers[m_pRenderers.size() - 1].get();
 }
 
 void leap::graphics::DirectXEngine::RemoveMeshRenderer(IMeshRenderer* pMeshRenderer)
 {
 	m_pRenderers.erase(std::remove_if(begin(m_pRenderers), end(m_pRenderers), [pMeshRenderer](const auto& pRenderer) { return pMeshRenderer == pRenderer.get(); }));
+}
+
+leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh(const std::string& path, bool cached)
+{
+	if (!cached)
+	{
+		m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(this, path));
+		return m_pUniqueMeshes[m_pUniqueMeshes.size() - 1].get();
+	}
+
+	if (!m_pMeshes.contains(path))
+	{
+		m_pMeshes[path] = std::make_unique<DirectXMesh>(this, path);
+	}
+
+	return m_pMeshes[path].get();
+}
+
+leap::graphics::IMesh* leap::graphics::DirectXEngine::CreateMesh()
+{
+	m_pUniqueMeshes.emplace_back(std::make_unique<DirectXMesh>(this));
+	return m_pUniqueMeshes[m_pUniqueMeshes.size() - 1].get();
+}
+
+void leap::graphics::DirectXEngine::RemoveMesh(IMesh* pMesh)
+{
+	std::erase_if(m_pUniqueMeshes, [pMesh](const auto& pUniqueMesh) { return pUniqueMesh.get() == pMesh; });
 }
 
 void leap::graphics::DirectXEngine::AddSprite(Sprite* pSprite)
@@ -96,66 +186,98 @@ void leap::graphics::DirectXEngine::RemoveSprite(Sprite* pSprite)
 	m_SpriteRenderer.RemoveSprite(pSprite);
 }
 
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name)
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name, bool cached)
 {
-	if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
+	if (cached)
 	{
-		return it->second.get();
+		if (auto it{ m_pMaterials.find(name) }; it != end(m_pMaterials))
+		{
+			return it->second.get();
+		}
 	}
 
 	const DirectXShader shader{ DirectXShaderReader::GetShaderData(std::move(pShader)) };
-	auto pMaterial{ std::make_unique<DirectXMaterial>(m_pDevice, shader.path, shader.vertexDataFunction) };
+	auto pMaterial{ std::make_unique<DirectXMaterial>(this, shader.path, shader.vertexDataFunction) };
 	auto pMaterialRaw{ pMaterial.get() };
 
 	pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
+	pMaterial->SetFloat3("gLightDirection", m_DirectionalLight.GetDirection());
+	pMaterial->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
 
-	m_pMaterials[name] = std::move(pMaterial);
+	if (cached)
+	{
+		m_pMaterials[name] = std::move(pMaterial);
+	}
+	else 
+	{
+		m_pUniqueMaterials.emplace_back(std::move(pMaterial));
+	}
 	return pMaterialRaw;
 }
 
-leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const std::string& original, const std::string& clone)
+leap::graphics::IMaterial* leap::graphics::DirectXEngine::CloneMaterial(const std::string& original, const std::string& clone, bool cached)
 {
-	if (auto it{ m_pMaterials.find(clone) }; it != end(m_pMaterials))
+	if (cached)
 	{
-		return it->second.get();
+		if (auto it{ m_pMaterials.find(clone) }; it != end(m_pMaterials))
+		{
+			return it->second.get();
+		}
 	}
 
 	if (auto it{ m_pMaterials.find(original) }; it != end(m_pMaterials))
 	{
-		std::unique_ptr<DirectXMaterial> pMaterial{ it->second->Clone(m_pDevice) };
+		std::unique_ptr<DirectXMaterial> pMaterial{ it->second->Clone() };
 		auto pMaterialRaw{ pMaterial.get() };
 
 		pMaterial->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
+		pMaterial->SetFloat3("gLightDirection", m_DirectionalLight.GetDirection());
+		pMaterial->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
 
-		m_pMaterials[clone] = std::move(pMaterial);
+		if (cached)
+		{
+			m_pMaterials[clone] = std::move(pMaterial);
+		}
+		else
+		{
+			m_pUniqueMaterials.emplace_back(std::move(pMaterial));
+		}
 		return pMaterialRaw;
 	}
 
 	return nullptr;
 }
 
-leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path)
+void leap::graphics::DirectXEngine::RemoveMaterial(IMaterial* pMaterial)
 {
-	if (auto it{ m_pTextures.find(path) }; it != end(m_pTextures))
+	std::erase_if(m_pUniqueMaterials, [pMaterial](const auto& pUniqueMaterial) { return pUniqueMaterial.get() == pMaterial; });
+}
+
+leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(const std::string& path, bool cached)
+{
+	if (!cached)
 	{
-		return it->second.get();
+		m_pUniqueTextures.emplace_back(std::make_unique<DirectXTexture>(this, path));
+		return m_pUniqueTextures[m_pUniqueTextures.size() - 1].get();
 	}
 
-	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, m_pDeviceContext, path) };
-	auto pTextureRaw{ pTexture.get() };
+	if (!m_pTextures.contains(path))
+	{
+		m_pTextures[path] = std::make_unique<DirectXTexture>(this, path);
+	}
 
-	m_pTextures[path] = std::move(pTexture);
-	return pTextureRaw;
+	return m_pTextures[path].get();
 }
 
 leap::graphics::ITexture* leap::graphics::DirectXEngine::CreateTexture(int width, int height)
 {
-	auto pTexture{ std::make_unique<DirectXTexture>(m_pDevice, m_pDeviceContext, width, height) };
-	auto pTextureRaw{ pTexture.get() };
+	m_pUniqueTextures.emplace_back(std::make_unique<DirectXTexture>(this, width, height));
+	return m_pUniqueTextures[m_pUniqueTextures.size() - 1].get();
+}
 
-	m_pUniqueTextures.emplace_back(std::move(pTexture));
-
-	return pTextureRaw;
+void leap::graphics::DirectXEngine::RemoveTexture(ITexture* pTexture)
+{
+	std::erase_if(m_pUniqueTextures, [pTexture](const auto& pUniqueTexture) { return pUniqueTexture.get() == pTexture; });
 }
 
 void leap::graphics::DirectXEngine::DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines)
@@ -176,31 +298,19 @@ void leap::graphics::DirectXEngine::DrawLine(const glm::vec3& start, const glm::
 	m_DebugDrawings.AddVertex(start);
 	m_DebugDrawings.AddVertex(end);
 	m_DebugDrawings.AddIndex(index++);
-	m_DebugDrawings.AddIndex(index);
-}
-
-void leap::graphics::DirectXEngine::SetDirectionLight(const glm::mat3x3& transform)
-{
-	if (!m_pCamera) return;
-
-	glm::mat4x3 lightTransform { transform };
-	lightTransform[3] = glm::vec3{ m_pCamera->GetInverseViewMatrix()[3] } - transform[2] * 25.0f;
-
-	m_DirectionalLight.SetTransform(lightTransform);
-
-	for (const auto& pMaterial : m_pMaterials)
-	{
-		pMaterial.second->SetFloat3("gLightDirection", transform[2]);
-	}
+	m_DebugDrawings.AddIndex(index++);
 }
 
 void leap::graphics::DirectXEngine::Release()
 {
-	if (m_pSwapChain)
-	{
-		m_pSwapChain->Release();
-		m_pSwapChain = nullptr;
-	}
+	m_pRenderers.clear();
+	m_pMaterials.clear();
+	m_pTextures.clear();
+	m_pUniqueTextures.clear();
+	m_pMeshes.clear();
+	m_pUniqueMeshes.clear();
+
+	ReleaseSwapchain();
 	if (m_pDeviceContext)
 	{
 		m_pDeviceContext->ClearState();
@@ -218,17 +328,17 @@ void leap::graphics::DirectXEngine::Release()
 	}
 }
 
-void leap::graphics::DirectXEngine::ReloadDirectXEngine()
+void leap::graphics::DirectXEngine::ReleaseSwapchain()
 {
-	// Store all the previous texture information to reapply it later to reloaded textures
-	for (const auto& pTexture : m_pUniqueTextures)
+	if (m_pSwapChain)
 	{
-		pTexture->StoreData(m_pDevice);
+		m_pSwapChain->Release();
+		m_pSwapChain = nullptr;
 	}
+}
 
-	// Release the previous version of the graphics engine
-	Release();
-
+void leap::graphics::DirectXEngine::CreateDirectXEngine()
+{
 	/// Create device & Device context
 	UINT createDeviceFlags = 0;
 	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_1;
@@ -238,15 +348,14 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 #endif
 
 	IDXGIFactory1* pFactory = nullptr;
-	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory));
-	HRESULT result{};
+	HRESULT result{ CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pFactory)) };
 
-	if (SUCCEEDED(hr))
+	if (SUCCEEDED(result))
 	{
 		IDXGIAdapter1* pAdapter = nullptr;
 
-		hr = pFactory->EnumAdapters1(0, &pAdapter);
-		if (SUCCEEDED(hr))
+		result = pFactory->EnumAdapters1(0, &pAdapter);
+		if (SUCCEEDED(result))
 		{
 			result = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr, createDeviceFlags, &featureLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 
@@ -258,6 +367,35 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		pFactory->Release();
 	}
 
+	// Create swap chain and viewport
+	CreateRenderTargetAndSetViewport();
+
+	// Create a new shadow renderer using new video settings
+	m_ShadowRenderer.Create(this, m_ShadowRenderer.GetShadowMapSize());
+
+	Debug::Log("DirectXRenderer Log: Successfully created DirectX engine");
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui_ImplGlfw_InitForOther(m_pWindow, true);
+	ImGui_ImplDX11_Init(m_pDevice, m_pDeviceContext);
+	ImGui::StyleColorsDark();
+}
+
+void leap::graphics::DirectXEngine::CreateRenderTargetAndSetViewport()
+{
+	// Release previous versions of the swapchain
+	ReleaseSwapchain();
+
+	// Get the window size to use for the swap chain
+	int width, height;
+	glfwGetWindowSize(m_pWindow, &width, &height);
+
+	// Create factory
+	IDXGIFactory1* pDxgiFactory{ nullptr };
+	HRESULT result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
+	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create DirectX factory");
+
 	// Check if the anti aliasing level is supported
 	UINT supportedLevels{};
 	result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
@@ -266,14 +404,6 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 		m_AntiAliasing = static_cast<AntiAliasing>(static_cast<UINT>(m_AntiAliasing) / 2);
 		result = m_pDevice->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, static_cast<UINT>(m_AntiAliasing), &supportedLevels);
 	}
-
-	// Get the window size to use for the swap chain
-	int width, height;
-	glfwGetWindowSize(m_pWindow, &width, &height);
-
-	IDXGIFactory1* pDxgiFactory{ nullptr };
-	result = CreateDXGIFactory1(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&pDxgiFactory));
-	if (FAILED(result)) Debug::LogError("DirectXEngine Error: Failed to create DirectX factory");
 
 	// Create swapchain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc{};
@@ -312,7 +442,7 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 
 	m_RenderTarget.Create(m_pDevice, m_pDeviceContext, renderTargetDesc);
 
-	/// Set viewport
+	// Set viewport
 	D3D11_VIEWPORT viewport{};
 	viewport.Width = static_cast<FLOAT>(width);
 	viewport.Height = static_cast<FLOAT>(height);
@@ -322,90 +452,10 @@ void leap::graphics::DirectXEngine::ReloadDirectXEngine()
 	viewport.MaxDepth = 1;
 	m_pDeviceContext->RSSetViewports(1, &viewport);
 
-	// Create a new shadow renderer using new video settings
-	m_ShadowRenderer.Create(m_pDevice, m_pDeviceContext, m_ShadowRenderer.GetShadowMapSize());
-
-	// Reload existing textures, materials & meshes using new video settings
-	for (const auto& texturePair : m_pTextures)
-	{
-		texturePair.second->Reload(m_pDevice, m_pDeviceContext, texturePair.first);
-	}
-	for (const auto& pTexture : m_pUniqueTextures)
-	{
-		pTexture->Reload(m_pDevice, m_pDeviceContext);
-	}
-
-	for (const auto& materialPair : m_pMaterials)
-	{
-		materialPair.second->Reload(m_pDevice);
-
-		// Reconnect the shadowmap to the material
-		materialPair.second->SetTexture("gShadowMap", m_ShadowRenderer.GetShadowMap());
-	}
-
-	DirectXMeshLoader::GetInstance().Reload(m_pDevice);
-
-	for (const auto& pRenderer : m_pRenderers)
-	{
-		pRenderer->Reload(m_pDevice, m_pDeviceContext);
-	}
-
 	// Create a new sprite renderer using new video settings
-	m_SpriteRenderer.Create(m_pDevice, m_pDeviceContext, glm::vec2{ width, height });
+	m_SpriteRenderer.Create(this, glm::vec2{ width, height });
 
-	Debug::Log("DirectXRenderer Log: Successfully reloaded DirectX engine");
-	DirectXDefaults::GetInstance().Reload(m_pDevice);
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui_ImplGlfw_InitForOther(m_pWindow, true);
-	ImGui_ImplDX11_Init(m_pDevice, m_pDeviceContext);
-	ImGui::StyleColorsDark();
-}
-
-void leap::graphics::DirectXEngine::Draw()
-{
-	if (!m_IsInitialized) return;
-
-	if (m_pCamera)
-	{
-		if (!m_DebugDrawings.GetIndexBuffer().empty())
-		{
-			m_pDebugRenderer->LoadMesh(m_DebugDrawings);
-			m_DebugDrawings.Clear();
-		}
-
-		RenderCameraView();
-	}
-	else
-	{
-		SetupNonCameraView();
-	}
-
-	// Render sprites
-	m_SpriteRenderer.Draw();
-
-	// Imgui render
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-	// Swap render buffers
-	m_pSwapChain->Present(0, 0);
-}
-
-void leap::graphics::DirectXEngine::SetupNonCameraView() const
-{
-	// Unbind SRV
-	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
-	//m_pDeviceContext->PSSetShaderResources(1, 1, pSRV);
-	m_pDeviceContext->PSSetShaderResources(0, 2, pSRV);
-
-	// Set render target
-	m_RenderTarget.Apply();
-
-	// Clear target views
-	constexpr glm::vec4 clearColor{};
-	m_RenderTarget.Clear(clearColor);
+	Debug::Log("DirectXRenderer Log: Successfully created swapchain, rendertarget and spriterenderer");
 }
 
 void leap::graphics::DirectXEngine::RenderCameraView() const
@@ -436,12 +486,6 @@ void leap::graphics::DirectXEngine::RenderCameraView() const
 	// Set camera matrix
 	DirectXMaterial::SetViewProjectionMatrix(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix());
 
-	// Apply the shadow map to each material
-	for (const auto& pMaterial : m_pMaterials)
-	{
-		pMaterial.second->SetMat4x4("gLightViewProj", m_DirectionalLight.GetViewProjection());
-	}
-
 	// Render each mesh
 	for (const auto& pRenderer : m_pRenderers)
 	{
@@ -449,9 +493,35 @@ void leap::graphics::DirectXEngine::RenderCameraView() const
 	}
 }
 
-void leap::graphics::DirectXEngine::GuiDraw()
+void leap::graphics::DirectXEngine::SetupNonCameraView() const
 {
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	// Unbind SRV
+	constexpr ID3D11ShaderResourceView* const pSRV[] = { nullptr,nullptr };
+	//m_pDeviceContext->PSSetShaderResources(1, 1, pSRV);
+	m_pDeviceContext->PSSetShaderResources(0, 2, pSRV);
+
+	// Set render target
+	m_RenderTarget.Apply();
+
+	// Clear target views
+	constexpr glm::vec4 clearColor{};
+	m_RenderTarget.Clear(clearColor);
+}
+
+void leap::graphics::DirectXEngine::PrintDiagnostics() const
+{
+	std::stringstream ss{};
+
+	ss << "\n";
+	ss << "DirectX Engine Usage:";
+	ss << "Meshes cached " << m_pMeshes.size() << "\n";
+	ss << "Meshes non-cached " << m_pUniqueMeshes.size() << "\n";
+	ss << "Materials " << m_pMaterials.size() << "\n";
+	ss << "Unique Materials " << m_pUniqueMaterials.size() << "\n";
+	ss << "Mesh renderers " << m_pRenderers.size() << "\n";
+	ss << "Textures cached " << m_pTextures.size() << "\n";
+	ss << "Textured non-cached " << m_pUniqueTextures.size() << "\n";
+	ss << "\n";
+
+	Debug::Log(ss.str());
 }
