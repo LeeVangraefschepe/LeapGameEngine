@@ -60,6 +60,10 @@
 #include "../Components/ColliderScaler.h"
 #include "../Components/PrintVelocity.h"
 
+#include <Graphics/Mesh.h>
+#include <Graphics/Shader.h>
+#include <Graphics/Material.h>
+
 void unag::MainMenuScene::Load(leap::Scene& scene)
 {
 	leap::GameObject* pDirLight{ scene.CreateGameObject("Directional Light") };
@@ -69,10 +73,11 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	leap::GameObject* pCameraObj{ scene.CreateGameObject("Main Camera") };
 	const leap::CameraComponent* pMainCamera{ pCameraObj->AddComponent<leap::CameraComponent>() };
 	pMainCamera->SetAsActiveCamera(true);
-	//pCameraObj->AddComponent<FreeCamMovement>();
+	pMainCamera->GetData()->SetFarPlane(1000.0f);
 	pCameraObj->AddComponent<leap::AudioListener>();
-	pCameraObj->GetTransform()->SetLocalPosition(-10.0f, 5.0f, 0.0f);
-	pCameraObj->GetTransform()->SetLocalRotation(0.0f, 90.0f, 0.0f);
+	//pCameraObj->GetTransform()->SetLocalPosition(0.0f, 200.0f, -200.0f);
+	pCameraObj->GetTransform()->SetLocalPosition(0.0f, 5.0f, -5.0f);
+	pCameraObj->AddComponent<FreeCamMovement>();
 
 	auto canvas{ scene.CreateGameObject("Canvas") };
 	leap::CanvasComponent* pCanvas{ canvas->AddComponent<leap::CanvasComponent>() };
@@ -80,56 +85,36 @@ void unag::MainMenuScene::Load(leap::Scene& scene)
 	pCanvas->SetMatchMode(leap::CanvasComponent::MatchMode::MatchHeight);
 	canvas->AddComponent<leap::CanvasActions>();
 
-	const auto pTexturedMaterial{ leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture") };
-	pTexturedMaterial->SetTexture("gDiffuseMap", leap::ServiceLocator::GetRenderer().CreateTexture("Data/debug.png"));
-
 	const auto info{ scene.CreateGameObject("Info") };
 	info->AddComponent<InfoUI>();
 
 	const auto windowControls{ scene.CreateGameObject("Window") };
 	windowControls->AddComponent<WindowManager>();
 
-	/*auto pSlideMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
-	pSlideMaterial->SetStaticFriction(0.1f);
-	pSlideMaterial->SetDynamicFriction(0.1f);*/
-	auto pBounceMaterial{ leap::ServiceLocator::GetPhysics().CreateMaterial() };
-	pBounceMaterial->SetBounciness(1.0f);
+	auto pTerrain{ scene.CreateGameObject("Terrain") };
+	pTerrain->AddComponent<leap::TerrainComponent>()->LoadHeightmap("Data/heightmap.png");
 
-	auto pBox{ scene.CreateGameObject("Sphere") };
-	auto pBoxColl{ pBox->AddComponent<leap::SphereCollider>() };
-	pBoxColl->SetMaterial(pBounceMaterial);
-	auto pBoxRb{ pBox->AddComponent<leap::Rigidbody>() };
-	//pBox->AddComponent<PrintVelocity>();
-	pBoxRb->SetVelocity(0.0f, 0.0f, 3.0f);
-	pBoxRb->SetAngularVelocity(0.0f, 100.0f, 0.0f);
-	pBoxRb->SetConstraint(leap::physics::Rigidbody::Constraint::Flag::RotationX, true);
-	auto pBoxMesh{ pBox->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh->LoadMesh("Data/Engine/Models/sphere.obj");
-	pBoxMesh->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBox->GetTransform()->Translate(0.0f, 2.0f, 0.0f);
-	pBox->GetTransform()->Rotate(0.0f, 0.0f, 0.0f);
-	//pBox->AddComponent<PrintCollision>();
-	//pBox->AddComponent<ApplyForces>();
-	auto pBoxTrigger{ pBox->AddComponent<leap::BoxCollider>() };
-	pBoxTrigger->SetSize(3.0f);
-	pBoxTrigger->SetTrigger(true);
+	auto pTerrain2{ scene.CreateGameObject("Terrain") };
+	pTerrain2->AddComponent<leap::TerrainComponent>()->SetSize(1024);
+	pTerrain2->AddComponent<SineWaveTerrain>();
+	pTerrain2->GetTransform()->SetLocalPosition(-1024.0f, 0.0f, 0.0f);
 
-	auto pBox4{ scene.CreateGameObject("Box") };
-	pBox4->AddComponent<leap::BoxCollider>()/*->SetMaterial(pBounceMaterial)*/;
-	pBox4->AddComponent<leap::Rigidbody>();
-	auto pBoxMesh4{ pBox4->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh4->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBoxMesh4->LoadMesh("Data/Engine/Models/cube.obj");
-	pBox4->GetTransform()->Translate(0.0f, 3.0f, 0.0f);
-	pBox4->GetTransform()->Rotate(0.0f, 0.0f, 0.0f);
-	pBox4->AddComponent<ColliderScaler>();
-	//pBox4->AddComponent<PrintCollision>();
+	const leap::Mesh cube{ "Data/Engine/Models/cube.obj" };
+	const leap::Mesh sphere{ "Data/Engine/Models/sphere.obj", true };
 
-	auto pBox2{ scene.CreateGameObject("Ground") };
-	pBox2->AddComponent<leap::BoxCollider>()/*->SetMaterial(pBounceMaterial)*/;
-	auto pBoxMesh2{ pBox2->AddComponent<leap::MeshRendererComponent>() };
-	pBoxMesh2->SetMaterial(leap::ServiceLocator::GetRenderer().CloneMaterial("Default", "Texture"));
-	pBoxMesh2->LoadMesh("Data/Engine/Models/cube.obj");
-	pBox2->GetTransform()->Translate(0.0f, -1.5f, 0.0f);
-	pBox2->GetTransform()->Scale(20.0f, 1.0f, 20.0f);
+	const leap::Material cubeMat{ "Cube Material" };
+	cubeMat.Set("gDiffuseMap", leap::Texture{ "Data/debug.png" });
+	const leap::Material sphereMat{ leap::Material::Create<leap::graphics::shaders::PosNorm3D>("Sphere Material") };
+
+	auto pCubeObj{ scene.CreateGameObject("Cube") };
+	auto pCubeRenderer{ pCubeObj->AddComponent<leap::MeshRenderer>() };
+	pCubeRenderer->SetMesh(cube);
+	pCubeRenderer->SetMaterial(cubeMat);
+	pCubeObj->GetTransform()->SetLocalPosition(-1.5f, 5.0f, 0.0f);
+
+	auto pSphereObj{ scene.CreateGameObject("Sphere") };
+	auto pSphereRenderer{ pSphereObj->AddComponent<leap::MeshRenderer>() };
+	pSphereRenderer->SetMesh(sphere);
+	pSphereRenderer->SetMaterial(sphereMat);
+	pSphereObj->GetTransform()->SetLocalPosition(1.5f, 5.0f, 0.0f);
 }

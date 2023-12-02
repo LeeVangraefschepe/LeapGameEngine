@@ -16,6 +16,7 @@ struct ID3D11RenderTargetView;
 #include "DirectXTexture.h"
 #include "DirectXMeshRenderer.h"
 #include "DirectXMaterial.h"
+#include "DirectXMesh.h"
 
 #include "DirectXShadowRenderer.h"
 #include "DirectXSpriteRenderer.h"
@@ -62,26 +63,38 @@ namespace leap::graphics
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() override;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) override;
+		virtual IMesh* CreateMesh(const std::string& path, bool cached) override;
+		virtual IMesh* CreateMesh() override;
+		virtual void RemoveMesh(IMesh* pMesh) override;
 
 		// Sprites
 		virtual void AddSprite(Sprite* pSprite) override;
 		virtual void RemoveSprite(Sprite* pSprite) override;
 
 		// Materials & Textures
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) override;
-		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) override;
-		virtual ITexture* CreateTexture(const std::string& path) override;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name, bool cached) override;
+		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone, bool cached) override;
+		virtual void RemoveMaterial(IMaterial* pMaterial) override;
+		virtual ITexture* CreateTexture(const std::string& path, bool cached) override;
 		virtual ITexture* CreateTexture(int width, int height) override;
+		virtual void RemoveTexture(ITexture* pTexture) override;
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& triangles) override;
 		virtual void DrawLine(const glm::vec3& start, const glm::vec3& end) override;
 
+		ID3D11Device* GetDevice() const { return m_pDevice; }
+		ID3D11DeviceContext* GetContext() const { return m_pDeviceContext; }
+
 	private:
 		void Release();
-		void ReloadDirectXEngine();
+		void ReleaseSwapchain();
+		void CreateDirectXEngine();
+		void CreateRenderTargetAndSetViewport();
 		void RenderCameraView() const;
 		void SetupNonCameraView() const;
+
+		void PrintDiagnostics() const;
 
 		AntiAliasing m_AntiAliasing{ AntiAliasing::X16 };
 
@@ -95,13 +108,17 @@ namespace leap::graphics
 
 		std::vector<std::unique_ptr<DirectXMeshRenderer>> m_pRenderers{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXMaterial>> m_pMaterials{};
+		std::vector<std::unique_ptr<DirectXMaterial>> m_pUniqueMaterials{};
 		std::unordered_map<std::string, std::unique_ptr<DirectXTexture>> m_pTextures{};
 		std::vector<std::unique_ptr<DirectXTexture>> m_pUniqueTextures{};
+		std::unordered_map<std::string, std::unique_ptr<DirectXMesh>> m_pMeshes{};
+		std::vector<std::unique_ptr<DirectXMesh>> m_pUniqueMeshes{};
 
 		bool m_IsInitialized{};
 		Camera* m_pCamera{};
 		DirectionalLight m_DirectionalLight{};
 
+		IMesh* m_pDebugMesh{};
 		CustomMesh m_DebugDrawings{};
 		IMeshRenderer* m_pDebugRenderer{};
 	};

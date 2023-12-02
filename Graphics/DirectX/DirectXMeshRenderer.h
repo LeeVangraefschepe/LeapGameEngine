@@ -20,11 +20,12 @@ namespace leap::graphics
 	class DirectXEngine;
 	class IMaterial;
 	class DirectXMaterial;
+	class DirectXMesh;
 
 	class DirectXMeshRenderer final : public IMeshRenderer
 	{
 	public:
-		DirectXMeshRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
+		DirectXMeshRenderer(DirectXEngine* pEngine);
 		virtual ~DirectXMeshRenderer();
 
 		DirectXMeshRenderer(const DirectXMeshRenderer& other) = delete;
@@ -36,29 +37,20 @@ namespace leap::graphics
 		virtual void Draw(IMaterial* pMaterial) override;
 		virtual IMaterial* GetMaterial() override;
 		virtual void SetMaterial(IMaterial* pMaterial) override;
+		virtual void UnsetMaterial() override;
 		virtual void SetTransform(const glm::mat4x4& transform) override;
-		virtual void LoadMesh(const std::string& filePath) override;
-		virtual void LoadMesh(const CustomMesh& mesh) override;
+		virtual void SetMesh(IMesh* pMesh) override;
+		virtual void UnsetMesh() override;
 		virtual void SetIsLineRenderer(bool isLineRenderer) override;
 
-		void Reload(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
-
 	private:
-		std::string m_FilePath{};
-
+		DirectXMesh* m_pMesh{};
 		DirectXMaterial* m_pMaterial{};
 
-		ID3D11Device* m_pDevice{};
-		ID3D11DeviceContext* m_pDeviceContext{};
+		DirectXEngine* m_pEngine{};
 
 		glm::mat4x4 m_Transform{ Matrix::Identity4x4() };
 
-		unsigned int m_VertexSize{};
-		ID3D11Buffer* m_pVertexBuffer{};
-		unsigned int m_NrIndices{};
-		ID3D11Buffer* m_pIndexBuffer{};
-
-		bool m_HasCustomMesh{};
 		bool m_IsLineRenderer{};
 	};
 }

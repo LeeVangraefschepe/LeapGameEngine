@@ -16,6 +16,7 @@ namespace leap::graphics
 	class IMeshRenderer;
 	class IMaterial;
 	class ITexture;
+	class IMesh;
 	struct Shader;
 	struct Sprite;
 
@@ -45,16 +46,21 @@ namespace leap::graphics
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() = 0;
 		virtual void RemoveMeshRenderer(IMeshRenderer* pMeshRenderer) = 0;
+		virtual IMesh* CreateMesh(const std::string& path, bool cached) = 0;
+		virtual IMesh* CreateMesh() = 0;
+		virtual void RemoveMesh(IMesh* pMesh) = 0;
 
 		// Sprites
 		virtual void AddSprite(Sprite* pSprite) = 0;
 		virtual void RemoveSprite(Sprite* pSprite) = 0;
 
 		// Materials & Textures
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name) = 0;
-		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone) = 0;
-		virtual ITexture* CreateTexture(const std::string& path) = 0;
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete> pShader, const std::string& name, bool cached) = 0;
+		virtual IMaterial* CloneMaterial(const std::string& original, const std::string& clone, bool cached) = 0;
+		virtual void RemoveMaterial(IMaterial* pMaterial) = 0;
+		virtual ITexture* CreateTexture(const std::string& path, bool cached) = 0;
 		virtual ITexture* CreateTexture(int width, int height) = 0;
+		virtual void RemoveTexture(ITexture* pTexture) = 0;
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>& lines) = 0;
@@ -84,16 +90,21 @@ namespace leap::graphics
 		// Meshes
 		virtual IMeshRenderer* CreateMeshRenderer() override  { return nullptr; }
 		virtual void RemoveMeshRenderer(IMeshRenderer*) override {}
+		virtual IMesh* CreateMesh(const std::string&, bool) override { return nullptr; }
+		virtual IMesh* CreateMesh() override { return nullptr; }
+		virtual void RemoveMesh(IMesh*) override {}
 
 		// Sprites
 		virtual void AddSprite(Sprite*) override {}
 		virtual void RemoveSprite(Sprite*) override {}
 
 		// Materials & Textures
-		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&) override { return nullptr; }
-		virtual IMaterial* CloneMaterial(const std::string&, const std::string&) override { return nullptr; }
-		virtual ITexture* CreateTexture(const std::string&) override { return nullptr; }
+		virtual IMaterial* CreateMaterial(std::unique_ptr<Shader, ShaderDelete>, const std::string&, bool) override { return nullptr; }
+		virtual IMaterial* CloneMaterial(const std::string&, const std::string&, bool) override { return nullptr; }
+		virtual void RemoveMaterial(IMaterial*) override {}
+		virtual ITexture* CreateTexture(const std::string&, bool) override { return nullptr; }
 		virtual ITexture* CreateTexture(int, int) override { return nullptr; }
+		virtual void RemoveTexture(ITexture*) override {}
 
 		// Debug rendering
 		virtual void DrawLines(const std::vector<std::pair<glm::vec3, glm::vec3>>&) override {}
