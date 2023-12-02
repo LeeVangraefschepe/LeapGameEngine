@@ -84,7 +84,10 @@ leap::networking::LeapClient::~LeapClient()
 
 bool leap::networking::LeapClient::GetPacket(BasePacket& packet)
 {
-    return m_PacketReceiver->Get(packet);
+    BasePacket cachedPacket{};
+    const auto result = m_PacketReceiver->Get(cachedPacket);
+    packet.SetData(cachedPacket);
+    return result;
 }
 
 void leap::networking::LeapClient::SendTCP(const BasePacket& packet)
