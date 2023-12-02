@@ -71,12 +71,14 @@ leap::networking::LeapClient::~LeapClient()
     // Awake threads
     m_Connected = false;
     m_SendThread.request_stop();
-    m_ClientThread.request_stop();
+    m_TCPReceive.request_stop();
+    m_UDPReceive.request_stop();
     m_SendCondition.notify_one();
 
     // Wait till threads are done
     m_SendThread.join();
-    m_ClientThread.join();
+    m_TCPReceive.join();
+    m_UDPReceive.join();
 
     // Cleanup the sockets
     WSACleanup();
@@ -102,10 +104,11 @@ void leap::networking::LeapClient::SendUDP(const BasePacket& packet)
     m_SendCondition.notify_one();
 }
 
-void leap::networking::LeapClient::Run(float ticks)
+void leap::networking::LeapClient::Run()
 {
     m_Connected = true;
-    m_ClientThread = std::jthread{ [this, ticks]() { InternalRun(ticks); } };
+    m_TCPReceive = std::jthread{ [this]() { TCPRun(); } };
+    m_UDPReceive = std::jthread{ [this]() { UDPRun(); } };
 }
 
 bool leap::networking::LeapClient::IsConnected()
@@ -113,22 +116,25 @@ bool leap::networking::LeapClient::IsConnected()
     return true;
 }
 
-void leap::networking::LeapClient::InternalRun(float ticks)
+void leap::networking::LeapClient::TCPRun()
 {
-    const std::stop_token& stopToken{ m_ClientThread.get_stop_token() };
-    const float tickTimeMs{ 1000 / ticks };
+    const std::stop_token& stopToken{ m_TCPReceive.get_stop_token() };
     while (m_Connected && !stopToken.stop_requested())
     {
-        const auto currentTime = std::chrono::high_resolution_clock::now();
-
-        m_Connected = HandleReceive();
-
-        const auto sleepTimeMs = tickTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(sleepTimeMs)));
+        m_Connected = HandleReceiveTCP();
     }
 }
 
-bool leap::networking::LeapClient::HandleReceive()
+void leap::networking::LeapClient::UDPRun()
+{
+    const std::stop_token& stopToken{ m_UDPReceive.get_stop_token() };
+    while (m_Connected && !stopToken.stop_requested())
+    {
+        HandleReceiveUDP();
+    }
+}
+
+bool leap::networking::LeapClient::HandleReceiveTCP()
 {
     // Receive a response from the server
     std::vector<char> buffer{};
@@ -159,6 +165,27 @@ bool leap::networking::LeapClient::HandleReceive()
     m_PacketReceiver->Add(packet);
 
     return true;
+}
+
+void leap::networking::LeapClient::HandleReceiveUDP()
+{
+    // Receive a response from the server
+    std::vector<char> buffer{};
+    buffer.resize(m_BufferSize);
+
+    const int bytesReceived = recv(m_UDPsocket, buffer.data(), static_cast<int>(buffer.size()), 0);
+    if (bytesReceived == SOCKET_ERROR || bytesReceived == 0)
+    {
+        return;
+    }
+
+    //Create packet core
+    std::vector<char> charBuffer{ std::begin(buffer), std::end(buffer) };
+
+    //WARNING PACKET CREATION WILL DELETE CHAR BUFFER
+    BasePacket packet{};
+    packet.SetData(charBuffer);
+    m_PacketReceiver->Add(packet);
 }
 
 void leap::networking::LeapClient::HandleSend()
