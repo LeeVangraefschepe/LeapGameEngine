@@ -33,9 +33,9 @@ leap::graphics::IMaterial* leap::MeshRenderer::GetMaterial() const
 
 void leap::MeshRenderer::Awake()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
-	GetTransform()->OnRotationChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
-	GetTransform()->OnScaleChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnPositionChanged.AddListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnRotationChanged.AddListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnScaleChanged.AddListener(this, &MeshRenderer::OnTransformChanged);
 }
 
 void leap::MeshRenderer::LateUpdate()
