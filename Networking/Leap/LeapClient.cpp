@@ -88,7 +88,7 @@ bool leap::networking::LeapClient::GetPacket(BasePacket& packet)
 {
     BasePacket cachedPacket{};
     const auto result = m_PacketReceiver->Get(cachedPacket);
-    packet.SetData(cachedPacket);
+    if (result) packet.SetData(cachedPacket);
     return result;
 }
 
