@@ -53,7 +53,7 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
         
         closesocket(m_TCPsocket);
         WSACleanup();
-        return;
+        m_Connected = false;
     }
 
     m_PacketReceiver = std::make_unique<EventPool<BasePacket>>(packetBuffer);
