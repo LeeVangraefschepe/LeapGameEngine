@@ -19,7 +19,7 @@ namespace leap
 	{
 	public:
 		MeshRenderer();
-		~MeshRenderer() = default;
+		virtual ~MeshRenderer() = default;
 
 		MeshRenderer(const MeshRenderer& other) = delete;
 		MeshRenderer(MeshRenderer&& other) = delete;
