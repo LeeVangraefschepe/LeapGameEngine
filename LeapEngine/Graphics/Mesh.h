@@ -48,7 +48,7 @@ namespace leap
 		}
 
 		template<typename T>
-		void SetData(const std::vector<T>& vertices, std::vector<unsigned>&& indices = {})
+		void SetData(const std::vector<T>& vertices, const std::vector<unsigned>& indices = {})
 		{
 			if (!m_pWritableMesh)
 			{
@@ -61,7 +61,7 @@ namespace leap
 
 			// Set the given indices if any
 			const bool hasIndices{ !indices.empty() };
-			if (hasIndices) m_pWritableMesh->mesh.SetIndices(std::move(indices));
+			if (hasIndices) m_pWritableMesh->mesh.SetIndices(indices);
 
 			// Add all the give vertices, also add indices if there were none given by the user
 			if (hasIndices)
