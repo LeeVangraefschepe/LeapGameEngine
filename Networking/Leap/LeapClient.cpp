@@ -10,7 +10,7 @@
 
 leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, int receiveBuffer, int packetBuffer) : m_BufferSize(receiveBuffer)
 {
-    //Initialize Winsock
+    // Initialize Winsock
     WSADATA wsData;
     WORD version = MAKEWORD(2, 2);
     if (WSAStartup(version, &wsData) != 0)
@@ -21,7 +21,7 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
         return;
     }
 
-    //Create a socket for the client
+    // Create a socket for the client
     m_TCPsocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (m_TCPsocket == INVALID_SOCKET)
     {
@@ -39,22 +39,13 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
         return;
     }
 
-    //Connect to the server
+    // Connect to the server
     m_pServerAdress = std::make_unique<sockaddr_in>();
     m_pServerAdress->sin_family = AF_INET;
     m_pServerAdress->sin_port = htons(static_cast<u_short>(port));  //Port number of the server
     inet_pton(AF_INET, serverIp.c_str(), &m_pServerAdress->sin_addr);  //IP address of the server
 
-    if (connect(m_TCPsocket, reinterpret_cast<sockaddr*>(m_pServerAdress.get()), sizeof(sockaddr_in)) == SOCKET_ERROR)
-    {
-        std::stringstream ss{};
-        ss << "Error connecting to server: " << WSAGetLastError() << std::endl;
-        Debug::LogWarning(ss.str());
-        
-        closesocket(m_TCPsocket);
-        WSACleanup();
-        m_Connected = false;
-    }
+    Connect();
 
     m_PacketReceiver = std::make_unique<EventPool<BasePacket>>(packetBuffer);
     m_PacketSender = std::make_unique<EventPool<InternalPacket>>(packetBuffer);
@@ -106,9 +97,31 @@ void leap::networking::LeapClient::SendUDP(const BasePacket& packet)
 
 void leap::networking::LeapClient::Run()
 {
-    m_Connected = true;
+    Connect();
+    if (!m_Connected)
+    {
+        Debug::LogWarning("Unable to start client. No connection to server.");
+        return;
+    }
     m_TCPReceive = std::jthread{ [this]() { TCPRun(); } };
     m_UDPReceive = std::jthread{ [this]() { UDPRun(); } };
+}
+
+void leap::networking::LeapClient::Connect()
+{
+    if (m_Connected) return;
+    if (connect(m_TCPsocket, reinterpret_cast<sockaddr*>(m_pServerAdress.get()), sizeof(sockaddr_in)) == SOCKET_ERROR)
+    {
+        std::stringstream ss{};
+        ss << "Error connecting to server: " << WSAGetLastError() << std::endl;
+        Debug::LogWarning(ss.str());
+
+        closesocket(m_TCPsocket);
+        closesocket(m_UDPsocket);
+        WSACleanup();
+        m_Connected = false;
+    }
+    m_Connected = true;
 }
 
 bool leap::networking::LeapClient::IsConnected()
@@ -119,6 +132,7 @@ bool leap::networking::LeapClient::IsConnected()
 void leap::networking::LeapClient::TCPRun()
 {
     const std::stop_token& stopToken{ m_TCPReceive.get_stop_token() };
+    m_TCPBuffer.resize(m_BufferSize);
     while (m_Connected && !stopToken.stop_requested())
     {
         m_Connected = HandleReceiveTCP();
@@ -128,6 +142,7 @@ void leap::networking::LeapClient::TCPRun()
 void leap::networking::LeapClient::UDPRun()
 {
     const std::stop_token& stopToken{ m_UDPReceive.get_stop_token() };
+    m_UDPBuffer.resize(m_BufferSize);
     while (m_Connected && !stopToken.stop_requested())
     {
         HandleReceiveUDP();
@@ -137,18 +152,10 @@ void leap::networking::LeapClient::UDPRun()
 bool leap::networking::LeapClient::HandleReceiveTCP()
 {
     // Receive a response from the server
-    std::vector<char> buffer{};
-    buffer.resize(m_BufferSize);
+    m_TCPBuffer.clear();
 
-    const int bytesReceived = recv(m_TCPsocket, buffer.data(), static_cast<int>(buffer.size()), 0);
-    if (bytesReceived == SOCKET_ERROR)
-    {
-        closesocket(m_TCPsocket);
-        WSACleanup();
-        m_Connected = false;
-        return false;
-    }
-    if (bytesReceived == 0)
+    const int bytesReceived = recv(m_TCPsocket, m_TCPBuffer.data(), static_cast<int>(m_TCPBuffer.size()), 0);
+    if (bytesReceived == SOCKET_ERROR || bytesReceived == 0)
     {
         closesocket(m_TCPsocket);
         WSACleanup();
@@ -156,10 +163,15 @@ bool leap::networking::LeapClient::HandleReceiveTCP()
         return false;
     }
 
-    //Create packet core
-    std::vector<char> charBuffer{ std::begin(buffer), std::end(buffer) };
+    if (bytesReceived > m_BufferSize)
+    {
+        Debug::LogError("Buffer overflowed when reveiving from TCP");
+    }
 
-    //WARNING PACKET CREATION WILL DELETE CHAR BUFFER
+    // Create packet core
+    std::vector<char> charBuffer{ std::begin(m_TCPBuffer), std::end(m_TCPBuffer) };
+
+    // WARNING PACKET CREATION WILL DELETE CHAR BUFFER
     BasePacket packet{};
     packet.SetData(charBuffer);
     m_PacketReceiver->Add(packet);
@@ -170,19 +182,18 @@ bool leap::networking::LeapClient::HandleReceiveTCP()
 void leap::networking::LeapClient::HandleReceiveUDP()
 {
     // Receive a response from the server
-    std::vector<char> buffer{};
-    buffer.resize(m_BufferSize);
+    m_UDPBuffer.clear();
 
-    const int bytesReceived = recv(m_UDPsocket, buffer.data(), static_cast<int>(buffer.size()), 0);
+    const int bytesReceived = recv(m_UDPsocket, m_UDPBuffer.data(), static_cast<int>(m_UDPBuffer.size()), 0);
     if (bytesReceived == SOCKET_ERROR || bytesReceived == 0)
     {
         return;
     }
 
-    //Create packet core
-    std::vector<char> charBuffer{ std::begin(buffer), std::end(buffer) };
+    // Create packet core
+    std::vector<char> charBuffer{ std::begin(m_UDPBuffer), std::end(m_UDPBuffer) };
 
-    //WARNING PACKET CREATION WILL DELETE CHAR BUFFER
+    // WARNING PACKET CREATION WILL DELETE CHAR BUFFER
     BasePacket packet{};
     packet.SetData(charBuffer);
     m_PacketReceiver->Add(packet);

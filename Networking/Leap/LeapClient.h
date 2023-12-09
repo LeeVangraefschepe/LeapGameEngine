@@ -25,6 +25,7 @@ namespace leap::networking
 		void SendTCP(const BasePacket& packet) override;
 		void SendUDP(const BasePacket& packet) override;
 		void Run() override;
+		void Connect();
 		bool IsConnected() override;
 
 	private:
@@ -41,7 +42,9 @@ namespace leap::networking
 		void HandleSend();
 
 		std::jthread m_TCPReceive{};
+		std::vector<char> m_TCPBuffer{};
 		std::jthread m_UDPReceive{};
+		std::vector<char> m_UDPBuffer{};
 		std::jthread m_SendThread{};
 		std::condition_variable m_SendCondition{};
 
