@@ -50,7 +50,7 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
         std::stringstream ss{};
         ss << "Error connecting to server: " << WSAGetLastError() << std::endl;
         Debug::LogError(ss.str());
-
+        
         closesocket(m_TCPsocket);
         WSACleanup();
         return;
