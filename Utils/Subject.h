@@ -13,22 +13,24 @@ namespace leap
 	private:
 		struct MemberFunctionWrapper
 		{
+			MemberFunctionWrapper(unsigned int _id) : id{ _id } {}
+
 			virtual ~MemberFunctionWrapper() = default;
 			virtual void Call() const = 0;
-			virtual unsigned int GetId() const = 0;
 			virtual bool IsConst() const = 0;
+
+			unsigned int id{};
 		};
 
 		template<typename T>
 		struct ImplMemberFunctionWrapper final : public MemberFunctionWrapper
 		{
 			ImplMemberFunctionWrapper(T* _pThis, void(T::* _pFunction)())
-				: pThis{ _pThis }, pFunction{ _pFunction }, id{ ReflectionUtils::GenerateTypenameHash<T>() }
+				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<T>() }, pThis{ _pThis }, pFunction{ _pFunction }
 			{
 			}
 			virtual ~ImplMemberFunctionWrapper() = default;
 
-			unsigned int id{};
 			T* pThis{};
 			void(T::* pFunction)() {};
 
@@ -36,7 +38,6 @@ namespace leap
 			{
 				(pThis->*pFunction)();
 			}
-			virtual unsigned int GetId() const override { return id; }
 			virtual bool IsConst() const override { return false; }
 		};
 
@@ -44,12 +45,11 @@ namespace leap
 		struct ConstImplMemberFunctionWrapper final : public MemberFunctionWrapper
 		{
 			ConstImplMemberFunctionWrapper(T* _pThis, void(T::* _pFunction)() const)
-				: pThis{ _pThis }, pFunction{ _pFunction }, id{ ReflectionUtils::GenerateTypenameHash<T>() }
+				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<T>() }, pThis{ _pThis }, pFunction{ _pFunction }
 			{
 			}
 			virtual ~ConstImplMemberFunctionWrapper() = default;
 
-			unsigned int id{};
 			T* pThis{};
 			void(T::* pFunction)() const {};
 
@@ -57,7 +57,6 @@ namespace leap
 			{
 				(pThis->*pFunction)();
 			}
-			virtual unsigned int GetId() const override { return id; }
 			virtual bool IsConst() const override { return true; }
 		};
 
@@ -90,7 +89,7 @@ namespace leap
 
 				const auto& pMemberFunction{ *it };
 				if (pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->GetId() != classId) continue;
+				if (pMemberFunction->id != classId) continue;
 
 				ImplMemberFunctionWrapper<T>* pImpl{ static_cast<ImplMemberFunctionWrapper<T>*>(pMemberFunction.get()) };
 				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
@@ -108,7 +107,7 @@ namespace leap
 
 				const auto& pMemberFunction{ *it };
 				if (!pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->GetId() != classId) continue;
+				if (pMemberFunction->id != classId) continue;
 
 				ConstImplMemberFunctionWrapper<T>* pImpl{ static_cast<ConstImplMemberFunctionWrapper<T>*>(pMemberFunction.get()) };
 				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
@@ -121,7 +120,7 @@ namespace leap
 			std::erase(m_Functions, pCallback);
 		}
 
-		void Notify()
+		void Notify() const
 		{
 			for (const auto& pMemberFunction : m_pMemberFunctions)
 			{
@@ -144,22 +143,24 @@ namespace leap
 	private:
 		struct MemberFunctionWrapper
 		{
+			MemberFunctionWrapper(unsigned int _id) : id{ _id } {}
+
 			virtual ~MemberFunctionWrapper() = default;
 			virtual void Call(const T& value) const = 0;
-			virtual unsigned int GetId() const = 0;
 			virtual bool IsConst() const = 0;
+
+			unsigned int id{};
 		};
 
 		template<typename TClass>
 		struct ImplMemberFunctionWrapper final : public MemberFunctionWrapper
 		{
 			ImplMemberFunctionWrapper(TClass* _pThis, void(TClass::* _pFunction)(const T&))
-				: pThis{ _pThis }, pFunction{ _pFunction }, id{ ReflectionUtils::GenerateTypenameHash<TClass>() }
+				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<TClass>() }, pThis{ _pThis }, pFunction{ _pFunction }
 			{
 			}
 			virtual ~ImplMemberFunctionWrapper() = default;
 
-			unsigned int id{};
 			TClass* pThis{};
 			void(TClass::* pFunction)(const T&) {};
 
@@ -167,7 +168,6 @@ namespace leap
 			{
 				(pThis->*pFunction)(value);
 			}
-			virtual unsigned int GetId() const override { return id; }
 			virtual bool IsConst() const override { return false; }
 		};
 
@@ -175,12 +175,11 @@ namespace leap
 		struct ConstImplMemberFunctionWrapper final : public MemberFunctionWrapper
 		{
 			ConstImplMemberFunctionWrapper(TClass* _pThis, void(TClass::* _pFunction)(const T&) const)
-				: pThis{ _pThis }, pFunction{ _pFunction }, id{ ReflectionUtils::GenerateTypenameHash<TClass>() }
+				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<TClass>() }, pThis{ _pThis }, pFunction{ _pFunction }
 			{
 			}
 			virtual ~ConstImplMemberFunctionWrapper() = default;
 
-			unsigned int id{};
 			TClass* pThis{};
 			void(TClass::* pFunction)(const T&) const {};
 
@@ -188,7 +187,6 @@ namespace leap
 			{
 				(pThis->*pFunction)(value);
 			}
-			virtual unsigned int GetId() const override { return id; }
 			virtual bool IsConst() const override { return true; }
 		};
 
@@ -221,7 +219,7 @@ namespace leap
 
 				const auto& pMemberFunction{ *it };
 				if (pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->GetId() != classId) continue;
+				if (pMemberFunction->id != classId) continue;
 
 				ImplMemberFunctionWrapper<TClass>* pImpl{ static_cast<ImplMemberFunctionWrapper<TClass>*>(pMemberFunction.get()) };
 				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
@@ -239,7 +237,7 @@ namespace leap
 
 				const auto& pMemberFunction{ *it };
 				if (!pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->GetId() != classId) continue;
+				if (pMemberFunction->id != classId) continue;
 
 				ConstImplMemberFunctionWrapper<TClass>* pImpl{ static_cast<ConstImplMemberFunctionWrapper<TClass>*>(pMemberFunction.get()) };
 				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
@@ -252,7 +250,7 @@ namespace leap
 			std::erase(m_Functions, pCallback);
 		}
 
-		void Notify(const T& data)
+		void Notify(const T& data) const
 		{
 			for (const auto& pMemberFunction : m_pMemberFunctions)
 			{
