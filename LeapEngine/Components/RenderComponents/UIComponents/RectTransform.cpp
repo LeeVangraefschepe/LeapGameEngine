@@ -69,7 +69,7 @@ void leap::RectTransform::SetDepth(float depth)
 	m_IsPositionDirty = true;
 }
 
-void leap::RectTransform::Notify(const glm::vec2&)
+void leap::RectTransform::OnResolutionChanged(const glm::vec2&)
 {
 	Resize();
 }
@@ -77,12 +77,12 @@ void leap::RectTransform::Notify(const glm::vec2&)
 void leap::RectTransform::Awake()
 {
 	if (m_pCanvas == nullptr) GetCanvas();
-	m_pCanvas->OnResolutionChanged.AddListener(this);
+	m_pCanvas->OnResolutionChanged.AddListener(this, &RectTransform::OnResolutionChanged);
 }
 
 void leap::RectTransform::OnDestroy()
 {
-	m_pCanvas->OnResolutionChanged.RemoveListener(this);
+	m_pCanvas->OnResolutionChanged.RemoveListener(this, &RectTransform::OnResolutionChanged);
 }
 
 void leap::RectTransform::Resize()

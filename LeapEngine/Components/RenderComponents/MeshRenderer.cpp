@@ -33,9 +33,9 @@ leap::graphics::IMaterial* leap::MeshRenderer::GetMaterial() const
 
 void leap::MeshRenderer::Awake()
 {
-	GetTransform()->OnPositionChanged.AddListener(this);
-	GetTransform()->OnRotationChanged.AddListener(this);
-	GetTransform()->OnScaleChanged.AddListener(this);
+	GetTransform()->OnPositionChanged.AddListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnRotationChanged.AddListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnScaleChanged.AddListener(this, &MeshRenderer::OnTransformChanged);
 }
 
 void leap::MeshRenderer::LateUpdate()
@@ -49,13 +49,13 @@ void leap::MeshRenderer::LateUpdate()
 
 void leap::MeshRenderer::OnDestroy()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this);
-	GetTransform()->OnRotationChanged.RemoveListener(this);
-	GetTransform()->OnScaleChanged.RemoveListener(this);
+	GetTransform()->OnPositionChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnRotationChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnScaleChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
 	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
 }
 
-void leap::MeshRenderer::Notify()
+void leap::MeshRenderer::OnTransformChanged()
 {
 	m_IsDirty = true;
 }

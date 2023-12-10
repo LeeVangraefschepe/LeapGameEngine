@@ -10,7 +10,7 @@ leap::NetworkLogger::NetworkLogger()
 
 leap::NetworkLogger::~NetworkLogger()
 {
-	Debug::OnEvent.RemoveListener(this);
+	Debug::OnEvent.RemoveListener(this, &NetworkLogger::OnDebug);
 }
 
 void leap::NetworkLogger::SetEnabled(bool enable)
@@ -19,16 +19,16 @@ void leap::NetworkLogger::SetEnabled(bool enable)
 
     if (enable)
     {
-        Debug::OnEvent.AddListener(this);
+        Debug::OnEvent.AddListener(this, &NetworkLogger::OnDebug);
     }
     else
     {
-        Debug::OnEvent.RemoveListener(this);
+        Debug::OnEvent.RemoveListener(this, &NetworkLogger::OnDebug);
     }
     m_Enabled = enable;
 }
 
-void leap::NetworkLogger::Notify(const Debug::LogInfo& data)
+void leap::NetworkLogger::OnDebug(const Debug::LogInfo& data)
 {
     std::stringstream ss{};
     ss << data.Time << ' ' << data.Message << '\n';

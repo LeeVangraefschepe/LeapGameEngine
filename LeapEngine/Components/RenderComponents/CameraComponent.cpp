@@ -16,7 +16,7 @@
 leap::CameraComponent::CameraComponent()
 {
 	const auto window = GameContext::GetInstance().GetWindow();
-	window->AddListener(this);
+	window->AddListener(this, &CameraComponent::OnScreenSizeChanged);
 	const auto& size = window->GetWindowSize();
 	constexpr float fov = 90.f;
 	m_pCamera = std::make_unique<graphics::Camera>(static_cast<float>(size.x), static_cast<float>(size.y), fov);
@@ -26,30 +26,25 @@ leap::CameraComponent::~CameraComponent()
 {
 }
 
-void leap::CameraComponent::Notify(const glm::ivec2& data)
+void leap::CameraComponent::OnScreenSizeChanged(const glm::ivec2& data)
 {
 	m_pCamera->SetAspectRatio(data);
 }
 
 void leap::CameraComponent::Awake()
 {
-	GetTransform()->OnPositionChanged.AddListener(this);
-	GetTransform()->OnRotationChanged.AddListener(this);
+	GetTransform()->OnPositionChanged.AddListener(this, &CameraComponent::UpdateTransform);
+	GetTransform()->OnRotationChanged.AddListener(this, &CameraComponent::UpdateTransform);
 
 	UpdateTransform();
 }
 
 void leap::CameraComponent::OnDestroy()
 {
-	GameContext::GetInstance().GetWindow()->RemoveListener(this);
+	GameContext::GetInstance().GetWindow()->RemoveListener(this, &CameraComponent::OnScreenSizeChanged);
 
-	GetTransform()->OnPositionChanged.RemoveListener(this);
-	GetTransform()->OnRotationChanged.RemoveListener(this);
-}
-
-void leap::CameraComponent::Notify()
-{
-	UpdateTransform();
+	GetTransform()->OnPositionChanged.RemoveListener(this, &CameraComponent::UpdateTransform);
+	GetTransform()->OnRotationChanged.RemoveListener(this, &CameraComponent::UpdateTransform);
 }
 
 void leap::CameraComponent::UpdateTransform() const

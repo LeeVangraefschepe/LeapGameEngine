@@ -21,8 +21,8 @@ leap::physics::PhysXEngine::PhysXEngine()
     , m_pSimulationCallbacks{ std::make_unique<PhysXSimulationCallbacks>() }
     , m_pSimulationFilterCallback{ std::make_unique<PhysXSimulationFilterCallback>() } 
 {
-    m_pSimulationFilterCallback->OnSimulationEvent.AddListener(this);
-    m_pSimulationCallbacks->OnSimulationEvent.AddListener(this);
+    m_pSimulationFilterCallback->OnSimulationEvent.AddListener(this, &PhysXEngine::OnSimulationEvent);
+    m_pSimulationCallbacks->OnSimulationEvent.AddListener(this, &PhysXEngine::OnSimulationEvent);
 
     // Create foundation
     m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pDefaultAllocatorCallback, *m_pDefaultErrorCallback);
@@ -61,8 +61,8 @@ leap::physics::PhysXEngine::PhysXEngine()
 
 leap::physics::PhysXEngine::~PhysXEngine()
 {
-    m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener(this);
-    m_pSimulationCallbacks->OnSimulationEvent.RemoveListener(this);
+    m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener<PhysXEngine>(this, &PhysXEngine::OnSimulationEvent);
+    m_pSimulationCallbacks->OnSimulationEvent.RemoveListener(this, &PhysXEngine::OnSimulationEvent);
 
     m_pScene = nullptr;
     m_pObjects.clear();
@@ -170,7 +170,7 @@ bool leap::physics::PhysXEngine::Raycast(const glm::vec3& start, const glm::vec3
     return m_pScene->Raycast(start, direction, distance, hitInfo);
 }
 
-void leap::physics::PhysXEngine::Notify(const SimulationEvent& e)
+void leap::physics::PhysXEngine::OnSimulationEvent(const SimulationEvent& e)
 {
     switch (e.type)
     {

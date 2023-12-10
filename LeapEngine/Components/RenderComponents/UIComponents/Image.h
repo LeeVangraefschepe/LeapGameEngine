@@ -4,8 +4,6 @@
 
 #include "Data/Sprite.h"
 
-#include <Observer.h>
-
 #include <vec2.hpp>
 
 namespace leap
@@ -39,8 +37,6 @@ namespace leap
 		const graphics::ITexture* GetTexture() const;
 		const glm::vec2& GetPivot() const;
 		const glm::vec4& GetColor() const;
-
-	protected:
 
 	private:
 		graphics::Sprite m_Sprite{};

@@ -19,17 +19,12 @@ void leap::CanvasComponent::SetMatchMode(MatchMode matchMode)
 
 void leap::CanvasComponent::Awake()
 {
-	GameContext::GetInstance().GetWindow()->AddListener(this);
+	GameContext::GetInstance().GetWindow()->AddListener(this, &CanvasComponent::UpdateResolution);
 }
 
 void leap::CanvasComponent::OnDestroy()
 {
-	GameContext::GetInstance().GetWindow()->RemoveListener(this);
-}
-
-void leap::CanvasComponent::Notify(const glm::ivec2& size)
-{
-	UpdateResolution(size);
+	GameContext::GetInstance().GetWindow()->RemoveListener(this, &CanvasComponent::UpdateResolution);
 }
 
 void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)

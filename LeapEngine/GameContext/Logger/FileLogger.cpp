@@ -19,12 +19,12 @@ void leap::FileLogger::SetEnabled(bool enable)
     if (enable)
     {
         StartFile();
-        Debug::OnEvent.AddListener(this);
+        Debug::OnEvent.AddListener(this, &FileLogger::OnDebug);
     }
     else
     {
         CloseFile();
-        Debug::OnEvent.RemoveListener(this);
+        Debug::OnEvent.RemoveListener(this, &FileLogger::OnDebug);
     }
     m_Enabled = enable;
 }
@@ -65,7 +65,7 @@ void leap::FileLogger::CloseFile()
     m_File.close();
 }
 
-void leap::FileLogger::Notify(const Debug::LogInfo& data)
+void leap::FileLogger::OnDebug(const Debug::LogInfo& data)
 {
     if (!m_File.is_open())
     {

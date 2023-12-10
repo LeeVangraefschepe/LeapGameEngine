@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Components/Component.h>
-#include <Observer.h>
 #include <Components/Physics/Collider.h>
 
 namespace unag
