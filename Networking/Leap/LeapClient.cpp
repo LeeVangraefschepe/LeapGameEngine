@@ -16,7 +16,7 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
     if (WSAStartup(version, &wsData) != 0)
     {
         std::stringstream ss{};
-        ss << "Error initializing Winsock: " << WSAGetLastError() << std::endl;
+        ss << "Error initializing Winsock: " << WSAGetLastError();
         Debug::LogError(ss.str());
         return;
     }
@@ -26,7 +26,7 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
     if (m_TCPsocket == INVALID_SOCKET)
     {
         std::stringstream ss{};
-        ss << "Error creating socket: " << WSAGetLastError() << std::endl;
+        ss << "Error creating socket: " << WSAGetLastError();
         Debug::LogError(ss.str());
         WSACleanup();
         return;
@@ -55,6 +55,8 @@ leap::networking::LeapClient::LeapClient(int port, const std::string& serverIp, 
 
 leap::networking::LeapClient::~LeapClient()
 {
+    if (!m_Connected) return;
+
     // Close sockets so threads dont have blocking call on waiting
     closesocket(m_TCPsocket);
     closesocket(m_UDPsocket);
@@ -113,14 +115,16 @@ void leap::networking::LeapClient::Connect()
     if (connect(m_TCPsocket, reinterpret_cast<sockaddr*>(m_pServerAdress.get()), sizeof(sockaddr_in)) == SOCKET_ERROR)
     {
         std::stringstream ss{};
-        ss << "Error connecting to server: " << WSAGetLastError() << std::endl;
+        ss << "Error connecting to server: " << WSAGetLastError();
         Debug::LogWarning(ss.str());
 
         closesocket(m_TCPsocket);
         closesocket(m_UDPsocket);
         WSACleanup();
         m_Connected = false;
+        return;
     }
+    Debug::Log("Leap client is successfully connected.");
     m_Connected = true;
 }
 
@@ -132,7 +136,6 @@ bool leap::networking::LeapClient::IsConnected()
 void leap::networking::LeapClient::TCPRun()
 {
     const std::stop_token& stopToken{ m_TCPReceive.get_stop_token() };
-    m_TCPBuffer.resize(m_BufferSize);
     while (m_Connected && !stopToken.stop_requested())
     {
         m_Connected = HandleReceiveTCP();
@@ -142,7 +145,6 @@ void leap::networking::LeapClient::TCPRun()
 void leap::networking::LeapClient::UDPRun()
 {
     const std::stop_token& stopToken{ m_UDPReceive.get_stop_token() };
-    m_UDPBuffer.resize(m_BufferSize);
     while (m_Connected && !stopToken.stop_requested())
     {
         HandleReceiveUDP();
@@ -152,11 +154,16 @@ void leap::networking::LeapClient::UDPRun()
 bool leap::networking::LeapClient::HandleReceiveTCP()
 {
     // Receive a response from the server
-    m_TCPBuffer.clear();
+    std::vector<char> buffer{};
+    buffer.resize(m_BufferSize);
 
-    const int bytesReceived = recv(m_TCPsocket, m_TCPBuffer.data(), static_cast<int>(m_TCPBuffer.size()), 0);
+    const int bytesReceived = recv(m_TCPsocket, buffer.data(), m_BufferSize, 0);
     if (bytesReceived == SOCKET_ERROR || bytesReceived == 0)
     {
+        std::stringstream ss{};
+        ss << "Error receiving TCP socket: " << WSAGetLastError();
+        Debug::LogWarning(ss.str());
+
         closesocket(m_TCPsocket);
         WSACleanup();
         m_Connected = false;
@@ -169,7 +176,7 @@ bool leap::networking::LeapClient::HandleReceiveTCP()
     }
 
     // Create packet core
-    std::vector<char> charBuffer{ std::begin(m_TCPBuffer), std::end(m_TCPBuffer) };
+    std::vector<char> charBuffer{ std::begin(buffer), std::end(buffer) };
 
     // WARNING PACKET CREATION WILL DELETE CHAR BUFFER
     BasePacket packet{};
@@ -182,16 +189,17 @@ bool leap::networking::LeapClient::HandleReceiveTCP()
 void leap::networking::LeapClient::HandleReceiveUDP()
 {
     // Receive a response from the server
-    m_UDPBuffer.clear();
+    std::vector<char> buffer{};
+    buffer.resize(m_BufferSize);
 
-    const int bytesReceived = recv(m_UDPsocket, m_UDPBuffer.data(), static_cast<int>(m_UDPBuffer.size()), 0);
+    const int bytesReceived = recv(m_UDPsocket, buffer.data(), m_BufferSize, 0);
     if (bytesReceived == SOCKET_ERROR || bytesReceived == 0)
     {
         return;
     }
 
     // Create packet core
-    std::vector<char> charBuffer{ std::begin(m_UDPBuffer), std::end(m_UDPBuffer) };
+    std::vector<char> charBuffer{ std::begin(buffer), std::end(buffer) };
 
     // WARNING PACKET CREATION WILL DELETE CHAR BUFFER
     BasePacket packet{};

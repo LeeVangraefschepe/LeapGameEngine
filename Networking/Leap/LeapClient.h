@@ -42,9 +42,7 @@ namespace leap::networking
 		void HandleSend();
 
 		std::jthread m_TCPReceive{};
-		std::vector<char> m_TCPBuffer{};
 		std::jthread m_UDPReceive{};
-		std::vector<char> m_UDPBuffer{};
 		std::jthread m_SendThread{};
 		std::condition_variable m_SendCondition{};
 
