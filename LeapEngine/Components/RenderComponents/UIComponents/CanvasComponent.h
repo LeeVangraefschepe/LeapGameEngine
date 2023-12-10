@@ -2,7 +2,6 @@
 
 #include "../../Component.h"
 
-#include <Observer.h>
 #include <Subject.h>
 
 #include <vec2.hpp>
@@ -10,7 +9,7 @@
 
 namespace leap
 {
-	class CanvasComponent final : public Component, public TObserver<glm::ivec2>
+	class CanvasComponent final : public Component
 	{
 	public:
 		enum class MatchMode
@@ -41,8 +40,6 @@ namespace leap
 		virtual void OnDestroy() override;
 
 	private:
-		virtual void Notify(const glm::ivec2& size) override;
-
 		void UpdateResolution(const glm::ivec2& size);
 
 		MatchMode m_MatchMode{ MatchMode::MatchHeight };

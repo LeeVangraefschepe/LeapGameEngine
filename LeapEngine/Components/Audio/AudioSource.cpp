@@ -124,25 +124,25 @@ void leap::AudioSource::Awake()
 {
 	if (m_PlayOnAwake) Play();
 
-	GetTransform()->OnPositionChanged.AddListener(this);
-}
-
-void leap::AudioSource::Notify()
-{
-	// Only update if there is a 3D sound playing
-	if (!IsPlaying() || !m_Is3DSound) return;
-
-	Update3DSound();
+	GetTransform()->OnPositionChanged.AddListener(this, &AudioSource::OnPositionChanged);
 }
 
 void leap::AudioSource::OnDestroy()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this);
+	GetTransform()->OnPositionChanged.RemoveListener(this, &AudioSource::OnPositionChanged);
 
 	if (!IsPlaying()) return;
 
 	Stop();
 	m_Channel = -1;
+}
+
+void leap::AudioSource::OnPositionChanged() const
+{
+	// Only update if there is a 3D sound playing
+	if (!IsPlaying() || !m_Is3DSound) return;
+
+	Update3DSound();
 }
 
 void leap::AudioSource::Update2DVolume() const

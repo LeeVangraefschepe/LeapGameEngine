@@ -27,7 +27,7 @@ namespace leap::graphics
 		{
 			m_Indices.emplace_back(index);
 		}
-		void SetIndices(std::vector<unsigned int>&& indices)
+		void SetIndices(const std::vector<unsigned int>& indices)
 		{
 			m_Indices = indices;
 		}

@@ -1,12 +1,11 @@
 #pragma once
-#include "Observer.h"
 #include "Debug.h"
 #include "ILogger.h"
 #include "Leap/LeapClient.h"
 
 namespace leap
 {
-	class NetworkLogger final : TObserver<Debug::LogInfo>, public ILogger
+	class NetworkLogger final : public ILogger
 	{
 	public:
 		NetworkLogger();
@@ -19,7 +18,7 @@ namespace leap
 		virtual void SetEnabled(bool enable) override;
 
 	private:
-		virtual void Notify(const Debug::LogInfo& data) override;
+		void OnDebug(const Debug::LogInfo& data) ;
 		bool m_Enabled{};
 
 		inline static constexpr int MAX_BUFFER = 1024;

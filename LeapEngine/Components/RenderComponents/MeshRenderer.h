@@ -3,7 +3,6 @@
 #include "../Component.h"
 
 #include <Interfaces/IMeshRenderer.h>
-#include <Observer.h>
 
 namespace leap
 {
@@ -15,11 +14,11 @@ namespace leap
 		class CustomMesh;
 	}
 
-	class MeshRenderer final : public Component, public Observer
+	class MeshRenderer final : public Component
 	{
 	public:
 		MeshRenderer();
-		~MeshRenderer() = default;
+		virtual ~MeshRenderer() = default;
 
 		MeshRenderer(const MeshRenderer& other) = delete;
 		MeshRenderer(MeshRenderer&& other) = delete;
@@ -30,13 +29,12 @@ namespace leap
 		void SetMaterial(const Material& material);
 		graphics::IMaterial* GetMaterial() const;
 
-	protected:
+	private:
 		virtual void Awake() override;
 		virtual void LateUpdate() override;
 		virtual void OnDestroy() override;
-		virtual void Notify() override;
+		void OnTransformChanged();
 
-	private:
 		graphics::IMeshRenderer* m_pRenderer{};
 		bool m_IsDirty{ true };
 	};
