@@ -24,7 +24,7 @@ add_library(LeapEngine STATIC
     "Components/Audio/AudioSource.cpp" 
     "Components/Audio/AudioListener.cpp"
     "Components/RenderComponents/TerrainComponent.cpp"
-    "Coroutines/CoroutineSystem.cpp"
-)
+    "Coroutines/CoroutineSystem.cpp" 
+    "Coroutines/DefaultIEnumerators.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

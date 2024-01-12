@@ -15,6 +15,8 @@ namespace leap
         void Register(Coroutine<>* pCoroutine, IEnumerator&& iEnumerator);
         void Unregister(Coroutine<>* pCoroutine);
 
+        void CheckResume();
+
     private:
         struct CoPair final
         {
