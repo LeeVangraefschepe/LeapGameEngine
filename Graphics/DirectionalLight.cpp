@@ -31,4 +31,6 @@ void leap::graphics::DirectionalLight::SetTransform(const glm::mat4x3& transform
 	};
 
 	m_ViewProj = projMatrix * glm::inverse(inverseViewMatrix);
+
+	m_Forward = transform[2];
 }
