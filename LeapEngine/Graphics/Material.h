@@ -5,6 +5,8 @@
 
 #include <Interfaces/IMaterial.h>
 
+#include <Debug.h>
+
 #include <memory>
 
 namespace leap
@@ -70,6 +72,14 @@ namespace leap
 			else if constexpr (std::is_same_v<T, glm::mat4x4>)
 			{
 				SetMat4x4(varName, data);
+			}
+			else if constexpr (std::is_same_v<T, bool>)
+			{
+				SetBool(varName, data);
+			}
+			else
+			{
+				Debug::LogWarning("Templated type cannot be set to a texture");
 			}
 		}
 
