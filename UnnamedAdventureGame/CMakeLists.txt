@@ -10,7 +10,7 @@ endif()
 
 add_executable(UnnamedAdventureGame ${WIN32_EXECUTABLE}
 	"main.cpp"
-	"Scenes/MainMenuScene.cpp"
+	"Scenes/MainScene.cpp"
 	"Components/Transformator.cpp"
 	"Components/InfoUI.cpp"
 	"Components/FreeCamMovement.cpp"
@@ -20,7 +20,8 @@ add_executable(UnnamedAdventureGame ${WIN32_EXECUTABLE}
     "Components/PrintCollision.cpp"
 	"Components/ApplyForces.cpp" 
 	"Components/ColliderScaler.cpp" 
-	"Components/PrintVelocity.cpp")
+	"Components/PrintVelocity.cpp" 
+	"Components/ImGuiSceneChooser.cpp")
 
 target_include_directories(
 	LeapEngine PUBLIC 

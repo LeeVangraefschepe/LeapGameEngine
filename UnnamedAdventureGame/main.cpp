@@ -4,9 +4,10 @@
 #include "GameContext/Logger/ImGuiLogger.h"
 #include "GameContext/Logger/NetworkLogger.h"
 #include "SceneGraph/SceneManager.h"
-#include "Scenes/MainMenuScene.h"
 #include <ServiceLocator/ServiceLocator.h>
 #include <Interfaces/IPhysics.h>
+
+#include "Scenes/MainScene.h"
 
 #if _DEBUG
 #include <vld.h>
@@ -21,7 +22,7 @@ int main()
 	auto afterInitializing = []()
 		{
 			leap::ServiceLocator::GetPhysics().SetEnabledDebugDrawing(true);
-			leap::SceneManager::GetInstance().AddScene("Test scene", unag::MainMenuScene::Load);
+			leap::SceneManager::GetInstance().AddScene("Main scene", unag::MainScene::Load);
 			//leap::GameContext::GetInstance().GetWindow()->SetIcon("Data/Example.png");
 		};
 
