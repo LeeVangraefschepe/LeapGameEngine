@@ -8,6 +8,7 @@
 #include <Interfaces/IPhysics.h>
 
 #include "Scenes/MainScene.h"
+#include "Scenes/ExtendedCameraTest.h"
 
 #if _DEBUG
 #include <vld.h>
@@ -23,6 +24,7 @@ int main()
 		{
 			leap::ServiceLocator::GetPhysics().SetEnabledDebugDrawing(true);
 			leap::SceneManager::GetInstance().AddScene("Main scene", unag::MainScene::Load);
+			leap::SceneManager::GetInstance().AddScene("Extended camera test scene", unag::ExtendedCameraTest::Load);
 			//leap::GameContext::GetInstance().GetWindow()->SetIcon("Data/Example.png");
 		};
 

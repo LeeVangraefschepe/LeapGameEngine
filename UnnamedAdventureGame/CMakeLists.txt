@@ -21,7 +21,9 @@ add_executable(UnnamedAdventureGame ${WIN32_EXECUTABLE}
 	"Components/ApplyForces.cpp" 
 	"Components/ColliderScaler.cpp" 
 	"Components/PrintVelocity.cpp" 
-	"Components/ImGuiSceneChooser.cpp")
+	"Components/ImGuiSceneChooser.cpp"
+	"Components/PointConversionTest.cpp" 
+	"Scenes/ExtendedCameraTest.cpp" )
 
 target_include_directories(
 	LeapEngine PUBLIC 
