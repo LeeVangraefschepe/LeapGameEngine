@@ -76,3 +76,33 @@ void leap::CameraComponent::SetAsActiveCamera(bool active) const
 		if (renderer.GetCamera() == m_pCamera.get()) renderer.SetActiveCamera(nullptr);
 	}
 }
+
+glm::vec3 leap::CameraComponent::ScreenToWorldSpace(const glm::ivec2& screenPosition, float depth) const
+{
+	// Calculate the screenposition with domain 0->1
+	const auto& windowSize{ leap::GameContext::GetInstance().GetWindow()->GetWindowSize() };
+	const glm::vec2 screenPosition01
+	{
+		static_cast<float>(screenPosition.x) / windowSize.x,
+		1.0f - static_cast<float>(screenPosition.y) / windowSize.y
+	};
+
+	// Create a vector that represents the NDC coords of the current point 
+	//	Vndc = [-1 -> 1, -1 -> 1, 0 -> 1, 1]
+	const glm::vec4 ndcCoords
+	{ 
+		(screenPosition01.x - 0.5f) / 0.5f,
+		(screenPosition01.y - 0.5f) / 0.5f,
+		depth, 
+		1.0f
+	};
+
+	// Calculate the inverse view projection matrix
+	const auto inverseViewProjMatrix{ glm::inverse(m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix()) };
+
+	// Calculate the worldspace coordinates by multiplying NDC coords with the inverse viewprojection matrix and doing a perspective divide
+	const auto nonDividedWorldSpaceCoords{ inverseViewProjMatrix * ndcCoords };
+	const auto worldSpaceCoords{ nonDividedWorldSpaceCoords / nonDividedWorldSpaceCoords.w };
+
+	return worldSpaceCoords;
+}
