@@ -303,6 +303,9 @@ void leap::graphics::DirectXEngine::DrawLine(const glm::vec3& start, const glm::
 
 void leap::graphics::DirectXEngine::Release()
 {
+	// The sprite renderer needs to remove its material before the engine removes all the materials
+	m_SpriteRenderer.Clear();
+
 	m_pRenderers.clear();
 	m_pMaterials.clear();
 	m_pTextures.clear();

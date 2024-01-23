@@ -2,18 +2,14 @@
 
 #include "../../Component.h"
 
-#include "Data/Sprite.h"
+#include <Data/Sprite.h>
 
 #include <vec2.hpp>
 
 namespace leap
 {
+	class Texture;
 	class RectTransform;
-
-	namespace graphics
-	{
-		class ITexture;
-	}
 
 	class Image final : public Component
 	{
@@ -26,7 +22,7 @@ namespace leap
 		Image& operator=(const Image& other) = delete;
 		Image& operator=(Image&& other) = delete;
 
-		void SetTexture(graphics::ITexture* pTexture);
+		void SetTexture(const Texture& texture);
 		void SetPivot(const glm::vec2& pivot);
 		void SetPivot(float x, float y);
 		void SetColor(const glm::vec4& color);

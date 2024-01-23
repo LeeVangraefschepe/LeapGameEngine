@@ -30,6 +30,7 @@ namespace leap::graphics
 		void RemoveSprite(Sprite* pSprite);
 
 		void Draw();
+		void Clear();
 
 	private:
 		void DrawSprite(Sprite* pSprite) const;

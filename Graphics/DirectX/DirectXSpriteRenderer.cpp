@@ -65,6 +65,11 @@ void leap::graphics::DirectXSpriteRenderer::Draw()
 	}
 }
 
+void leap::graphics::DirectXSpriteRenderer::Clear()
+{
+	m_pMaterial = nullptr;
+}
+
 void leap::graphics::DirectXSpriteRenderer::DrawSprite(Sprite* pSprite) const
 {
 	// Set sprite texture
