@@ -18,8 +18,6 @@
 #include <ServiceLocator/ServiceLocator.h>
 #include <Interfaces/IRenderer.h>
 
-#include <Graphics/Texture.h>
-
 void unag::PointConversionTest::Start()
 {
 	m_FollowCursorGO = GetGameObject()->GetParent()->CreateChild("test");
@@ -32,9 +30,8 @@ void unag::PointConversionTest::Start()
 	pCanvasObj->AddComponent<leap::CanvasActions>();
 
 	m_FollowCubeGO = pCanvasObj->CreateChild("uitest");
-	const leap::Texture texture{ "Data/debug.png", true };
 	m_FollowCubeGO->AddComponent<leap::RectTransform>()->SetSize(20.0f, 20.0f);
-	m_FollowCubeGO->AddComponent<leap::Image>()->SetTexture(texture);
+	m_FollowCubeGO->AddComponent<leap::Image>();
 }
 
 void unag::PointConversionTest::Update()

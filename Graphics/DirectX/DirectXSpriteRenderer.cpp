@@ -58,8 +58,6 @@ void leap::graphics::DirectXSpriteRenderer::Draw()
 	// Draw sprites
 	for (Sprite* pSprite : m_pSprites)
 	{
-		if (pSprite->pTexture == nullptr) continue;
-
 		pSprite->OnDraw();
 		DrawSprite(pSprite);
 	}
@@ -73,7 +71,8 @@ void leap::graphics::DirectXSpriteRenderer::Clear()
 void leap::graphics::DirectXSpriteRenderer::DrawSprite(Sprite* pSprite) const
 {
 	// Set sprite texture
-	m_pMaterial->SetTexture("gTexture", pSprite->pTexture);
+	if(pSprite->pTexture) m_pMaterial->SetTexture("gTexture", pSprite->pTexture);
+	m_pMaterial->SetBool("gHasTexture", pSprite->pTexture != nullptr);
 
 	// Create vertex buffer
 	D3D11_BUFFER_DESC bd{};
