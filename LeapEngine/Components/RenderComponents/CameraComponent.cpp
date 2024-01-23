@@ -106,3 +106,22 @@ glm::vec3 leap::CameraComponent::ScreenToWorldSpace(const glm::ivec2& screenPosi
 
 	return worldSpaceCoords;
 }
+
+glm::vec2 leap::CameraComponent::WorldToScreenSpace(const glm::vec3& worldPosition) const
+{
+	// Create a point using the given worldposition 
+	const glm::vec4 coordinates{ worldPosition, 1.0f };
+
+	// Calculate the view projection matrix
+	const auto viewProjMatrix{ m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix() };
+
+	// Calcaulte the clip space coordinated by multiplying world coords with the viewprojection matrix and doing a perspective divide
+	const glm::vec4 nonDividedClipSpaceCoordinates{ viewProjMatrix * coordinates };
+	const glm::vec2 dividedClipSpaceCoordinates{ static_cast<glm::vec2>(nonDividedClipSpaceCoordinates) / nonDividedClipSpaceCoordinates.w };
+
+	// Calculate the screen position by multiplying clip space coords with the windowsize
+	const auto& halfWindowSize{ leap::GameContext::GetInstance().GetWindow()->GetWindowSize() / 2 };
+	const glm::vec2 screenSpaceCoords{ dividedClipSpaceCoordinates.x * halfWindowSize.x, dividedClipSpaceCoordinates.y * halfWindowSize.y };
+
+	return screenSpaceCoords;
+}

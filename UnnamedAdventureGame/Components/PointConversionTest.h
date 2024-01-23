@@ -24,6 +24,7 @@ namespace unag
 		virtual void Start() override;
 		virtual void Update() override;
 
-		leap::GameObject* m_GO{};
+		leap::GameObject* m_FollowCursorGO{};
+		leap::GameObject* m_FollowCubeGO{};
 	};
 }

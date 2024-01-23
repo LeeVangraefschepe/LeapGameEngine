@@ -28,6 +28,7 @@ namespace leap
 		graphics::Camera* GetData() const { return m_pCamera.get(); }
 
 		glm::vec3 ScreenToWorldSpace(const glm::ivec2& screenPosition, float depth = 0.0f) const;
+		glm::vec2 WorldToScreenSpace(const glm::vec3& worldPosition) const;
 
 	private:
 		virtual void Awake() override;
