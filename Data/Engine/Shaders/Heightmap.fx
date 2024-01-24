@@ -3,6 +3,7 @@ float4x4 gWorldViewProj : WORLDVIEWPROJECTION;
 float4x4 gLightViewProj : LIGHTVIEWPROJECTION;
 float3 gLightDirection = float3(-0.577f, -0.577f, 0.577f);
 float4 gColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+bool gRGABAsUINT = false;
 
 Texture2D gShadowMap;
 Texture2D gHeightMap;
@@ -100,7 +101,16 @@ bool IsInsideTexture(int position)
     gHeightMap.GetDimensions(width, height);
     
     return position >= 0 && position < width;
+}
 
+float4 RGBAtoUINT(float4 rgba)
+{
+    uint r = rgba.b * 255;
+    uint g = rgba.g * 255;
+    uint b = rgba.r * 255;
+    uint a = rgba.a * 255;
+    
+    return (r + (g << 8) + (b << 16) + (a << 24)) / 4294967295.0f;
 }
 
 float GetNeighbouringHeight(float curHeight, float2 curPos, int neighbourValueX, int neighbourValueY)
@@ -113,27 +123,27 @@ float GetNeighbouringHeight(float curHeight, float2 curPos, int neighbourValueX,
     if (!IsInsideTexture(y))
         return curHeight;
     
-    return gHeightMap[float2(x, y)] * gMaxHeight;
+    float4 texColor = gHeightMap[float2(x,y)];
+    return (gRGABAsUINT ? RGBAtoUINT(texColor) : texColor.r) * gMaxHeight;
 }
 
 VS_OUTPUT VS(VS_INPUT input) 
 {
 	VS_OUTPUT output;
+    
+    // Get height for this vertex
     float2 heightMapPos = input.uv;
-	// Step 1:	convert position into float4 and multiply with matWorldViewProj
-    float height = gHeightMap[heightMapPos] * gMaxHeight;
+    float4 texColor = gHeightMap[heightMapPos];
+    float height = (gRGABAsUINT ? RGBAtoUINT(texColor) : texColor.r) * gMaxHeight;
     	
+    // Get neighbouring height values
     float L = GetNeighbouringHeight(height, heightMapPos, -1.0f, 0.0f);
     float R = GetNeighbouringHeight(height, heightMapPos, 1.0f, 0.0f);
     float T = GetNeighbouringHeight(height, heightMapPos, 0.0f, 1.0f);
     float B = GetNeighbouringHeight(height, heightMapPos, 0.0f, -1.0f);
 	
     output.pos = mul(float4(input.pos + float3(0, height, 0), 1.0f), gWorldViewProj);
-	// Step 2:	rotate the normal: NO TRANSLATION
-	//			this is achieved by clipping the 4x4 to a 3x3 matrix, 
-	//			thus removing the postion row of the matrix
-    float3 normal = normalize(float3(-R + L, 4, -T + B));
-    output.normal = /*normalize(mul(normal, (float3x3) gWorld))*/normal;
+    output.normal = normalize(float3(-R + L, 4, -T + B));
     output.lPos = mul(float4(input.pos, 1.0f), mul(gWorld, gLightViewProj));
 
 	return output;
@@ -148,8 +158,7 @@ float4 PS(VS_OUTPUT input) : SV_TARGET
 	
 	float3 color_rgb = gColor.rgb;
 	float color_a = gColor.a;
-
-	//HalfLambert Diffuse :)
+    
 	float diffuseStrength = dot(input.normal, -gLightDirection);
 	diffuseStrength = diffuseStrength * 0.5 + 0.5;
 	diffuseStrength = saturate(diffuseStrength);

@@ -25,7 +25,7 @@ std::unique_ptr<leap::graphics::Shader, leap::graphics::ShaderDelete> leap::grap
 
 		return vertexDesc;
 	};
-	pShader->directXDataPath = "Data/Heightmap.fx";
+	pShader->directXDataPath = "Data/Engine/Shaders/Heightmap.fx";
 
 	return std::move(pShader);
 }
