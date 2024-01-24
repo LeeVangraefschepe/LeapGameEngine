@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "vec2.hpp"
+#include "vec3.hpp"
 
 namespace leap
 {
@@ -25,6 +26,9 @@ namespace leap
 
 		void SetAsActiveCamera(bool active) const;
 		graphics::Camera* GetData() const { return m_pCamera.get(); }
+
+		glm::vec3 ScreenToWorldSpace(const glm::ivec2& screenPosition, float depth = 0.0f) const;
+		glm::vec2 WorldToScreenSpace(const glm::vec3& worldPosition) const;
 
 	private:
 		virtual void Awake() override;

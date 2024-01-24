@@ -1,4 +1,6 @@
 Texture2D gTexture;
+bool gHasTexture;
+
 float4x4 gTransform;
 float2 gScreenSize;
 
@@ -111,7 +113,14 @@ void MainGS(point VS_DATA vertex[1], inout TriangleStream<GS_DATA> triStream)
 //************
 float4 MainPS(GS_DATA input) : SV_TARGET
 {
-    return gTexture.Sample(samPoint, input.TexCoord) * input.Color;
+    if (gHasTexture)
+    {
+        return gTexture.Sample(samPoint, input.TexCoord) * input.Color;
+    }
+    else
+    {
+        return input.Color;
+    }
 }
 
 // Default Technique

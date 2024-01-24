@@ -11,6 +11,8 @@
 #include "../../../GameContext/GameContext.h"
 #include "../../../GameContext/Window.h"
 
+#include "../../../Graphics/Texture.h"
+
 leap::Image::Image()
 {
 	ServiceLocator::GetRenderer().AddSprite(&m_Sprite);
@@ -25,15 +27,16 @@ leap::Image::Image()
 			}
 
 			if (m_pRect == nullptr) m_pRect = GetGameObject()->GetComponent<RectTransform>();
+			if (!m_pRect) return;
 
 			m_Sprite.vertex.position = m_pRect->GetPosition();
 			m_Sprite.vertex.size = m_pRect->GetSize();
 		};
 }
 
-void leap::Image::SetTexture(graphics::ITexture* pTexture)
+void leap::Image::SetTexture(const Texture& texture)
 {
-	m_Sprite.pTexture = pTexture;
+	m_Sprite.pTexture = texture.GetInternal();
 }
 
 void leap::Image::SetPivot(const glm::vec2& pivot)
