@@ -36,7 +36,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 
 	if (!m_pMesh)
 	{
-		if (m_IsLineRenderer) return;
+		if (m_TopologyType != D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST) return;
 
 		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
 		pMaterial = defaults.GetMaterialError(m_pEngine);
@@ -58,7 +58,7 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	pDXMaterial->SetWorldMatrix(m_Transform);
 
 	// Set primitive topology
-	m_pEngine->GetContext()->IASetPrimitiveTopology(m_IsLineRenderer ? D3D11_PRIMITIVE_TOPOLOGY_LINELIST : D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pEngine->GetContext()->IASetPrimitiveTopology(m_TopologyType);
 
 	// Set input layout
 	m_pEngine->GetContext()->IASetInputLayout(pDXMaterial->GetInputLayout());
@@ -114,12 +114,27 @@ void leap::graphics::DirectXMeshRenderer::SetMesh(IMesh* pMesh)
 	m_pMesh = static_cast<DirectXMesh*>(pMesh);
 }
 
+leap::graphics::IMesh* leap::graphics::DirectXMeshRenderer::GetMesh()
+{
+	return m_pMesh;
+}
+
 void leap::graphics::DirectXMeshRenderer::UnsetMesh()
 {
 	m_pMesh = nullptr;
 }
 
-void leap::graphics::DirectXMeshRenderer::SetIsLineRenderer(bool isLineRenderer)
+void leap::graphics::DirectXMeshRenderer::SetAsPointRenderer()
 {
-	m_IsLineRenderer = isLineRenderer;
+	m_TopologyType = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+}
+
+void leap::graphics::DirectXMeshRenderer::SetAsLineRenderer()
+{
+	m_TopologyType = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
+}
+
+void leap::graphics::DirectXMeshRenderer::SetAsTriangleRenderer()
+{
+	m_TopologyType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 }

@@ -19,7 +19,10 @@ namespace leap::graphics
 		virtual void UnsetMaterial() = 0;
 		virtual void SetTransform(const glm::mat4x4& transform) = 0;
 		virtual void SetMesh(IMesh* pMesh) = 0;
+		virtual IMesh* GetMesh() = 0;
 		virtual void UnsetMesh() = 0;
-		virtual void SetIsLineRenderer(bool isLineRenderer) = 0;
+		virtual void SetAsPointRenderer() = 0;
+		virtual void SetAsLineRenderer() = 0;
+		virtual void SetAsTriangleRenderer() = 0;
 	};
 }
