@@ -5,8 +5,6 @@
 #include <Interfaces/IRenderer.h>
 #include <Interfaces/IMaterial.h>
 
-#include <Data/CustomMesh.h>
-
 #include "../Transform/Transform.h"
 #include "../../Graphics/Mesh.h"
 #include "../../Graphics/Material.h"
