@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 #include "Logger/ILogger.h"
-#include "../Coroutines/CoroutineSystem.h"
 
 class GLFWwindow;
 
@@ -24,7 +23,6 @@ namespace leap
 
 		Timer* GetTimer() const { return m_pTimer.get(); }
 		Window* GetWindow() const { return m_pWindow.get(); }
-		CoroutineSystem* GetCoroutineSystem() const { return m_pCoroutineSystem.get(); }
 
 		template <class T>
 		T* AddLogger();
@@ -41,7 +39,6 @@ namespace leap
 
 		std::unique_ptr<Timer> m_pTimer;
 		std::unique_ptr<Window> m_pWindow;
-		std::unique_ptr<CoroutineSystem> m_pCoroutineSystem;
 
 		std::vector<std::unique_ptr<ILogger>> m_pLoggers{};
 	};

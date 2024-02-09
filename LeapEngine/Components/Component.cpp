@@ -1,7 +1,7 @@
 #include "Component.h"
 
 #include "../SceneGraph/GameObject.h"
-#include "../GameContext/GameContext.h"
+#include "../SceneGraph/SceneManager.h"
 #include "../Coroutines/CoroutineSystem.h"
 
 leap::Component::Component()
@@ -55,14 +55,14 @@ leap::Coroutine<>* leap::Component::StartCoroutine(leap::Coroutine<>&& coroutine
 	{
 		*findIt = coroutine;
 		leap::IEnumerator ienum = findIt->Value();
-		GameContext::GetInstance().GetCoroutineSystem()->Register(findIt._Ptr, std::move(ienum));
+		SceneManager::GetInstance().GetCoroutineSystem()->Register(findIt._Ptr, std::move(ienum));
 		return findIt._Ptr;
 	}
 
 	auto& ref = m_pCoroutines.emplace_back(coroutine);
 	leap::IEnumerator ienum = ref.Value();
 
-	GameContext::GetInstance().GetCoroutineSystem()->Register(&ref, std::move(ienum));
+	SceneManager::GetInstance().GetCoroutineSystem()->Register(&ref, std::move(ienum));
 	return &ref;
 }
 
@@ -78,7 +78,7 @@ bool leap::Component::StopCoroutine(leap::Coroutine<>* pCoroutine)
 	{
 		return false;
 	}
-	GameContext::GetInstance().GetCoroutineSystem()->Unregister(pCoroutine);
+	SceneManager::GetInstance().GetCoroutineSystem()->Unregister(pCoroutine);
 	*it = Coroutine();
 	return true;
 }

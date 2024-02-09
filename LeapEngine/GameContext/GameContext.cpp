@@ -10,7 +10,6 @@ leap::GameContext::~GameContext()
 leap::GameContext::GameContext()
 {
 	m_pTimer = std::make_unique<Timer>();
-	m_pCoroutineSystem = std::make_unique<CoroutineSystem>();
 }
 
 void leap::GameContext::Update()

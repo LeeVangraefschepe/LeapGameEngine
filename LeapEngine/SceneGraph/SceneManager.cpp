@@ -5,6 +5,11 @@
 #include "Debug.h"
 #include "Scene.h"
 
+leap::SceneManager::SceneManager()
+{
+	m_pCoroutineSystem = std::make_unique<CoroutineSystem>();
+}
+
 leap::Scene* leap::SceneManager::GetActiveScene() const
 {
 	return m_Scene.get();
@@ -86,4 +91,10 @@ void leap::SceneManager::LoadInternalScene()
 void leap::SceneManager::UnloadScene()
 {
 	m_Scene = nullptr;
+}
+
+void leap::SceneManager::SetEngineExecutionState(EngineExecutionState state)
+{
+	m_EngineExecutionState = state;
+	m_pCoroutineSystem->CheckResume();
 }

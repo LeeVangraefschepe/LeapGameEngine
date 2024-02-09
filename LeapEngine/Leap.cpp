@@ -88,19 +88,23 @@ void leap::LeapEngine::Run(int desiredFPS)
         input.ProcessInput();
 
         sceneManager.OnFrameStart();
+        sceneManager.SetEngineExecutionState(EngineExecutionState::OnFrameStart);
 
         const float fixedInterval = timer->GetFixedTime();
         while (fixedTotalTime >= fixedInterval)
         {
             fixedTotalTime -= fixedInterval;
             sceneManager.FixedUpdate();
+            sceneManager.SetEngineExecutionState(EngineExecutionState::FixedUpdate);
         }
 
         sceneManager.Update();
+        sceneManager.SetEngineExecutionState(EngineExecutionState::Update);
 
         audio.Update();
 
         sceneManager.LateUpdate();
+        sceneManager.SetEngineExecutionState(EngineExecutionState::LateUpdate);
 
         m_pRenderer->GuiDraw();
         sceneManager.OnGUI();
@@ -110,6 +114,7 @@ void leap::LeapEngine::Run(int desiredFPS)
         glfwSwapBuffers(m_pWindow);
 
         sceneManager.OnFrameEnd();
+        sceneManager.SetEngineExecutionState(EngineExecutionState::OnFrameEnd);
 
         //Sleep to sync back with desired fps
         const auto sleepTimeMs = frameTimeMs - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
