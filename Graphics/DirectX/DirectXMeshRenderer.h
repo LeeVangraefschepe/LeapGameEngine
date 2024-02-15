@@ -2,15 +2,10 @@
 
 #include "../Interfaces/IMeshRenderer.h"
 
-#include "../Data/Vertex.h"
-
 #include "mat4x4.hpp"
 #include <Matrix.h>
 
-#include <vector>
-#include <memory>
-
-#include <d3dx11effect.h>
+#include <d3dcommon.h>
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;

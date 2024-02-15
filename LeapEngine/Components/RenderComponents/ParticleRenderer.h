@@ -167,7 +167,7 @@ namespace leap
 		};
 
 		ParticleRenderer();
-		~ParticleRenderer() = default;
+		virtual ~ParticleRenderer() = default;
 
 		ParticleRenderer(const ParticleRenderer& other) = delete;
 		ParticleRenderer(ParticleRenderer&& other) = delete;
@@ -175,7 +175,7 @@ namespace leap
 		ParticleRenderer& operator=(ParticleRenderer&& other) = delete;
 
 		EmitterSettings& GetEmitterSettings() { return m_Settings; }
-		void SetTexture(const Texture& texture);
+		void SetTexture(const Texture& texture) const;
 
 	private:
 		struct ParticleVertex

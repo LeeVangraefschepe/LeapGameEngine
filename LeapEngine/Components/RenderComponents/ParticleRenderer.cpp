@@ -27,7 +27,7 @@ leap::ParticleRenderer::ParticleRenderer()
 	m_pRenderer->SetMaterial(billboardMaterial.GetInternal());
 }
 
-void leap::ParticleRenderer::SetTexture(const Texture& texture)
+void leap::ParticleRenderer::SetTexture(const Texture& texture) const
 {
 	m_pRenderer->GetMaterial()->SetTexture("gTexture", texture.GetInternal());
 }
