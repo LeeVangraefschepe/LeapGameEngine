@@ -10,7 +10,6 @@
 #include <Vector3.h>
 #include <Quaternion.h>
 
-#include <Subject.h>
 #include <Delegate.h>
 
 DECLARE_DELEGATE(OnPositionChanged);

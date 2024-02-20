@@ -4,13 +4,15 @@
 
 #include <Interfaces/ITexture.h>
 
-#include <Subject.h>
+#include <Delegate.h>
 
 #include <string>
 #include <memory>
 
 namespace leap
 {
+	DECLARE_DELEGATE(OnInternalChange);
+
 	namespace graphics
 	{
 		class ITexture;
@@ -37,7 +39,7 @@ namespace leap
 
 		graphics::ITexture* GetInternal() const;
 
-		Subject OnInternalChange{};
+		OnInternalChange OnInternalChangeDelegate{};
 
 	private:
 		std::unique_ptr<GraphicsObject<graphics::ITexture>> m_pObject{};

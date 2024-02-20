@@ -32,14 +32,14 @@ void leap::Texture::Load(const std::string& filePath, bool unique)
 	// Load texture
 	graphics::ITexture* pTexture{ ServiceLocator::GetRenderer().CreateTexture(filePath, !unique) };
 	m_pObject->SetObject(pTexture);
-	OnInternalChange.Notify();
+	OnInternalChangeDelegate.Invoke();
 }
 
 void leap::Texture::Load(unsigned int width, unsigned int height)
 {
 	graphics::ITexture* pTexture{ ServiceLocator::GetRenderer().CreateTexture(width, height) };
 	m_pObject->SetObject(pTexture);
-	OnInternalChange.Notify();
+	OnInternalChangeDelegate.Invoke();
 }
 
 void leap::Texture::SetData(const std::vector<unsigned char>& data) const

@@ -86,7 +86,7 @@ void leap::Button::OnClickEnd()
 {
 	m_IsClicked = false;
 
-	OnClicked.Notify(*this);
+	OnClickedDelegate.Invoke(*this);
 
 	if (!m_pImage) return;
 

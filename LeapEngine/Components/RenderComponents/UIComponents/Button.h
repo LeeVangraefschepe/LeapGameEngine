@@ -3,7 +3,7 @@
 #include "../../Component.h"
 #include "ICanvasElement.h"
 
-#include <Subject.h>
+#include <Delegate.h>
 
 #include <vec4.hpp>
 
@@ -14,6 +14,8 @@ namespace leap
 
 	class Button final : public Component, public ICanvasElement
 	{
+		DECLARE_DELEGATE_OneParam(OnClicked, const Button&);
+
 	public:
 		Button() = default;
 		virtual ~Button() = default;
@@ -23,7 +25,7 @@ namespace leap
 		Button& operator=(const Button& other) = delete;
 		Button& operator=(Button&& other) = delete;
 
-		TSubject<Button> OnClicked{};
+		OnClicked OnClickedDelegate{};
 
 		virtual glm::vec2 GetSize() override;
 		virtual glm::vec3 GetPosition() override;
