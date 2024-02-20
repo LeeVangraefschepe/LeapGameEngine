@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include <Subject.h>
+#include <Delegate.h>
 
 namespace physx
 {
@@ -36,7 +36,7 @@ namespace leap::physics
 
         void NotifyStayingPairs();
 
-        TSubject<SimulationEvent> OnSimulationEvent{};
+        OnSimulationEvent OnSimulationEventDelegate{};
 
     private:
         std::vector<SimulationPair> m_Triggers{};

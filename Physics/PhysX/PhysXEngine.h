@@ -52,13 +52,6 @@ namespace leap::physics
 		virtual void SetEnabledDebugDrawing(bool isEnabled) override;
 		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() override;
 
-		virtual TSubject<CollisionData>& OnCollisionEnter() override { return m_OnCollisionEnter; }
-		virtual TSubject<CollisionData>& OnCollisionStay() override { return m_OnCollisionStay; }
-		virtual TSubject<CollisionData>& OnCollisionExit() override { return m_OnCollisionExit; }
-		virtual TSubject<CollisionData>& OnTriggerEnter() override { return m_OnTriggerEnter; }
-		virtual TSubject<CollisionData>& OnTriggerStay() override { return m_OnTriggerStay; }
-		virtual TSubject<CollisionData>& OnTriggerExit() override { return m_OnTriggerExit; }
-
 		virtual bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo) override;
 
 		physx::PxPhysics* GetPhysics() const { return m_pPhysics; }
@@ -84,13 +77,6 @@ namespace leap::physics
 
 		std::function<std::pair<const glm::vec3&, const glm::quat&>(void*)> m_SyncGetFunc{};
 		std::function<void(void*, glm::vec3, glm::quat)> m_SyncSetFunc{};
-
-		TSubject<CollisionData> m_OnCollisionEnter{};
-		TSubject<CollisionData> m_OnCollisionStay{};
-		TSubject<CollisionData> m_OnCollisionExit{};
-		TSubject<CollisionData> m_OnTriggerEnter{};
-		TSubject<CollisionData> m_OnTriggerStay{};
-		TSubject<CollisionData> m_OnTriggerExit{};
 
 		bool m_IsDebugDrawingEnabled{};
 	};

@@ -21,8 +21,8 @@ leap::physics::PhysXEngine::PhysXEngine()
     , m_pSimulationCallbacks{ std::make_unique<PhysXSimulationCallbacks>() }
     , m_pSimulationFilterCallback{ std::make_unique<PhysXSimulationFilterCallback>() } 
 {
-    m_pSimulationFilterCallback->OnSimulationEvent.AddListener(this, &PhysXEngine::OnSimulationEvent);
-    m_pSimulationCallbacks->OnSimulationEvent.AddListener(this, &PhysXEngine::OnSimulationEvent);
+    m_pSimulationFilterCallback->OnSimulationEventDelegate.Bind(this, &PhysXEngine::OnSimulationEvent);
+    m_pSimulationCallbacks->OnSimulationEventDelegate.Bind(this, &PhysXEngine::OnSimulationEvent);
 
     // Create foundation
     m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pDefaultAllocatorCallback, *m_pDefaultErrorCallback);
@@ -61,8 +61,8 @@ leap::physics::PhysXEngine::PhysXEngine()
 
 leap::physics::PhysXEngine::~PhysXEngine()
 {
-    m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener<PhysXEngine>(this, &PhysXEngine::OnSimulationEvent);
-    m_pSimulationCallbacks->OnSimulationEvent.RemoveListener(this, &PhysXEngine::OnSimulationEvent);
+    m_pSimulationFilterCallback->OnSimulationEventDelegate.Unbind(this);
+    m_pSimulationCallbacks->OnSimulationEventDelegate.Unbind(this);
 
     m_pScene = nullptr;
     m_pObjects.clear();
@@ -176,32 +176,32 @@ void leap::physics::PhysXEngine::OnSimulationEvent(const SimulationEvent& e)
     {
     case SimulationEventType::OnCollisionEnter:
     {
-        m_OnCollisionEnter.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        OnCollisionEnterDelegate.Invoke(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
     case SimulationEventType::OnCollisionStay:
     {
-        m_OnCollisionStay.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        OnCollisionStayDelegate.Invoke(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
     case SimulationEventType::OnCollissionExit:
     {
-        m_OnCollisionExit.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        OnCollisionExitDelegate.Invoke(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
     case SimulationEventType::OnTriggerEnter:
     {
-        m_OnTriggerEnter.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        OnTriggerEnterDelegate.Invoke(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
     case SimulationEventType::OnTriggerStay:
     {
-        m_OnTriggerStay.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        OnTriggerStayDelegate.Invoke(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
     case SimulationEventType::OnTriggerExit:
     {
-        m_OnTriggerExit.Notify(CollisionData{ e.pShape0->userData, e.pShape1->userData });
+        OnTriggerExitDelegate.Invoke(CollisionData{ e.pShape0->userData, e.pShape1->userData });
         break;
     }
     }

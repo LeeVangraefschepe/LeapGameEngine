@@ -4,7 +4,7 @@
 #include "IPhysicsMaterial.h"
 #include "../Data/CollisionData.h"
 
-#include <Subject.h>
+#include <Delegate.h>
 
 #include <memory>
 #include <functional>
@@ -18,6 +18,13 @@ namespace leap::physics
 {
 	class IPhysicsObject;
 	struct RaycastHit;
+
+	DECLARE_DELEGATE_OneParam(OnCollisionEnter, const CollisionData&);
+	DECLARE_DELEGATE_OneParam(OnCollisionStay, const CollisionData&);
+	DECLARE_DELEGATE_OneParam(OnCollisionExit, const CollisionData&);
+	DECLARE_DELEGATE_OneParam(OnTriggerEnter, const CollisionData&);
+	DECLARE_DELEGATE_OneParam(OnTriggerStay, const CollisionData&);
+	DECLARE_DELEGATE_OneParam(OnTriggerExit, const CollisionData&);
 
 	class IPhysics
 	{
@@ -35,12 +42,12 @@ namespace leap::physics
 		virtual void SetEnabledDebugDrawing(bool isEnabled) = 0;
 		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() = 0;
 
-		virtual TSubject<CollisionData>& OnCollisionEnter() = 0;
-		virtual TSubject<CollisionData>& OnCollisionStay() = 0;
-		virtual TSubject<CollisionData>& OnCollisionExit() = 0;
-		virtual TSubject<CollisionData>& OnTriggerEnter() = 0;
-		virtual TSubject<CollisionData>& OnTriggerStay() = 0;
-		virtual TSubject<CollisionData>& OnTriggerExit() = 0;
+		OnCollisionEnter OnCollisionEnterDelegate;
+		OnCollisionStay OnCollisionStayDelegate;
+		OnCollisionExit OnCollisionExitDelegate;
+		OnTriggerEnter OnTriggerEnterDelegate;
+		OnTriggerStay OnTriggerStayDelegate;
+		OnTriggerExit OnTriggerExitDelegate;
 
 		virtual bool Raycast(const glm::vec3& start, const glm::vec3& direction, float distance, RaycastHit& hitInfo) = 0;
 	};
@@ -61,16 +68,6 @@ namespace leap::physics
 		virtual void SetEnabledDebugDrawing(bool) override {}
 		virtual std::vector<std::pair<glm::vec3, glm::vec3>> GetDebugDrawings() { return {}; }
 
-		virtual TSubject<CollisionData>& OnCollisionEnter() override { return m_EmptyCollision; }
-		virtual TSubject<CollisionData>& OnCollisionStay() override { return m_EmptyCollision; }
-		virtual TSubject<CollisionData>& OnCollisionExit() override { return m_EmptyCollision; }
-		virtual TSubject<CollisionData>& OnTriggerEnter() override { return m_EmptyCollision; }
-		virtual TSubject<CollisionData>& OnTriggerStay() override { return m_EmptyCollision; }
-		virtual TSubject<CollisionData>& OnTriggerExit() override { return m_EmptyCollision; }
-
 		virtual bool Raycast(const glm::vec3&, const glm::vec3&, float, RaycastHit&) override { return {}; }
-
-	private:
-		TSubject<CollisionData> m_EmptyCollision{};
 	};
 }

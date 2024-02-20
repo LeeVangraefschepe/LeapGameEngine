@@ -6,7 +6,7 @@
 
 #include <map>
 
-#include <Subject.h>
+#include <Delegate.h>
 
 namespace leap::physics 
 {
@@ -37,7 +37,7 @@ namespace leap::physics
 
 		void NotifyStayingPairs();
 
-		TSubject<SimulationEvent> OnSimulationEvent{};
+		OnSimulationEvent OnSimulationEventDelegate{};
 
 	private:
 		std::map<int, SimulationPair> m_Collisions{};

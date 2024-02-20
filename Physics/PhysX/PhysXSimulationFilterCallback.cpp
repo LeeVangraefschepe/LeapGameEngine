@@ -7,7 +7,7 @@ physx::PxFilterFlags leap::physics::PhysXSimulationFilterCallback::pairFound(phy
 	physx::PxFilterObjectAttributes /*attributes1*/, physx::PxFilterData /*filterData1*/, const physx::PxActor* /*a1*/, const physx::PxShape* s1,
 	physx::PxPairFlags& /*pairFlags*/)
 {
-	OnSimulationEvent.Notify({ SimulationEventType::OnCollisionEnter, s0, s1 });
+	OnSimulationEventDelegate.Invoke(SimulationEvent{ SimulationEventType::OnCollisionEnter, s0, s1 });
 	m_Collisions[pairID] = SimulationPair{ s0, s1 };
 
 	return physx::PxFilterFlag::eDEFAULT | physx::PxFilterFlag::eNOTIFY;
@@ -21,7 +21,7 @@ void leap::physics::PhysXSimulationFilterCallback::pairLost(physx::PxU32 pairID,
 	bool /*objectRemoved*/)
 {
 	const SimulationPair& pair{ m_Collisions[pairID] };
-	OnSimulationEvent.Notify({ SimulationEventType::OnCollissionExit, pair.pShape0, pair.pShape1 });
+	OnSimulationEventDelegate.Invoke(SimulationEvent{ SimulationEventType::OnCollissionExit, pair.pShape0, pair.pShape1 });
 
 	m_Collisions.erase(pairID);
 }
@@ -36,6 +36,6 @@ void leap::physics::PhysXSimulationFilterCallback::NotifyStayingPairs()
 	for (const auto& collisionPair : m_Collisions)
 	{
 		const auto& pair{ collisionPair.second };
-		OnSimulationEvent.Notify({ SimulationEventType::OnCollisionStay, pair.pShape0, pair.pShape1 });
+		OnSimulationEventDelegate.Invoke(SimulationEvent{ SimulationEventType::OnCollisionStay, pair.pShape0, pair.pShape1 });
 	}
 }

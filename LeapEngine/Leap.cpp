@@ -81,14 +81,13 @@ void leap::LeapEngine::Run(const std::function<void()>& afterInitialize, int des
     auto& audio{ ServiceLocator::GetAudio() };
     auto& physics{ ServiceLocator::GetPhysics() };
     physics.SetSyncFunc(PhysicsSync::SetTransform, PhysicsSync::GetTransform);
-    physics.OnCollisionEnter().AddListener(PhysicsSync::OnCollisionEnter);
-    physics.OnCollisionStay().AddListener(PhysicsSync::OnCollisionStay);
-    physics.OnCollisionExit().AddListener(PhysicsSync::OnCollisionExit);
-    physics.OnTriggerEnter().AddListener(PhysicsSync::OnTriggerEnter);
-    physics.OnTriggerStay().AddListener(PhysicsSync::OnTriggerStay);
-    physics.OnTriggerExit().AddListener(PhysicsSync::OnTriggerExit);
+    physics.OnCollisionEnterDelegate.Bind(PhysicsSync::OnCollisionEnter);
+    physics.OnCollisionStayDelegate.Bind(PhysicsSync::OnCollisionStay);
+    physics.OnCollisionExitDelegate.Bind(PhysicsSync::OnCollisionExit);
+    physics.OnTriggerEnterDelegate.Bind(PhysicsSync::OnTriggerEnter);
+    physics.OnTriggerStayDelegate.Bind(PhysicsSync::OnTriggerStay);
+    physics.OnTriggerExitDelegate.Bind(PhysicsSync::OnTriggerExit);
     
-
     while (!glfwWindowShouldClose(m_pWindow))
     {
         const auto currentTime = std::chrono::high_resolution_clock::now();

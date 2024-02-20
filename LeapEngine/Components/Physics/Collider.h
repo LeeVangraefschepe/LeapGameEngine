@@ -3,7 +3,7 @@
 #include "../Component.h"
 
 #include <Interfaces/IShape.h>
-#include <Subject.h>
+#include <Delegate.h>
 
 #include <memory>
 
