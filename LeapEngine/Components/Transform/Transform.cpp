@@ -416,13 +416,13 @@ void leap::Transform::SetDirty(DirtyFlags flag)
 	switch (flag)
 	{
 	case DirtyFlags::Translation:
-		OnPositionChanged.Notify();
+		OnPositionChangedDelegate.Invoke();
 		break;
 	case DirtyFlags::Rotation:
-		OnRotationChanged.Notify();
+		OnRotationChangedDelegate.Invoke();
 		break;
 	case DirtyFlags::Scale:
-		OnScaleChanged.Notify();
+		OnScaleChangedDelegate.Invoke();
 		break;
 	}
 }

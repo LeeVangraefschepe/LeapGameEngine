@@ -5,19 +5,19 @@
 void leap::Debug::Log(const char* message, const std::source_location& location)
 {
 	const auto time = GetTime();
-    OnEvent.Notify(LogInfo{ message, GetTime().c_str(), Type::Message, location });
+    OnEventDelegate.Invoke(LogInfo{ message, GetTime().c_str(), Type::Message, location });
 }
 
 void leap::Debug::LogWarning(const char* message, const std::source_location& location)
 {
     const auto time = GetTime();
-    OnEvent.Notify(LogInfo{ message, GetTime().c_str(), Type::Warning, location });
+    OnEventDelegate.Invoke(LogInfo{ message, GetTime().c_str(), Type::Warning, location });
 }
 
 void leap::Debug::LogError(const char* message, const std::source_location& location)
 {
     const auto time = GetTime();
-    OnEvent.Notify(LogInfo{ message, GetTime().c_str(), Type::Error, location });
+    OnEventDelegate.Invoke(LogInfo{ message, GetTime().c_str(), Type::Error, location });
 
     if (!m_IsThrowingOnError) return;
 

@@ -149,7 +149,7 @@ void leap::TerrainComponent::Awake()
 {
 	m_pRenderer->SetTransform(GetTransform()->GetWorldTransform());
 
-	GetTransform()->OnPositionChanged.AddListener(this, &TerrainComponent::UpdateTransform);
+	GetTransform()->OnPositionChangedDelegate.Bind(this, &TerrainComponent::UpdateTransform);
 }
 
 void leap::TerrainComponent::UpdateTransform() const

@@ -151,7 +151,7 @@ void leap::Window::Update()
 	if (!m_WindowSizeDirty) return;
 	m_WindowSizeDirty = false;
 
-	Notify(m_WindowSize);
+	OnWindowSizeChangedDelegate.Invoke(m_WindowSize);
 	ServiceLocator::GetRenderer().SetWindowSize(m_WindowSize);
 }
 

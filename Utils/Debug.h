@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <source_location>
-#include "Subject.h"
+#include "Delegate.h"
 
 namespace leap
 {
@@ -24,6 +24,8 @@ namespace leap
 			std::source_location Location;
 		};
 
+		DECLARE_DELEGATE_OneParam(OnEvent, const LogInfo&);
+
 		static void Log(const std::string& message, const std::source_location& location = std::source_location::current()) { Log(message.c_str(), location); }
 		static void LogWarning(const std::string& message, const std::source_location& location = std::source_location::current()) { LogWarning(message.c_str(), location); }
 		static void LogError(const std::string& message, const std::source_location& location = std::source_location::current()) { LogError(message.c_str(), location); }
@@ -34,7 +36,7 @@ namespace leap
 
 		static void SetThrowingOnError(bool enabled);
 
-		inline static TSubject<LogInfo> OnEvent{};
+		inline static OnEvent OnEventDelegate{};
 
 	private:
 		static std::string GetTime();

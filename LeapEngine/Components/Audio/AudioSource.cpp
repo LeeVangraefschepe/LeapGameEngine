@@ -124,12 +124,12 @@ void leap::AudioSource::Awake()
 {
 	if (m_PlayOnAwake) Play();
 
-	GetTransform()->OnPositionChanged.AddListener(this, &AudioSource::OnPositionChanged);
+	GetTransform()->OnPositionChangedDelegate.Bind(this, &AudioSource::OnPositionChanged);
 }
 
 void leap::AudioSource::OnDestroy()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this, &AudioSource::OnPositionChanged);
+	GetTransform()->OnPositionChangedDelegate.Unbind(this);
 
 	if (!IsPlaying()) return;
 

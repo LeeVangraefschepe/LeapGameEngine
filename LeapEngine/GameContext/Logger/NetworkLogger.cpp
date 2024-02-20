@@ -10,7 +10,7 @@ leap::NetworkLogger::NetworkLogger()
 
 leap::NetworkLogger::~NetworkLogger()
 {
-	Debug::OnEvent.RemoveListener(this, &NetworkLogger::OnDebug);
+	Debug::OnEventDelegate.Unbind(this);
 }
 
 void leap::NetworkLogger::SetEnabled(bool enable)
@@ -19,11 +19,11 @@ void leap::NetworkLogger::SetEnabled(bool enable)
 
     if (enable)
     {
-        Debug::OnEvent.AddListener(this, &NetworkLogger::OnDebug);
+        Debug::OnEventDelegate.Bind(this, &NetworkLogger::OnDebug);
     }
     else
     {
-        Debug::OnEvent.RemoveListener(this, &NetworkLogger::OnDebug);
+        Debug::OnEventDelegate.Unbind(this);
     }
     m_Enabled = enable;
 }

@@ -2,10 +2,12 @@
 
 #include "../../Component.h"
 
-#include <Subject.h>
+#include <Delegate.h>
 
 #include <vec2.hpp>
 #include <Vector2.h>
+
+DECLARE_DELEGATE_OneParam(OnResolutionChanged, const glm::vec2&);
 
 namespace leap
 {
@@ -33,7 +35,7 @@ namespace leap
 		const glm::ivec2& GetReference() const { return m_ReferenceResolution; }
 		const glm::vec2& GetScale() const { return m_CurrentScale; }
 
-		TSubject<glm::vec2> OnResolutionChanged{};
+		OnResolutionChanged OnResolutionChangedDelegate{};
 
 	protected:
 		virtual void Awake() override;

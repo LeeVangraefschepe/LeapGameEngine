@@ -77,12 +77,12 @@ void leap::RectTransform::OnResolutionChanged(const glm::vec2&)
 void leap::RectTransform::Awake()
 {
 	if (m_pCanvas == nullptr) GetCanvas();
-	m_pCanvas->OnResolutionChanged.AddListener(this, &RectTransform::OnResolutionChanged);
+	m_pCanvas->OnResolutionChangedDelegate.Bind(this, &RectTransform::OnResolutionChanged);
 }
 
 void leap::RectTransform::OnDestroy()
 {
-	m_pCanvas->OnResolutionChanged.RemoveListener(this, &RectTransform::OnResolutionChanged);
+	m_pCanvas->OnResolutionChangedDelegate.Unbind(this);
 }
 
 void leap::RectTransform::Resize()

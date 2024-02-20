@@ -2,13 +2,15 @@
 #include <string>
 
 #include "vec2.hpp"
-#include "Subject.h"
+#include "Delegate.h"
 #include "vec4.hpp"
 class GLFWwindow;
 
+DECLARE_DELEGATE_OneParam(OnWindowSizeChanged, const glm::ivec2&);
+
 namespace leap
 {
-	class Window final : public TSubject<glm::ivec2>
+	class Window final
 	{
 	public:
 		Window(GLFWwindow* pWindow);
@@ -51,6 +53,8 @@ namespace leap
 
 		void SetSize(const glm::ivec2& size) const;
 		void SetSize(int x, int y) const;
+
+		OnWindowSizeChanged OnWindowSizeChangedDelegate;
 
 	private:
 		friend class GameContext;

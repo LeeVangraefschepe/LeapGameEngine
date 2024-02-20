@@ -19,12 +19,12 @@ void leap::CanvasComponent::SetMatchMode(MatchMode matchMode)
 
 void leap::CanvasComponent::Awake()
 {
-	GameContext::GetInstance().GetWindow()->AddListener(this, &CanvasComponent::UpdateResolution);
+	GameContext::GetInstance().GetWindow()->OnWindowSizeChangedDelegate.Bind(this, &CanvasComponent::UpdateResolution);
 }
 
 void leap::CanvasComponent::OnDestroy()
 {
-	GameContext::GetInstance().GetWindow()->RemoveListener(this, &CanvasComponent::UpdateResolution);
+	GameContext::GetInstance().GetWindow()->OnWindowSizeChangedDelegate.Unbind(this);
 }
 
 void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)
@@ -40,7 +40,7 @@ void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)
 		m_CurrentScale.x = 1.0f;
 		m_CurrentScale.y = height / size.y;
 
-		OnResolutionChanged.Notify(m_CurrentScale);
+		OnResolutionChangedDelegate.Invoke(m_CurrentScale);
 		break;
 	}
 	case MatchMode::MatchHeight:
@@ -52,7 +52,7 @@ void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)
 		m_CurrentScale.x = width / size.x;
 		m_CurrentScale.y = 1.0f;
 
-		OnResolutionChanged.Notify(m_CurrentScale);
+		OnResolutionChangedDelegate.Invoke(m_CurrentScale);
 		break;
 	}
 	case MatchMode::Stretch:
@@ -60,7 +60,7 @@ void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)
 		m_CurrentScale.x = 1.0f;
 		m_CurrentScale.y = 1.0f;
 
-		OnResolutionChanged.Notify(m_CurrentScale);
+		OnResolutionChangedDelegate.Invoke(m_CurrentScale);
 		break;
 	}
 	}

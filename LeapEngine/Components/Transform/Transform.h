@@ -11,6 +11,11 @@
 #include <Quaternion.h>
 
 #include <Subject.h>
+#include <Delegate.h>
+
+DECLARE_DELEGATE(OnPositionChanged);
+DECLARE_DELEGATE(OnRotationChanged);
+DECLARE_DELEGATE(OnScaleChanged);
 
 namespace leap
 {
@@ -73,9 +78,9 @@ namespace leap
 
 		void KeepWorldTransform(GameObject* pParent);
 
-		Subject OnPositionChanged{};
-		Subject OnRotationChanged{};
-		Subject OnScaleChanged{};
+		OnPositionChanged OnPositionChangedDelegate{};
+		OnRotationChanged OnRotationChangedDelegate{};
+		OnScaleChanged OnScaleChangedDelegate{};
 
 	private:
 		enum class DirtyFlags
