@@ -30,12 +30,26 @@ namespace leap
 			BindInternal(pTarget, pFunction, std::make_index_sequence<m_NrOfArgs>{});
 		}
 
+		void Bind(void(*pFunction)(Ts...))
+		{
+			BindInternal(pFunction);
+		}
+
 		void Unbind(void* const pTarget)
 		{
 			m_Callbacks.erase(std::remove_if(m_Callbacks.begin(), m_Callbacks.end(),
 				[pTarget](const CallbackData& callbackData)->bool
 				{
 					return callbackData.pTarget == pTarget;
+				}), m_Callbacks.end());
+		}
+
+		void Unbind(void(*pFunction)(Ts...))
+		{
+			m_Callbacks.erase(std::remove_if(m_Callbacks.begin(), m_Callbacks.end(),
+				[pFunction](const CallbackData& callbackData)->bool
+				{
+					return callbackData.pTarget == nullptr && callbackData.pFunction == pFunction;
 				}), m_Callbacks.end());
 		}
 
@@ -75,6 +89,11 @@ namespace leap
 			{
 				m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget, std::_Ph<Is + 1>{})...);
 			}
+		}
+
+		void BindInternal(void(* pFunction)(Ts...))
+		{
+			m_Callbacks.emplace_back(nullptr, pFunction);
 		}
 
 		std::vector<CallbackData> m_Callbacks;
