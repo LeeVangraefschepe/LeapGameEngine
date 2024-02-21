@@ -69,10 +69,13 @@ void leap::graphics::DirectXMesh::ReloadMesh(const CustomMesh& mesh)
 {
 	Release();
 
+	// Keep the mesh empty if there is no vertex buffer given in the mesh
+	if (mesh.GetVertexBuffer().empty()) return;
+
 	// Set index amoutn and vertex size
 	m_NrIndices = static_cast<unsigned int>(mesh.GetIndexBuffer().size());
 	m_VertexSize = mesh.GetVertexSize();
-
+	
 	// Create vertex buffer
 	D3D11_BUFFER_DESC bd{};
 	bd.Usage = D3D11_USAGE_IMMUTABLE;

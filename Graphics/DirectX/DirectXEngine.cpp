@@ -53,7 +53,7 @@ void leap::graphics::DirectXEngine::Initialize()
 
 	Debug::Log("DirectXRenderer Log: Creating debug renderer");
 	m_pDebugRenderer = CreateMeshRenderer();
-	m_pDebugRenderer->SetIsLineRenderer(true);
+	m_pDebugRenderer->SetAsLineRenderer();
 	m_pDebugMesh = CreateMesh();
 	m_pDebugRenderer->SetMesh(m_pDebugMesh);
 

@@ -34,6 +34,7 @@ add_library(LeapEngine STATIC
     "GameContext/Logger/NetworkLogger.cpp"
 	"Graphics/Mesh.cpp" 
     "Graphics/Texture.cpp" 
-    "Graphics/Material.cpp")
+    "Graphics/Material.cpp" 
+    "Components/RenderComponents/ParticleRenderer.cpp")
 
 set(LeapEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)

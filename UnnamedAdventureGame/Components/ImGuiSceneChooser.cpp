@@ -12,6 +12,10 @@ void unag::ImGuiSceneChooser::OnGUI()
 	{
 		leap::SceneManager::GetInstance().LoadScene(1);
 	}
+	else if (ImGui::Button("Particle Test"))
+	{
+		leap::SceneManager::GetInstance().LoadScene(2);
+	}
 
 	ImGui::End();
 }

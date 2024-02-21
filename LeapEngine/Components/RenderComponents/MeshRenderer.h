@@ -11,7 +11,6 @@ namespace leap
 	namespace graphics
 	{
 		class IMaterial;
-		class CustomMesh;
 	}
 
 	class MeshRenderer final : public Component

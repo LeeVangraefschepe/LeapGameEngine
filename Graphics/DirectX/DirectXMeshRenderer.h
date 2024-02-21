@@ -2,13 +2,10 @@
 
 #include "../Interfaces/IMeshRenderer.h"
 
-#include "../Data/Vertex.h"
-
 #include "mat4x4.hpp"
 #include <Matrix.h>
 
-#include <vector>
-#include <memory>
+#include <d3dcommon.h>
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -40,8 +37,11 @@ namespace leap::graphics
 		virtual void UnsetMaterial() override;
 		virtual void SetTransform(const glm::mat4x4& transform) override;
 		virtual void SetMesh(IMesh* pMesh) override;
+		virtual IMesh* GetMesh() override;
 		virtual void UnsetMesh() override;
-		virtual void SetIsLineRenderer(bool isLineRenderer) override;
+		virtual void SetAsPointRenderer() override;
+		virtual void SetAsLineRenderer() override;
+		virtual void SetAsTriangleRenderer() override;
 
 	private:
 		DirectXMesh* m_pMesh{};
@@ -51,6 +51,6 @@ namespace leap::graphics
 
 		glm::mat4x4 m_Transform{ Matrix::Identity4x4() };
 
-		bool m_IsLineRenderer{};
+		D3D_PRIMITIVE_TOPOLOGY m_TopologyType{};
 	};
 }
