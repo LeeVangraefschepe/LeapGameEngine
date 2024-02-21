@@ -61,8 +61,8 @@ leap::physics::PhysXEngine::PhysXEngine()
 
 leap::physics::PhysXEngine::~PhysXEngine()
 {
-    m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener<PhysXEngine>(this, &PhysXEngine::OnSimulationEvent);
-    m_pSimulationCallbacks->OnSimulationEvent.RemoveListener(this, &PhysXEngine::OnSimulationEvent);
+    m_pSimulationFilterCallback->OnSimulationEvent.RemoveListener(this);
+    m_pSimulationCallbacks->OnSimulationEvent.RemoveListener(this);
 
     m_pScene = nullptr;
     m_pObjects.clear();

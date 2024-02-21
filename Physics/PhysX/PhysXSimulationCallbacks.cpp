@@ -26,7 +26,7 @@ void leap::physics::PhysXSimulationCallbacks::onTrigger(physx::PxTriggerPair* pa
 		{
 		case physx::PxPairFlag::Enum::eNOTIFY_TOUCH_FOUND:
 		{	
-			OnSimulationEvent.Notify({ SimulationEventType::OnTriggerEnter, pair.triggerShape, pair.otherShape });
+			OnSimulationEvent.Notify(SimulationEvent{ SimulationEventType::OnTriggerEnter, pair.triggerShape, pair.otherShape });
 			m_Triggers.emplace_back(SimulationPair{ pair.triggerShape, pair.otherShape });
 			break;
 		}
@@ -34,7 +34,7 @@ void leap::physics::PhysXSimulationCallbacks::onTrigger(physx::PxTriggerPair* pa
 		{
 			const auto pairIt{ std::find_if(begin(m_Triggers), end(m_Triggers), [&](const auto& triggerPair) { return (triggerPair.pShape0 == pair.triggerShape || triggerPair.pShape0 == pair.otherShape) && (triggerPair.pShape1 == pair.triggerShape || triggerPair.pShape1 == pair.otherShape); }) };
 
-			OnSimulationEvent.Notify({ SimulationEventType::OnTriggerExit, pairIt->pShape0, pairIt->pShape1 });
+			OnSimulationEvent.Notify(SimulationEvent{ SimulationEventType::OnTriggerExit, pairIt->pShape0, pairIt->pShape1 });
 			m_Triggers.erase(pairIt);
 			break;
 		}
@@ -50,6 +50,6 @@ void leap::physics::PhysXSimulationCallbacks::NotifyStayingPairs()
 {
 	for (const auto& triggerPair : m_Triggers)
 	{
-		OnSimulationEvent.Notify({ SimulationEventType::OnTriggerStay, triggerPair.pShape0, triggerPair.pShape1 });
+		OnSimulationEvent.Notify(SimulationEvent{ SimulationEventType::OnTriggerStay, triggerPair.pShape0, triggerPair.pShape1 });
 	}
 }

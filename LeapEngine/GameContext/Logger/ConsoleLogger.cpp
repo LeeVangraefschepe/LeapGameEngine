@@ -8,7 +8,7 @@ leap::ConsoleLogger::ConsoleLogger()
 
 leap::ConsoleLogger::~ConsoleLogger()
 {
-    Debug::OnEvent.RemoveListener(this, &ConsoleLogger::OnDebug);
+    Debug::OnEvent.RemoveListener(this);
 }
 
 void leap::ConsoleLogger::SetEnabled(bool enable)
@@ -21,7 +21,7 @@ void leap::ConsoleLogger::SetEnabled(bool enable)
     }
     else
     {
-        Debug::OnEvent.RemoveListener(this, &ConsoleLogger::OnDebug);
+        Debug::OnEvent.RemoveListener(this);
     }
     m_Enabled = enable;
 }

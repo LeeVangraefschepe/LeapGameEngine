@@ -33,7 +33,7 @@ namespace leap
 		const glm::ivec2& GetReference() const { return m_ReferenceResolution; }
 		const glm::vec2& GetScale() const { return m_CurrentScale; }
 
-		TSubject<glm::vec2> OnResolutionChanged{};
+		TSubject<const glm::vec2&> OnResolutionChanged{};
 
 	protected:
 		virtual void Awake() override;

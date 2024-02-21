@@ -41,10 +41,10 @@ void leap::CameraComponent::Awake()
 
 void leap::CameraComponent::OnDestroy()
 {
-	GameContext::GetInstance().GetWindow()->RemoveListener(this, &CameraComponent::OnScreenSizeChanged);
+	GameContext::GetInstance().GetWindow()->RemoveListener(this);
 
-	GetTransform()->OnPositionChanged.RemoveListener(this, &CameraComponent::UpdateTransform);
-	GetTransform()->OnRotationChanged.RemoveListener(this, &CameraComponent::UpdateTransform);
+	GetTransform()->OnPositionChanged.RemoveListener(this);
+	GetTransform()->OnRotationChanged.RemoveListener(this);
 }
 
 void leap::CameraComponent::UpdateTransform() const
