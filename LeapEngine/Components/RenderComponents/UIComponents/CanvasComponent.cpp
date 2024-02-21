@@ -24,7 +24,7 @@ void leap::CanvasComponent::Awake()
 
 void leap::CanvasComponent::OnDestroy()
 {
-	GameContext::GetInstance().GetWindow()->RemoveListener(this, &CanvasComponent::UpdateResolution);
+	GameContext::GetInstance().GetWindow()->RemoveListener(this);
 }
 
 void leap::CanvasComponent::UpdateResolution(const glm::ivec2& size)

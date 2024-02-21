@@ -129,7 +129,7 @@ void leap::AudioSource::Awake()
 
 void leap::AudioSource::OnDestroy()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this, &AudioSource::OnPositionChanged);
+	GetTransform()->OnPositionChanged.RemoveListener(this);
 
 	if (!IsPlaying()) return;
 

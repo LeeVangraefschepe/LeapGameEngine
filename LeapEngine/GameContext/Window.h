@@ -8,7 +8,7 @@ class GLFWwindow;
 
 namespace leap
 {
-	class Window final : public TSubject<glm::ivec2>
+	class Window final : public TSubject<const glm::ivec2&>
 	{
 	public:
 		Window(GLFWwindow* pWindow);

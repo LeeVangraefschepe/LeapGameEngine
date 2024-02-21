@@ -36,7 +36,7 @@ namespace leap::physics
 
         void NotifyStayingPairs();
 
-        TSubject<SimulationEvent> OnSimulationEvent{};
+        TSubject<const SimulationEvent&> OnSimulationEvent{};
 
     private:
         std::vector<SimulationPair> m_Triggers{};

@@ -24,7 +24,7 @@ void leap::FileLogger::SetEnabled(bool enable)
     else
     {
         CloseFile();
-        Debug::OnEvent.RemoveListener(this, &FileLogger::OnDebug);
+        Debug::OnEvent.RemoveListener(this);
     }
     m_Enabled = enable;
 }

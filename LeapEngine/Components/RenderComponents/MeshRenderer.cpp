@@ -47,9 +47,9 @@ void leap::MeshRenderer::LateUpdate()
 
 void leap::MeshRenderer::OnDestroy()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
-	GetTransform()->OnRotationChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
-	GetTransform()->OnScaleChanged.RemoveListener(this, &MeshRenderer::OnTransformChanged);
+	GetTransform()->OnPositionChanged.RemoveListener(this);
+	GetTransform()->OnRotationChanged.RemoveListener(this);
+	GetTransform()->OnScaleChanged.RemoveListener(this);
 	ServiceLocator::GetRenderer().RemoveMeshRenderer(m_pRenderer);
 }
 

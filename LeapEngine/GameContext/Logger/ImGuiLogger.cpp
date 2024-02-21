@@ -14,7 +14,7 @@ leap::ImGuiLogger::ImGuiLogger()
 
 leap::ImGuiLogger::~ImGuiLogger()
 {
-    Debug::OnEvent.RemoveListener(this, &ImGuiLogger::OnDebug);
+    Debug::OnEvent.RemoveListener(this);
 }
 
 void leap::ImGuiLogger::SetEnabled(bool enable)
@@ -27,7 +27,7 @@ void leap::ImGuiLogger::SetEnabled(bool enable)
     }
     else
     {
-        Debug::OnEvent.RemoveListener(this, &ImGuiLogger::OnDebug);
+        Debug::OnEvent.RemoveListener(this);
     }
     m_Enabled = enable;
 }

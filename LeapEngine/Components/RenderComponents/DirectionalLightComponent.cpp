@@ -13,7 +13,7 @@ void leap::DirectionalLightComponent::Awake()
 
 void leap::DirectionalLightComponent::OnDestroy()
 {
-	GetTransform()->OnRotationChanged.RemoveListener(this, &DirectionalLightComponent::UpdateTransform);
+	GetTransform()->OnRotationChanged.RemoveListener(this);
 }
 
 void leap::DirectionalLightComponent::UpdateTransform() const
