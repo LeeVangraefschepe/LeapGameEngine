@@ -2,7 +2,18 @@
 cmake_minimum_required(VERSION 3.22)
 
 Project(Leap VERSION 1.0.0)
-set(CMAKE_CXX_STANDARD 20)
+
+if (MSVC)
+	# 19.31.31105.0 is the compiler version of VS 2022 17.1.3, hard to tell which version introduced C++23
+	if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS_EQUAL "19.31.31105.0")
+		set(CMAKE_CXX_STANDARD 23)
+	else()
+		set(CMAKE_CXX_STANDARD 20)
+	endif()
+else()
+	set(CMAKE_CXX_STANDARD 20)
+endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (MSVC)
