@@ -34,6 +34,12 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 	ID3D11Buffer* pIndexBuffer{};
 	unsigned int nrIndices{};
 
+	if (m_TopologyType == D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED)
+	{
+		Debug::LogError("Unknown topology type detected when rendering DirectX mesh");
+		return;
+	}
+
 	if (!m_pMesh)
 	{
 		if (m_TopologyType != D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST) return;

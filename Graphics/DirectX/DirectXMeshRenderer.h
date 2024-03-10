@@ -51,6 +51,6 @@ namespace leap::graphics
 
 		glm::mat4x4 m_Transform{ Matrix::Identity4x4() };
 
-		D3D_PRIMITIVE_TOPOLOGY m_TopologyType{};
+		D3D_PRIMITIVE_TOPOLOGY m_TopologyType{ D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST };
 	};
 }
