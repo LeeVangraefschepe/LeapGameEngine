@@ -64,6 +64,8 @@ add_custom_command(TARGET UnnamedAdventureGame PRE_LINK
     COMMENT "Copying PHYSX COOKING DLL..."
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${PHYSX_FOUNDATION_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
     COMMENT "Copying PHYSX FOUNDATION DLL..."
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FBX_DLL_DIR} $<TARGET_FILE_DIR:UnnamedAdventureGame>
+    COMMENT "Copying FBXSDK DLL..."
     COMMAND ${CMAKE_COMMAND} -E copy_directory  ${DATA_FILES} ${DESTINATION_COPY}
     COMMENT "Copying DATA..."
 )

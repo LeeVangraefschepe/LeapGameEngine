@@ -38,6 +38,7 @@ target_include_directories(
 	${EngineUtilsIncludeDir}
 	${DIRECTX_TEX_INCLUDE_DIR}
 	${FX11_INCLUDE_DIR}
+	${FBX_INCLUDE_DIR}
 )
-target_link_libraries(GraphicsEngine PRIVATE ${GLFW_LIBRARY_DIR} ${FX11_LIBRARY_DIR})
+target_link_libraries(GraphicsEngine PRIVATE ${GLFW_LIBRARY_DIR} ${FX11_LIBRARY_DIR} ${FBX_SDK_LIBRARY})
 target_link_libraries(GraphicsEngine PUBLIC EngineUtils)
