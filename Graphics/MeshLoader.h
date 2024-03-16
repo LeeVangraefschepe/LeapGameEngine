@@ -8,6 +8,12 @@
 
 #include <glm.hpp>
 
+namespace fbxsdk
+{
+	class FbxNode;
+	class FbxAnimLayer;
+}
+
 namespace leap::graphics
 {
 	class MeshLoader final
@@ -153,5 +159,11 @@ namespace leap::graphics
 
 			return true;
 		}
+
+		static bool ParseFbx(const std::string& filePath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
+
+	private:
+		static void LoadFbxRecursive(fbxsdk::FbxNode* pNode, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
+
 	};
 }

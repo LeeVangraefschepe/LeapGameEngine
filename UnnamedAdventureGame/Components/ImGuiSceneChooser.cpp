@@ -16,6 +16,10 @@ void unag::ImGuiSceneChooser::OnGUI()
 	{
 		leap::SceneManager::GetInstance().LoadScene(2);
 	}
+	else if (ImGui::Button("Mesh Loading Test"))
+	{
+		leap::SceneManager::GetInstance().LoadScene(3);
+	}
 
 	ImGui::End();
 }

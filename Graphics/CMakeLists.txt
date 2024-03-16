@@ -27,7 +27,8 @@ add_library(GraphicsEngine STATIC
 	"DirectX/DirectXDefaults.cpp"
 	"Shaders/Heightmap.cpp"
     "DirectX/DirectXMesh.cpp"
-	"Shaders/Billboard.cpp")
+	"Shaders/Billboard.cpp" 
+	"MeshLoader.cpp")
 
 set(GraphicsEngineIncludeDir "${CMAKE_CURRENT_SOURCE_DIR}" PARENT_SCOPE)
 

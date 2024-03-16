@@ -55,7 +55,10 @@ leap::graphics::DirectXMeshLoader::DirectXMeshDefinition leap::graphics::DirectX
 	std::vector<Vertex> vertices{};
 	std::vector<unsigned int> indices{};
 
-	MeshLoader::ParseObj(dataPath, vertices, indices);
+	if(dataPath.length() > 4 && dataPath.substr(dataPath.length() - 4, 4) == ".obj")
+		MeshLoader::ParseObj(dataPath, vertices, indices);
+	else
+		MeshLoader::ParseFbx(dataPath, vertices, indices);
 
 	return CreateMesh(vertices, indices, pDevice);
 }

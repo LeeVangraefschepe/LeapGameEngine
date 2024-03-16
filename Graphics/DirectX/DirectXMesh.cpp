@@ -24,7 +24,10 @@ leap::graphics::DirectXMesh::DirectXMesh(DirectXEngine* pEngine, const std::stri
 	std::vector<unsigned int> indices{};
 
 	// Load obj
-	MeshLoader::ParseObj(filePath, vertices, indices);
+	if (filePath.length() > 4 && filePath.substr(filePath.length() - 4, 4) == ".obj")
+		MeshLoader::ParseObj(filePath, vertices, indices);
+	else
+		MeshLoader::ParseFbx(filePath, vertices, indices);
 
 	// Set index amoutn and vertex size
 	m_NrIndices = static_cast<unsigned int>(indices.size());

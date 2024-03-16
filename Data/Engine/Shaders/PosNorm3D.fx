@@ -34,7 +34,7 @@ RasterizerState BackCulling
     CullMode = BACK;
 };
 
-float gShadowMapBias = 0.0005f;
+float gShadowMapBias = 0.00001f;
 
 float2 texOffset(int u, int v)
 {
