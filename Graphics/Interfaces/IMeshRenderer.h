@@ -2,6 +2,8 @@
 
 #include "mat4x4.hpp"
 
+#include <vector>
+
 namespace leap::graphics
 {
 	class IMaterial;
@@ -14,6 +16,7 @@ namespace leap::graphics
 
 		virtual void Draw() = 0;
 		virtual void Draw(IMaterial* pMaterial) = 0;
+		virtual void Draw(const std::vector<IMaterial*>& pMaterials) = 0;
 		virtual IMaterial* GetMaterial() = 0;
 		virtual void SetMaterial(IMaterial* pMaterial) = 0;
 		virtual void UnsetMaterial() = 0;

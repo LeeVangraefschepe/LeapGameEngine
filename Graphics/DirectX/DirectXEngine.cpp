@@ -19,7 +19,6 @@
 
 #include "DirectXShaderReader.h"
 #include "DirectXTexture.h"
-#include "DirectXMeshLoader.h"
 #include "DirectXMaterial.h"
 #include "DirectXDefaults.h"
 

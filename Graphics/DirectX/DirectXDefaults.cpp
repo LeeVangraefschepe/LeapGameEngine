@@ -2,7 +2,6 @@
 
 #include "DirectXMaterial.h"
 #include "DirectXEngine.h"
-#include "DirectXMeshLoader.h"
 
 #include "DirectXShaderReader.h"
 #include "../Shaders/Pos3D.h"
@@ -34,11 +33,7 @@ leap::graphics::DirectXMaterial* leap::graphics::DirectXDefaults::GetMaterialErr
 	return m_pNoMeshMaterial.get();
 }
 
-void leap::graphics::DirectXDefaults::GetMeshError(DirectXEngine* pEngine, unsigned int& vertexSize, ID3D11Buffer*& pVertexBuffer, ID3D11Buffer*& pIndexBuffer, unsigned int& nrIndices)
+leap::graphics::DirectXMesh* leap::graphics::DirectXDefaults::GetMeshError(DirectXEngine* pEngine)
 {
-	const DirectXMeshLoader::DirectXMeshDefinition& mesh{ DirectXMeshLoader::GetInstance().LoadMesh("Data/Engine/Models/error.obj", pEngine->GetDevice())};
-	vertexSize = mesh.vertexSize;
-	pVertexBuffer = mesh.vertexBuffer;
-	pIndexBuffer = mesh.indexBuffer;
-	nrIndices = mesh.nrIndices;
+	return static_cast<DirectXMesh*>(pEngine->CreateMesh("Data/Engine/Models/error.obj", false));
 }

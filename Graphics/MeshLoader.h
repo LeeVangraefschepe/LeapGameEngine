@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Data/Vertex.h"
+#include "Data/MeshData.h"
 
 #include <string>
 #include <vector>
@@ -160,10 +161,10 @@ namespace leap::graphics
 			return true;
 		}
 
-		static bool ParseFbx(const std::string& filePath, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
+		static bool ParseFbx(const std::string& filePath, MeshData& meshData);
 
 	private:
-		static void LoadFbxRecursive(fbxsdk::FbxNode* pNode, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
+		static void LoadFbxRecursive(fbxsdk::FbxNode* pNode, MeshData& meshData);
 
 	};
 }

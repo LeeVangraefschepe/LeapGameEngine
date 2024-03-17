@@ -8,7 +8,7 @@ add_library(GraphicsEngine STATIC
 	"DirectX/DirectXShaderReader.cpp"
 	"ShaderDelete.cpp"
 	"Shaders/PosNorm3D.cpp"
-	"DirectX/DirectXMeshLoader.cpp"
+	
 	"DirectX/DirectXTexture.cpp"
 	"Shaders/PosNormTex3D.cpp"
 	"DirectX/DirectXRenderTarget.cpp"

@@ -4,7 +4,6 @@
 
 #include "Debug.h"
 #include "DirectXMaterial.h"
-#include "DirectXMeshLoader.h"
 #include "DirectXDefaults.h"
 #include "DirectXMesh.h"
 #include "DirectXEngine.h"
@@ -28,12 +27,37 @@ void leap::graphics::DirectXMeshRenderer::Draw()
 }
 
 void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
-{
-	unsigned int vertexSize{};
-	ID3D11Buffer* pVertexBuffer{};
-	ID3D11Buffer* pIndexBuffer{};
-	unsigned int nrIndices{};
+{	
+	DirectXMesh* pRenderingMesh{ m_pMesh };
 
+	if (m_TopologyType == D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED)
+	{
+		Debug::LogError("Unknown topology type detected when rendering DirectX mesh");
+		return;
+	}
+
+	if (!pRenderingMesh)
+	{
+		if (m_TopologyType != D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST) return;
+
+		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
+		pRenderingMesh = defaults.GetMeshError(m_pEngine);
+
+		IMaterial* pErrorMaterial{ defaults.GetMaterialError(m_pEngine) };
+		pMaterial = pErrorMaterial;
+	}
+
+	if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pEngine);
+
+	for (int i{}; i < pRenderingMesh->m_Buffers.size(); ++i)
+	{
+		const auto& buffers = pRenderingMesh->m_Buffers[i];
+		DrawMesh(buffers, pMaterial);
+	}
+}
+
+void leap::graphics::DirectXMeshRenderer::Draw(const std::vector<IMaterial*>& pMaterials)
+{
 	if (m_TopologyType == D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED)
 	{
 		Debug::LogError("Unknown topology type detected when rendering DirectX mesh");
@@ -45,49 +69,30 @@ void leap::graphics::DirectXMeshRenderer::Draw(IMaterial* pMaterial)
 		if (m_TopologyType != D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST) return;
 
 		DirectXDefaults& defaults{ DirectXDefaults::GetInstance() };
-		pMaterial = defaults.GetMaterialError(m_pEngine);
-		defaults.GetMeshError(m_pEngine, vertexSize, pVertexBuffer, pIndexBuffer, nrIndices);
-	}
-	else
-	{
-		vertexSize = m_pMesh->m_VertexSize;
-		pVertexBuffer = m_pMesh->m_pVertexBuffer;
-		pIndexBuffer = m_pMesh->m_pIndexBuffer;
-		nrIndices = m_pMesh->m_NrIndices;
+		const auto& errorMeshBuffers{ defaults.GetMeshError(m_pEngine)->m_Buffers };
+		IMaterial* pErrorMaterial{ defaults.GetMaterialError(m_pEngine) };
 
-		if (!pMaterial) pMaterial = DirectXDefaults::GetInstance().GetMaterialNotFound(m_pEngine);
+		for(const auto& buffer : errorMeshBuffers)
+			DrawMesh(buffer, pErrorMaterial);
+
+		return;
 	}
 
-	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
-
-	// Apply the world transformation
-	pDXMaterial->SetWorldMatrix(m_Transform);
-
-	// Set primitive topology
-	m_pEngine->GetContext()->IASetPrimitiveTopology(m_TopologyType);
-
-	// Set input layout
-	m_pEngine->GetContext()->IASetInputLayout(pDXMaterial->GetInputLayout());
-
-	// Set vertex buffer
-	const UINT stride{ vertexSize };
-	constexpr UINT offset{ 0 };
-	m_pEngine->GetContext()->IASetVertexBuffers(0, 1, &pVertexBuffer, &stride, &offset);
-
-	// Set index buffer
-	m_pEngine->GetContext()->IASetIndexBuffer(pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
-
-	// Draw
-	D3DX11_TECHNIQUE_DESC techniqueDesc{};
-	HRESULT result{ pDXMaterial->GetTechnique()->GetDesc(&techniqueDesc) };
-	if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to get description of effect technique");
-
-	for (UINT p{}; p < techniqueDesc.Passes; ++p)
+	std::vector<IMaterial*> pAdditionalMaterials{};
+	if (pMaterials.empty() || pMaterials.size() < m_pMesh->m_Buffers.size())
 	{
-		result = pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pEngine->GetContext());
-		if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to apply a effect technique pass to device");
+		for (size_t i{ pMaterials.size() }; i < m_pMesh->m_Buffers.size(); ++i)
+		{
+			pAdditionalMaterials.emplace_back(DirectXDefaults::GetInstance().GetMaterialNotFound(m_pEngine));
+		}
+	}
 
-		m_pEngine->GetContext()->DrawIndexed(nrIndices, 0, 0);
+	for (int i{}; i < m_pMesh->m_Buffers.size(); ++i)
+	{
+		const auto& buffers = m_pMesh->m_Buffers[i];
+		IMaterial* pMaterial{ pMaterials.size() >= i + 1 ? pMaterials[i] : pAdditionalMaterials[pMaterials.size() - i] };
+
+		DrawMesh(buffers, pMaterial);
 	}
 }
 
@@ -143,4 +148,39 @@ void leap::graphics::DirectXMeshRenderer::SetAsLineRenderer()
 void leap::graphics::DirectXMeshRenderer::SetAsTriangleRenderer()
 {
 	m_TopologyType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+}
+
+void leap::graphics::DirectXMeshRenderer::DrawMesh(const DirectXMesh::DirectXBuffers& buffers, IMaterial* pMaterial)
+{
+	DirectXMaterial* pDXMaterial{ static_cast<DirectXMaterial*>(pMaterial) };
+
+	// Apply the world transformation
+	pDXMaterial->SetWorldMatrix(m_Transform);
+
+	// Set primitive topology
+	m_pEngine->GetContext()->IASetPrimitiveTopology(m_TopologyType);
+
+	// Set input layout
+	m_pEngine->GetContext()->IASetInputLayout(pDXMaterial->GetInputLayout());
+
+	// Set vertex buffer
+	const UINT stride{ buffers.m_VertexSize };
+	constexpr UINT offset{ 0 };
+	m_pEngine->GetContext()->IASetVertexBuffers(0, 1, &buffers.m_pVertexBuffer, &stride, &offset);
+
+	// Set index buffer
+	m_pEngine->GetContext()->IASetIndexBuffer(buffers.m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+	// Draw
+	D3DX11_TECHNIQUE_DESC techniqueDesc{};
+	HRESULT result{ pDXMaterial->GetTechnique()->GetDesc(&techniqueDesc) };
+	if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to get description of effect technique");
+
+	for (UINT p{}; p < techniqueDesc.Passes; ++p)
+	{
+		result = pDXMaterial->GetTechnique()->GetPassByIndex(p)->Apply(0, m_pEngine->GetContext());
+		if (FAILED(result)) Debug::LogError("DirectXRenderer Error : Failed to apply a effect technique pass to device");
+
+		m_pEngine->GetContext()->DrawIndexed(buffers.m_NrIndices, 0, 0);
+	}
 }

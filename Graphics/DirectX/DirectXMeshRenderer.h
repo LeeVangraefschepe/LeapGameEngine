@@ -7,6 +7,8 @@
 
 #include <d3dcommon.h>
 
+#include "DirectXMesh.h"
+
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11InputLayout;
@@ -17,7 +19,6 @@ namespace leap::graphics
 	class DirectXEngine;
 	class IMaterial;
 	class DirectXMaterial;
-	class DirectXMesh;
 
 	class DirectXMeshRenderer final : public IMeshRenderer
 	{
@@ -32,6 +33,7 @@ namespace leap::graphics
 
 		virtual void Draw() override;
 		virtual void Draw(IMaterial* pMaterial) override;
+		virtual void Draw(const std::vector<IMaterial*>& pMaterials) override;
 		virtual IMaterial* GetMaterial() override;
 		virtual void SetMaterial(IMaterial* pMaterial) override;
 		virtual void UnsetMaterial() override;
@@ -44,6 +46,9 @@ namespace leap::graphics
 		virtual void SetAsTriangleRenderer() override;
 
 	private:
+
+		void DrawMesh(const DirectXMesh::DirectXBuffers& buffers, IMaterial* pMaterial);
+
 		DirectXMesh* m_pMesh{};
 		DirectXMaterial* m_pMaterial{};
 

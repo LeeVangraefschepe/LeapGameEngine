@@ -9,6 +9,7 @@ struct ID3D11Buffer;
 
 namespace leap::graphics
 {
+	class DirectXMesh;
 	class DirectXEngine;
 	class DirectXMaterial;
 
@@ -19,7 +20,7 @@ namespace leap::graphics
 
 		DirectXMaterial* GetMaterialNotFound(DirectXEngine* pEngine);
 		DirectXMaterial* GetMaterialError(DirectXEngine* pEngine);
-		static void GetMeshError(DirectXEngine* pEngine, unsigned int& vertexSize, ID3D11Buffer*& pVertexBuffer, ID3D11Buffer*& pIndexBuffer, unsigned int& nrIndices);
+		static DirectXMesh* GetMeshError(DirectXEngine* pEngine);
 	private:
 		friend Singleton;
 

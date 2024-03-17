@@ -15,20 +15,19 @@
 
 #include <Shaders/PosNorm3D.h>
 
+#include <Utility/GameObjectUtility.h>
+
 void unag::MeshLoadingTest::Load(leap::Scene& scene)
 {
 	auto camObj{ scene.CreateGameObject("Camera") };
 	camObj->AddComponent<leap::CameraComponent>()->SetAsActiveCamera(true);
 	camObj->AddComponent<FreeCamMovement>();
 
-	const leap::Mesh fbxCube{ "Data/cube.fbx", true };
 	const leap::Mesh objCube{ "Data/Engine/Models/cube.obj", true };
 	const leap::Material material{ leap::Material::Create<leap::graphics::shaders::PosNorm3D>("diorama") };
 
 	auto fbxMeshObj{ scene.CreateGameObject("FBX Mesh") };
-	auto fbxMeshRenderer{ fbxMeshObj->AddComponent<leap::MeshRenderer>() };
-	fbxMeshRenderer->SetMesh(fbxCube);
-	fbxMeshRenderer->SetMaterial(material);
+	leap::GameObjectUtility::CreateFromFBX(fbxMeshObj, "Data/Cube.fbx");
 
 	auto objMeshObj{ scene.CreateGameObject("OBJ Mesh") };
 	auto objMeshRenderer{ objMeshObj->AddComponent<leap::MeshRenderer>() };
@@ -37,4 +36,5 @@ void unag::MeshLoadingTest::Load(leap::Scene& scene)
 
 	fbxMeshObj->GetTransform()->SetLocalPosition(2.0f, 0.0f, 5.0f);
 	objMeshObj->GetTransform()->SetLocalPosition(-2.0f, 0.0f, 5.0f);
+	fbxMeshObj->GetTransform()->SetLocalScale(0.01f, 0.01f, 0.01f);
 }
