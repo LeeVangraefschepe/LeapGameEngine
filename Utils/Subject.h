@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <vector>
 #include <functional>
 #include <memory>
@@ -11,258 +12,167 @@ namespace leap
 	class Subject
 	{
 	private:
-		struct MemberFunctionWrapper
+		struct CallbackData final
 		{
-			MemberFunctionWrapper(unsigned int _id) : id{ _id } {}
-
-			virtual ~MemberFunctionWrapper() = default;
-			virtual void Call() const = 0;
-			virtual bool IsConst() const = 0;
-
-			unsigned int id{};
-		};
-
-		template<typename T>
-		struct ImplMemberFunctionWrapper final : public MemberFunctionWrapper
-		{
-			ImplMemberFunctionWrapper(T* _pThis, void(T::* _pFunction)())
-				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<T>() }, pThis{ _pThis }, pFunction{ _pFunction }
-			{
-			}
-			virtual ~ImplMemberFunctionWrapper() = default;
-
-			T* pThis{};
-			void(T::* pFunction)() {};
-
-			virtual void Call() const override
-			{
-				(pThis->*pFunction)();
-			}
-			virtual bool IsConst() const override { return false; }
-		};
-
-		template<typename T>
-		struct ConstImplMemberFunctionWrapper final : public MemberFunctionWrapper
-		{
-			ConstImplMemberFunctionWrapper(T* _pThis, void(T::* _pFunction)() const)
-				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<T>() }, pThis{ _pThis }, pFunction{ _pFunction }
-			{
-			}
-			virtual ~ConstImplMemberFunctionWrapper() = default;
-
-			T* pThis{};
-			void(T::* pFunction)() const {};
-
-			virtual void Call() const override
-			{
-				(pThis->*pFunction)();
-			}
-			virtual bool IsConst() const override { return true; }
+			const void* pTarget;
+			std::function<void()> Callback;
 		};
 
 	public:
-		Subject() = default;
+		template<typename T>
+		void AddListener(T* const pTarget, void(T::* pFunction)())
+		{
+			m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget));
+		}
 
 		template<typename T>
-		void AddListener(T* pThis, void(T::* pFunction)())
+		void AddListener(const T* const pTarget, void(T::* pFunction)() const)
 		{
-			std::unique_ptr<MemberFunctionWrapper> pFunctionWithThis{ std::make_unique<ImplMemberFunctionWrapper<T>>(pThis, pFunction) };
-			m_pMemberFunctions.emplace_back(std::move(pFunctionWithThis));
+			m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget));
 		}
-		template<typename T>
-		void AddListener(T* pThis, void(T::* pFunction)() const)
+
+		void AddListener(void(*pFunction)())
 		{
-			std::unique_ptr<MemberFunctionWrapper> pFunctionWithThis{ std::make_unique<ConstImplMemberFunctionWrapper<T>>(pThis, pFunction) };
-			m_pMemberFunctions.emplace_back(std::move(pFunctionWithThis));
+			m_Callbacks.emplace_back(nullptr, pFunction);
 		}
-		void AddListener(void(*pCallback)())
+
+		void RemoveListener(void* const pTarget)
 		{
-			m_Functions.push_back(pCallback);
+			m_Callbacks.erase(std::remove_if(m_Callbacks.begin(), m_Callbacks.end(),
+				[pTarget](const CallbackData& callbackData)->bool
+				{
+					return callbackData.pTarget == pTarget;
+				}), m_Callbacks.end());
 		}
-		template<typename T>
-		void RemoveListener(T* pThis, void(T::* pFunction)())
+
+		void RemoveListener(void(*pFunction)())
 		{
-			constexpr unsigned int classId{ ReflectionUtils::GenerateTypenameHash<T>() };
-			for (int i{ static_cast<int>(m_pMemberFunctions.size()) - 1 }; i >= 0; --i)
-			{
-				const auto it{ m_pMemberFunctions.begin() + i };
-
-				const auto& pMemberFunction{ *it };
-				if (pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->id != classId) continue;
-
-				ImplMemberFunctionWrapper<T>* pImpl{ static_cast<ImplMemberFunctionWrapper<T>*>(pMemberFunction.get()) };
-				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
-
-				m_pMemberFunctions.erase(it);
-			}
-		}
-		template<typename T>
-		void RemoveListener(T* pThis, void(T::* pFunction)() const)
-		{
-			constexpr unsigned int classId{ ReflectionUtils::GenerateTypenameHash<T>() };
-			for (int i{ static_cast<int>(m_pMemberFunctions.size()) - 1 }; i >= 0; --i)
-			{
-				const auto it{ m_pMemberFunctions.begin() + i };
-
-				const auto& pMemberFunction{ *it };
-				if (!pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->id != classId) continue;
-
-				ConstImplMemberFunctionWrapper<T>* pImpl{ static_cast<ConstImplMemberFunctionWrapper<T>*>(pMemberFunction.get()) };
-				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
-
-				m_pMemberFunctions.erase(it);
-			}
-		}
-		void RemoveListener(void(*pCallback)())
-		{
-			std::erase(m_Functions, pCallback);
+			m_Callbacks.erase(std::remove_if(m_Callbacks.begin(), m_Callbacks.end(),
+				[pFunction, this](const CallbackData& callbackData)->bool
+				{
+					return callbackData.pTarget == nullptr && GetFunctionAddress(callbackData.Callback) == reinterpret_cast<uint64_t>(pFunction);
+				}), m_Callbacks.end());
 		}
 
 		void Notify() const
 		{
-			for (const auto& pMemberFunction : m_pMemberFunctions)
+			for (const CallbackData& callbackData : m_Callbacks)
 			{
-				pMemberFunction->Call();
-			}
-			for (const auto& function : m_Functions)
-			{
-				function();
+				callbackData.Callback();
 			}
 		}
 
 	private:
-		std::vector<void(*)()> m_Functions{};
-		std::vector<std::unique_ptr<MemberFunctionWrapper>> m_pMemberFunctions;
+		uint64_t GetFunctionAddress(const std::function<void()>& function) const
+		{
+			typedef void(FunctionType)();
+			FunctionType* const* functionPointer{ function.template target<FunctionType*>() };
+
+			return reinterpret_cast<uint64_t>(functionPointer);
+		}
+
+		std::vector<CallbackData> m_Callbacks;
 	};
 
-	template <class T>
+	template <typename ... Ts>
 	class TSubject
 	{
 	private:
-		struct MemberFunctionWrapper
+		struct CallbackData final
 		{
-			MemberFunctionWrapper(unsigned int _id) : id{ _id } {}
-
-			virtual ~MemberFunctionWrapper() = default;
-			virtual void Call(const T& value) const = 0;
-			virtual bool IsConst() const = 0;
-
-			unsigned int id{};
+			const void* pTarget;
+			std::function<void(Ts...)> Callback;
 		};
 
-		template<typename TClass>
-		struct ImplMemberFunctionWrapper final : public MemberFunctionWrapper
-		{
-			ImplMemberFunctionWrapper(TClass* _pThis, void(TClass::* _pFunction)(const T&))
-				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<TClass>() }, pThis{ _pThis }, pFunction{ _pFunction }
-			{
-			}
-			virtual ~ImplMemberFunctionWrapper() = default;
-
-			TClass* pThis{};
-			void(TClass::* pFunction)(const T&) {};
-
-			virtual void Call(const T& value) const override
-			{
-				(pThis->*pFunction)(value);
-			}
-			virtual bool IsConst() const override { return false; }
-		};
-
-		template<typename TClass>
-		struct ConstImplMemberFunctionWrapper final : public MemberFunctionWrapper
-		{
-			ConstImplMemberFunctionWrapper(TClass* _pThis, void(TClass::* _pFunction)(const T&) const)
-				: MemberFunctionWrapper{ ReflectionUtils::GenerateTypenameHash<TClass>() }, pThis{ _pThis }, pFunction{ _pFunction }
-			{
-			}
-			virtual ~ConstImplMemberFunctionWrapper() = default;
-
-			TClass* pThis{};
-			void(TClass::* pFunction)(const T&) const {};
-
-			virtual void Call(const T& value) const override
-			{
-				(pThis->*pFunction)(value);
-			}
-			virtual bool IsConst() const override { return true; }
-		};
+		inline constexpr static int m_NrOfArgs = sizeof ... (Ts);
 
 	public:
-		TSubject() = default;
+		template<typename T>
+		void AddListener(T* const pTarget, void(T::* pFunction)(Ts...))
+		{
+			AddListenerInternal(pTarget, pFunction, std::make_index_sequence<m_NrOfArgs>{});
+		}
 
-		template<typename TClass>
-		void AddListener(TClass* pThis, void(TClass::* pFunction)(const T&))
+		template<typename T>
+		void AddListener(const T* const pTarget, void(T::* pFunction)(Ts...) const)
 		{
-			std::unique_ptr<MemberFunctionWrapper> pFunctionWithThis{ std::make_unique<ImplMemberFunctionWrapper<TClass>>(pThis, pFunction) };
-			m_pMemberFunctions.emplace_back(std::move(pFunctionWithThis));
+			AddListenerInternal(pTarget, pFunction, std::make_index_sequence<m_NrOfArgs>{});
 		}
-		template<typename TClass>
-		void AddListener(TClass* pThis, void(TClass::* pFunction)(const T&) const)
+
+		void AddListener(void(*pFunction)(Ts...))
 		{
-			std::unique_ptr<MemberFunctionWrapper> pFunctionWithThis{ std::make_unique<ConstImplMemberFunctionWrapper<TClass>>(pThis, pFunction) };
-			m_pMemberFunctions.emplace_back(std::move(pFunctionWithThis));
+			AddListenerInternal(pFunction);
 		}
-		void AddListener(void(*pCallback)(const T&))
+
+		void RemoveListener(void* const pTarget)
 		{
-			m_Functions.push_back(pCallback);
+			m_Callbacks.erase(std::remove_if(m_Callbacks.begin(), m_Callbacks.end(),
+				[pTarget](const CallbackData& callbackData)->bool
+				{
+					return callbackData.pTarget == pTarget;
+				}), m_Callbacks.end());
 		}
-		template<typename TClass>
-		void RemoveListener(TClass* pThis, void(TClass::* pFunction)(const T&))
+
+		void RemoveListener(void(*pFunction)(Ts...))
 		{
-			constexpr unsigned int classId{ ReflectionUtils::GenerateTypenameHash<TClass>() };
-			for (int i{ static_cast<int>(m_pMemberFunctions.size()) - 1 }; i >= 0; --i)
+			m_Callbacks.erase(std::remove_if(m_Callbacks.begin(), m_Callbacks.end(),
+				[pFunction, this](const CallbackData& callbackData)->bool
+				{
+					return callbackData.pTarget == nullptr && GetFunctionAddress(callbackData.Callback) == reinterpret_cast<uint64_t>(pFunction);
+				}), m_Callbacks.end());
+		}
+
+		template<typename ... Us>
+		void Notify(Us&& ... args) const
+		{
+			static_assert(sizeof ... (Us) == m_NrOfArgs, "Can only call Notify() with an equal number of arguments");
+
+			for (const CallbackData& callbackData : m_Callbacks)
 			{
-				const auto it{ m_pMemberFunctions.begin() + i };
-
-				const auto& pMemberFunction{ *it };
-				if (pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->id != classId) continue;
-
-				ImplMemberFunctionWrapper<TClass>* pImpl{ static_cast<ImplMemberFunctionWrapper<TClass>*>(pMemberFunction.get()) };
-				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
-
-				m_pMemberFunctions.erase(it);
+				callbackData.Callback(std::forward<Us>(args)...);
 			}
 		}
-		template<typename TClass>
-		void RemoveListener(TClass* pThis, void(TClass::* pFunction)(const T&) const)
-		{
-			constexpr unsigned int classId{ ReflectionUtils::GenerateTypenameHash<TClass>() };
-			for (int i{ static_cast<int>(m_pMemberFunctions.size()) - 1 }; i >= 0; --i)
-			{
-				const auto it{ m_pMemberFunctions.begin() + i };
 
-				const auto& pMemberFunction{ *it };
-				if (!pMemberFunction->IsConst()) continue;
-				if (pMemberFunction->id != classId) continue;
-
-				ConstImplMemberFunctionWrapper<TClass>* pImpl{ static_cast<ConstImplMemberFunctionWrapper<TClass>*>(pMemberFunction.get()) };
-				if (pImpl->pThis != pThis || pImpl->pFunction != pFunction) continue;
-
-				m_pMemberFunctions.erase(it);
-			}
-		}
-		void RemoveListener(void(*pCallback)(const T&))
-		{
-			std::erase(m_Functions, pCallback);
-		}
-
-		void Notify(const T& data) const
-		{
-			for (const auto& pMemberFunction : m_pMemberFunctions)
-			{
-				pMemberFunction->Call(data);
-			}
-			for (const auto& function : m_Functions)
-			{
-				function(data);
-			}
-		}
 	private:
-		std::vector<void(*)(const T&)> m_Functions{};
-		std::vector<std::unique_ptr<MemberFunctionWrapper>> m_pMemberFunctions;
+		template<typename T, size_t ... Is>
+		void AddListenerInternal(T* const pTarget, void(T::* pFunction)(Ts...), const std::index_sequence<Is...>)
+		{
+			if constexpr (m_NrOfArgs == 0)
+			{
+				m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget));
+			}
+			else
+			{
+				m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget, std::_Ph<Is + 1>{})...);
+			}
+		}
+
+		template<typename T, size_t ... Is>
+		void AddListenerInternal(const T* const pTarget, void(T::* pFunction)(Ts...) const, const std::index_sequence<Is...>)
+		{
+			if constexpr (m_NrOfArgs == 0)
+			{
+				m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget));
+			}
+			else
+			{
+				m_Callbacks.emplace_back(pTarget, std::bind(pFunction, pTarget, std::_Ph<Is + 1>{})...);
+			}
+		}
+
+		void AddListenerInternal(void(*pFunction)(Ts...))
+		{
+			m_Callbacks.emplace_back(nullptr, pFunction);
+		}
+
+		uint64_t GetFunctionAddress(const std::function<void(Ts...)>& function) const
+		{
+			typedef void(FunctionType)(Ts...);
+			FunctionType* const* functionPointer{ function.template target<FunctionType*>() };
+
+			return reinterpret_cast<uint64_t>(functionPointer);
+		}
+
+		std::vector<CallbackData> m_Callbacks;
 	};
 }

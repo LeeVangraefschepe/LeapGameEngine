@@ -34,7 +34,7 @@ namespace leap
 
 		static void SetThrowingOnError(bool enabled);
 
-		inline static TSubject<LogInfo> OnEvent{};
+		inline static TSubject<const LogInfo&> OnEvent{};
 
 	private:
 		static std::string GetTime();

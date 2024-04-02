@@ -12,7 +12,7 @@ void leap::AudioListener::Awake()
 
 void leap::AudioListener::OnDestroy()
 {
-	GetTransform()->OnPositionChanged.RemoveListener(this, &AudioListener::OnPositionChanged);
+	GetTransform()->OnPositionChanged.RemoveListener(this);
 }
 
 void leap::AudioListener::OnPositionChanged() const

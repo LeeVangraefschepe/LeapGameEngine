@@ -82,7 +82,7 @@ void leap::RectTransform::Awake()
 
 void leap::RectTransform::OnDestroy()
 {
-	m_pCanvas->OnResolutionChanged.RemoveListener(this, &RectTransform::OnResolutionChanged);
+	m_pCanvas->OnResolutionChanged.RemoveListener(this);
 }
 
 void leap::RectTransform::Resize()

@@ -50,7 +50,7 @@ void leap::Collider::Awake()
 void leap::Collider::OnDestroy()
 {
 	ServiceLocator::GetPhysics().Get(m_pOwningObject)->RemoveShape(m_pShape.get());
-	GetTransform()->OnScaleChanged.RemoveListener(this, &Collider::RescaleShape);
+	GetTransform()->OnScaleChanged.RemoveListener(this);
 }
 
 void leap::Collider::Move(const Rigidbody* pRigidbody)
