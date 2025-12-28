@@ -58,7 +58,7 @@ namespace leap
 		template <class T>
 		bool HasComponent() const;
 		template <class T>
-		T* GetComponent() const;
+		T* GetComponent(bool includeNonInitialized = false) const;
 		template <class T>
 		std::vector<T*> GetComponents() const;
 		template <class T>
@@ -170,7 +170,7 @@ namespace leap
 	}
 
 	template<class T>
-	inline T* GameObject::GetComponent() const
+	inline T* GameObject::GetComponent(bool includeNonInitialized) const
 	{
 		static_assert(std::is_base_of_v<Component, T>, "T needs to be derived from the Component class");
 
@@ -185,7 +185,25 @@ namespace leap
 			})
 		};
 
-		return iterator != m_Components.end() ? static_cast<T*>(iterator->pComponent.get()) : nullptr;
+		// already found, return early
+		if (iterator != m_Components.end()) return static_cast<T*>(iterator->pComponent.get());
+
+		if (includeNonInitialized)
+		{
+			const auto nonInitIterator
+			{
+				std::find_if(m_ComponentsToAdd.begin(), m_ComponentsToAdd.end(),
+				[componentID](const ComponentInfo& CInfo)
+				{
+					return componentID == CInfo.id;
+				})
+			};
+
+			return nonInitIterator != m_ComponentsToAdd.end() ? static_cast<T*>(nonInitIterator->pComponent.get()) : nullptr;
+		}
+
+		// no component found
+		return nullptr;
 	}
 
 	template<class T>
